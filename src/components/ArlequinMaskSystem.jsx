@@ -57,7 +57,8 @@ function ArlequinMaskSystem({
       }
       // Only show QUESTION if we're coming from a fresh start (NONE)
       if (stage === STAGES.NONE) {
-        setStage(STAGES.QUESTION);
+        const hasAnswered = localStorage.getItem('arlequin_answered');
+        setStage(hasAnswered ? STAGES.GRID : STAGES.QUESTION);
       }
       return;
     }
@@ -85,16 +86,15 @@ function ArlequinMaskSystem({
 
   // Handle YES click - go to grid
   const handleYes = useCallback(() => {
+    localStorage.setItem('arlequin_answered', '1');
     setStage(STAGES.GRID);
   }, []);
 
   // Handle NO click - close and reopen mask before showing card detail
   const handleNo = useCallback(() => {
-    // Set flag to show card detail after mask animation completes
+    localStorage.setItem('arlequin_answered', '1');
     pendingCardStageRef.current = true;
-    // Reset stage to NONE so we don't show QUESTION during mask animation
     setStage(STAGES.NONE);
-    // Request the mask animation from parent
     if (onRequestMaskAnimation) {
       onRequestMaskAnimation();
     }
