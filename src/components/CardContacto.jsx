@@ -317,37 +317,37 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
           </div>
 
           <div className="contacto-form">
-            <div className="contacto-field-group">
-              <label className="contacto-label">Nombre</label>
+<div className="contacto-field-group">
               <input
                 type="text"
                 className="contacto-field"
+                placeholder="Nombre"
                 value={nombre}
                 onChange={e => setNombre(e.target.value)}
               />
             </div>
             <div className="contacto-field-group">
-              <label className="contacto-label">Mail</label>
               <input
                 type="email"
                 className="contacto-field"
+                placeholder="Mail"
                 value={mail}
                 onChange={e => setMail(e.target.value)}
               />
             </div>
             <div className="contacto-field-group">
-              <label className="contacto-label">Teléfono</label>
               <input
                 type="tel"
                 className="contacto-field"
+                placeholder="Teléfono"
                 value={telefono}
                 onChange={e => setTelefono(e.target.value)}
               />
             </div>
             <div className="contacto-field-group">
-              <label className="contacto-label">Descripción</label>
               <textarea
                 className="contacto-field contacto-textarea"
+                placeholder="Descripción"
                 value={descripcion}
                 onChange={handleDescripcion}
               />
@@ -358,7 +358,11 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
           </div>
 
           <div className="contacto-send-area">
-            <button className="contacto-send-btn" onClick={handleEnviar}>Enviar</button>
+            <button className="contacto-send-btn" onClick={handleEnviar} title="Enviar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
           </div>
         </>
       )}

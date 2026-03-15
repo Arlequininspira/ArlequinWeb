@@ -4,24 +4,50 @@
    Positioned to sit over the napkin in the 00012 contacto image.
    Adjust top/right/width once you see it over the actual frame.
    ──────────────────────────────────────────────────────────────── */
-/* ── Ajustá --contacto-form-rotation para rotar el formulario ── */
+/* ══════════════════════════════════════════════
+   AJUSTÁ ESTE VALOR para rotar el formulario
+   ══════════════════════════════════════════════ */
+:root { --contacto-form-rotation: 25deg; }
+
 .contacto-form {
   position: absolute;
-  top: 38%;
-  right: 8%;
-  width: 180px;
-  transform: rotate(var(--contacto-form-rotation, -4deg));
+  top: 47%;
+  right: 21%;
+  width: 167px;
+  transform: rotate(var(--contacto-form-rotation));
   transform-origin: top left;
   background: transparent;
   box-shadow: none;
   border-radius: 0;
   padding: 16px 14px 12px;
   z-index: 5;
-  animation: fade-in 0.5s ease-out 0.3s both;
+}
+
+@keyframes contacto-form-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.contacto-form {
+  animation: contacto-form-fadein 0.5s ease-out 0.3s both;
+}
+
+.contacto-hint {
+  font-family: 'Caveat', cursive;
+  font-size: 11px;
+  color: rgba(26, 58, 107, 0.5);
+  margin: 0 0 5px;
+  line-height: 1.2;
 }
 
 .contacto-field-group {
-  margin-bottom: 9px;
+  margin-bottom: 2px;
+}
+
+.contacto-field::placeholder {
+  font-family: 'Caveat', cursive;
+  color: rgba(26, 58, 107, 0.65);
+  font-size: 15px;
 }
 
 .contacto-label {
@@ -84,8 +110,8 @@
 /* ── Send button — esquina inferior derecha de la imagen final ── */
 .contacto-send-area {
   position: absolute;
-  bottom: 28px;
-  right: 28px;
+  bottom: 126px;
+  right: 91px;
   z-index: 10;
   animation: fade-in 0.5s ease-out 0.3s both;
 }
@@ -94,16 +120,14 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-family: 'Cinzel-Medium', serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: #3a7bd5;
+  color: #111;
   padding: 0;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-34deg);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.contacto-send-btn:hover  { opacity: 0.75; }
-.contacto-send-btn:active { opacity: 0.5;  }
+.contacto-send-btn:hover  { opacity: 0.75; transform: rotate(-34deg) translateX(3px) translateY(-3px); }
+.contacto-send-btn:active { opacity: 0.5;  transform: rotate(-34deg) translateX(6px) translateY(-6px); }
