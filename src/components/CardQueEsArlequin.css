@@ -52,6 +52,8 @@
   width: 450px !important;
   height: 680px !important;
   animation: card-enter-scale 0.6s ease-out forwards;
+  will-change: transform;
+  image-rendering: auto;
 }
 
 /* Exit scale animation for close */

@@ -177,8 +177,12 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
-    canvas.width  = CARD_WIDTH;
-    canvas.height = CARD_HEIGHT;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
+    ctx.scale(dpr, dpr);
     const first = imagesRef.current[0];
     if (first) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(first, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
   }, [isLoaded]);
@@ -189,8 +193,12 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
 
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
-    canvas.width  = CARD_WIDTH;
-    canvas.height = CARD_HEIGHT;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
+    ctx.scale(dpr, dpr);
 
     const drawFrame = () => {
       if (isCompleteRef.current) {
@@ -212,7 +220,7 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
         } else {
           isCompleteRef.current = true;
         }
-        lastFrameTimeRef.current = timestamp;
+        lastFrameTimeRef.current += CARD_FRAME_DURATION;
         drawFrame();
       }
       animationRef.current = requestAnimationFrame(animate);
@@ -237,7 +245,7 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
-        lastCloseFrameTimeRef.current = timestamp;
+        lastCloseFrameTimeRef.current += CARD_FRAME_DURATION;
         if (closeFrameRef.current < frames.length - 1) {
           closeFrameRef.current++;
           animationRef.current = requestAnimationFrame(animate);

@@ -214,11 +214,15 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width = CARD_WIDTH;
-    canvas.height = CARD_HEIGHT;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
+    ctx.scale(dpr, dpr);
     const firstFrame = imagesRef.current[0];
     if (firstFrame) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
       ctx.drawImage(firstFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
     }
   }, [isLoaded]);
@@ -229,14 +233,18 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width = CARD_WIDTH;
-    canvas.height = CARD_HEIGHT;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
+    ctx.scale(dpr, dpr);
 
     const drawFrame = () => {
       if (isCompleteRef.current) {
         const finalFrame = imagesRef.current[totalFrames];
         if (finalFrame) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
           ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
         setShowContent(true);
@@ -244,7 +252,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
       }
       const frame = imagesRef.current[currentFrameRef.current];
       if (frame) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
         ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
       }
     };
@@ -258,7 +266,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
         } else {
           isCompleteRef.current = true;
         }
-        lastFrameTimeRef.current = timestamp;
+        lastFrameTimeRef.current += CARD_FRAME_DURATION;
         drawFrame();
       }
       animationRef.current = requestAnimationFrame(animate);
@@ -284,10 +292,10 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
           ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
-        lastCloseFrameTimeRef.current = timestamp;
+        lastCloseFrameTimeRef.current += CARD_FRAME_DURATION;
         if (closeFrameRef.current < frames.length - 1) {
           closeFrameRef.current++;
           animationRef.current = requestAnimationFrame(animate);
@@ -295,7 +303,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
           // Show frame 00000 (card back), then scale down before returning to grid
           const frame0 = imagesRef.current[0];
           if (frame0) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
             ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
           setIsScalingDown(true);
