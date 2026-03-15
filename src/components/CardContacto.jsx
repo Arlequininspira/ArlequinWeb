@@ -310,12 +310,6 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
 
       {showContent && (
         <>
-          <div className="card-title-container">
-            <h2 className={`card-title ${!isDarkMode ? 'card-title--clear' : ''}`}>
-              Contacto
-            </h2>
-          </div>
-
           <div className="contacto-form">
 <div className="contacto-field-group">
               <input

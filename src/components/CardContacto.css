@@ -116,7 +116,13 @@
   animation: fade-in 0.5s ease-out 0.3s both;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 430px) {
+  .contacto-form {
+    top: 47%;
+    right: 18%;
+    width: 167px;
+  }
+
   .contacto-send-area {
     bottom: 128px;
     right: 72px;
