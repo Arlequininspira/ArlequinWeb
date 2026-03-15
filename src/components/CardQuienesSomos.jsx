@@ -167,7 +167,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
       const openPromises = [...cardFrames, CARD_FINAL_FRAME].map(file =>
         new Promise(resolve => {
           const img = new Image();
-          img.onload = () => resolve(img);
+          img.onload = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
           img.onerror = () => resolve(null);
           img.src = `/Cartas/${file}`;
         })
@@ -176,7 +176,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
       const closePromises = themeCloseFrames.map(file =>
         new Promise(resolve => {
           const img = new Image();
-          img.onload = () => resolve(img);
+          img.onload = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
           img.onerror = () => resolve(null);
           img.src = `/Cartas/${file}`;
         })

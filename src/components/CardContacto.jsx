@@ -136,7 +136,7 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
       const openPromises = [...cardFrames, cardFinalFrame].map(file =>
         new Promise(resolve => {
           const img = new Image();
-          img.onload  = () => resolve(img);
+          img.onload  = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
           img.onerror = () => resolve(null);
           img.src = `/Cartas/${file}`;
         })
@@ -144,7 +144,7 @@ function CardContacto({ isDarkMode, onClose, fromGrid = false }) {
       const closePromises = closeFrames.map(file =>
         new Promise(resolve => {
           const img = new Image();
-          img.onload  = () => resolve(img);
+          img.onload  = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
           img.onerror = () => resolve(null);
           img.src = `/Cartas/${file}`;
         })
