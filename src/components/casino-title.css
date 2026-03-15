@@ -1,0 +1,82 @@
+/* Casino / Harlequin Style Banner Title - Pure CSS */
+.casino-title-banner {
+  --title-color: white;
+  --outline-color: black;
+  --box-bg: rgba(255,255,255,0.15);
+  --border-color: #dc143c;
+  
+  display: block;
+  position: relative;
+  padding: 25px 50px;
+  margin: 30px auto;
+  max-width: max-content;
+  font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  text-align: center;
+  line-height: 1.05;
+  color: var(--title-color);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-decoration: none;
+  
+  /* Thick black outline */
+  -webkit-text-stroke: 4px var(--outline-color);
+  text-shadow: 
+    /* Strong drop shadow */
+    5px 5px 0 var(--outline-color),
+    8px 8px 0 rgba(0,0,0,0.7),
+    0 0 30px rgba(0,0,0,0.6),
+    0 0 10px rgba(220,20,60,0.3); /* Red glow hint */
+  
+  z-index: 2;
+}
+
+/* Semi-transparent white box + red border */
+.casino-title-banner::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  background: var(--box-bg);
+  border: 5px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 
+    inset 0 0 30px rgba(255,255,255,0.2),
+    inset 0 0 0 1px rgba(255,255,255,0.3),
+    0 8px 30px rgba(0,0,0,0.8);
+  z-index: -1;
+  backdrop-filter: blur(2px);
+}
+
+/* Dramatic hover effect */
+.casino-title-banner:hover {
+  transform: translateY(-2px);
+  text-shadow: 
+    5px 5px 0 var(--outline-color),
+    8px 8px 0 rgba(0,0,0,0.7),
+    0 0 40px rgba(255,215,0,0.8),
+    0 0 20px rgba(220,20,60,0.5);
+}
+
+/* Dark theme adaptation */
+.dark .casino-title-banner {
+  --title-color: #f0e6d3;
+  --outline-color: #1a1a1a;
+}
+
+/* Responsive vintage style */
+@media (max-width: 768px) {
+  .casino-title-banner {
+    padding: 20px 35px;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+  .casino-title-banner::before {
+    inset: 10px;
+    border-width: 4px;
+  }
+}
+
+/* Usage:
+<h1 className="casino-title-banner">¿Qué es Arlequín?</h1>
+Import this CSS and use class. Perfect for dramatic vintage casino/harlequin titles. */
+

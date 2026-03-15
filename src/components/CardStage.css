@@ -1,0 +1,277 @@
+/* Import Cinzel-Medium font */
+@font-face {
+  font-family: 'Cinzel-Medium';
+  src: url('/fonts/Cinzel-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+.card-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  animation: fade-in 0.5s ease-out;
+}
+
+.card-canvas {
+  display: block;
+  width: 450px !important;
+  height: 680px !important;
+  animation: card-enter-scale 0.6s ease-out forwards;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0px;
+  right: 60px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 85px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  opacity: 0;
+  animation: card-enter-scale 0.6s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.close-btn:hover {
+  transform: scale(1.2);
+}
+
+.close-btn-img {
+  width: 40px;
+  height: 60px;
+  display: block;
+}
+
+/* Navigation icons for card */
+.card-nav-icon {
+  position: absolute;
+  width: 40px;
+  height: 60px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.card-nav-icon:hover {
+  transform: scale(1.1);
+}
+
+.card-nav-next {
+  /* Top left of the canvas area */
+  top: 20px;
+  left: 20px;
+}
+
+.card-nav-prev {
+  /* Bottom right of the canvas area */
+  bottom: 20px;
+  right: 20px;
+}
+
+@keyframes card-enter-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Original fade-in no longer used - replaced by card-enter-scale */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Heartbeat animation for navigation buttons */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+/* Glow/illumination effect behind buttons */
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* Navigation button container with glow effect - positioned behind image */
+.card-nav-button {
+  position: absolute;
+  width: 35px;
+  height: 45px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 5;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-nav-button::before {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 50px;
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.6) 0%, rgba(255, 215, 0, 0.2) 50%, transparent 70%);
+  z-index: -1;
+  border-radius: 4px;
+  /* Glow animation from behind */
+  animation: glow-behind 2s ease-in-out infinite;
+}
+
+@keyframes glow-behind {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+.card-nav-button:hover {
+  transform: scale(1.15);
+}
+
+.card-nav-button:hover::before {
+  animation: heartbeat 0.8s ease-in-out infinite;
+}
+
+.card-nav-button:active {
+  transform: scale(0.95);
+}
+
+.card-nav-button img {
+  width: 30px;
+  height: 40px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.card-nav-next {
+  /* Position: top 80px, left 70px as requested */
+  top: 130px;
+  left: 90px;
+}
+
+.card-nav-prev {
+  /* Position: bottom 80px, right 70px as requested */
+  bottom: 130px;
+  right: 90px;
+}
+
+/* Title "¿QUÉ ES ARLEQUÍN?" styling */
+.card-title-container {
+  position: absolute;
+  left: 134px;
+  top: 147px;
+  z-index: 10;
+  animation: fade-in 0.5s ease-out 0.3s both;
+}
+
+.card-title {
+  font-family: 'Cinzel-Medium', serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  /* No background - transparent */
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Light theme variant for title */
+.card-title.card-title--clear {
+  background: transparent;
+  color: #1a1a1a;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Card text content styling */
+.card-text-container {
+  position: absolute;
+  top: 30%;
+  left: 70px;
+  transform: translate(0, -50%);
+  width: 280px;
+  z-index: 5;
+  pointer-events: none;
+  animation: fade-in 0.5s ease-out 0.3s both;
+}
+
+.card-text {
+  font-family: 'Cinzel-Medium', serif;
+  font-size: 30px;
+  line-height: 1.8;
+  color: #ffffff;
+  text-align: left;
+  margin: 0;
+  padding: 10px;
+  padding-left: 20px;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.card-text-line {
+  display: block;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 17px;
+}
+
+.card-text.card-text--clear {
+  color: #1a1a1a;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+

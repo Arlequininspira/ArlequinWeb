@@ -1,0 +1,177 @@
+/* Font face for Cinzel Black */
+@font-face {
+  font-family: 'Cinzel Black';
+  src: url('/fonts/Cinzel-Black.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.theme-toggle-wrapper {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Remove all default button styles */
+.theme-toggle:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.theme-toggle:active {
+  outline: none;
+  box-shadow: none;
+  transform: scale(0.95);
+}
+
+/* Dark mode: black background with white border and subtle glow */
+.theme-toggle.dark-mode {
+  background-color: #000000;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+  animation: pulse-dark 3s ease-in-out infinite;
+}
+
+.theme-toggle.dark-mode:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.theme-toggle.dark-mode:focus {
+  outline: none;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+}
+
+.theme-toggle.dark-mode:active {
+  outline: none;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+  transform: scale(0.95);
+}
+
+/* Light mode: white background with black border and subtle glow */
+.theme-toggle.light-mode {
+  background-color: #ffffff;
+  border: 1.5px solid #000000;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+  animation: pulse-light 3s ease-in-out infinite;
+}
+
+.theme-toggle.light-mode:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+}
+
+.theme-toggle.light-mode:focus {
+  outline: none;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle.light-mode:active {
+  outline: none;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+  transform: scale(0.95);
+}
+
+/* Subtle breathing/pulse animation with scale */
+@keyframes pulse-dark {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-light {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.05);
+  }
+}
+
+.theme-toggle-canvas {
+  width: 48px;
+  height: 48px;
+  display: block;
+  border: none;
+  outline: none;
+}
+
+/* Tooltip styles - one-time onboarding hint */
+.theme-tooltip {
+  font-family: 'Cinzel Black', serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateX(-10px);
+  pointer-events: none;
+  user-select: none;
+  animation: tooltip-onboarding 10s ease-in-out forwards;
+}
+
+/* Dark mode tooltip */
+.theme-tooltip.dark-mode {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Light mode tooltip */
+.theme-tooltip.light-mode {
+  color: #000000;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Onboarding animation: fade in -> hold -> fade out */
+@keyframes tooltip-onboarding {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(-10px);
+  }
+  5% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+  80% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(-10px);
+  }
+}
+

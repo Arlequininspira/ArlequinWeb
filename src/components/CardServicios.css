@@ -1,0 +1,77 @@
+.card-servicios {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade-in 0.5s ease-out;
+}
+
+.card-servicios.loading {
+  display: none;
+}
+
+.card-servicios .card-close-btn {
+  position: absolute;
+  top: -50px;
+  right: -150px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 10px 16px;
+  font-size: 24px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.card-servicios .card-close-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+}
+
+.card-servicios .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.card-servicios .card-image {
+  width: 200px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card-servicios .card-text {
+  text-align: center;
+  color: #fff;
+}
+
+.card-servicios .card-text h2 {
+  font-family: 'Cinzel Black', serif;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.card-servicios .card-text p {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

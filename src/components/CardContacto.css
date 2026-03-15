@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap');
+
+/* ── Napkin / form overlay ────────────────────────────────────────
+   Positioned to sit over the napkin in the 00012 contacto image.
+   Adjust top/right/width once you see it over the actual frame.
+   ──────────────────────────────────────────────────────────────── */
+.contacto-form {
+  position: absolute;
+  top: 38%;
+  right: 8%;
+  width: 180px;
+  transform: rotate(-4deg);
+  transform-origin: top left;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 16px 14px 12px;
+  z-index: 5;
+  animation: fade-in 0.5s ease-out 0.3s both;
+}
+
+.contacto-field-group {
+  margin-bottom: 9px;
+}
+
+.contacto-label {
+  display: block;
+  font-family: 'Caveat', cursive;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(26, 58, 107, 0.45);
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+.contacto-field {
+  background: transparent;
+  border: none;
+  padding: 1px 0 2px;
+  font-family: 'Caveat', cursive;
+  font-size: 17px;
+  font-weight: 400;
+  color: #1a3a6b;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.3;
+  display: block;
+}
+
+.contacto-field:focus {
+  outline: none;
+}
+
+.contacto-textarea {
+  resize: none;
+  height: 52px;
+  line-height: 1.5;
+}
+
+.contacto-word-count {
+  font-family: 'Caveat', cursive;
+  font-size: 10px;
+  color: rgba(26, 58, 107, 0.35);
+  text-align: right;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+.contacto-word-count.over {
+  color: rgba(180, 40, 40, 0.65);
+}
+
+/* ── Card container override: fix dimensions so absolute children
+   stay inside the 450×680 canvas area ──────────────────────────── */
+.card-contacto-outer {
+  width: 450px;
+  height: 680px;
+  overflow: hidden;
+}
+
+/* ── Send button — bottom-right dark corner of the card ────────── */
+.contacto-send-area {
+  position: absolute;
+  bottom: 115px;
+  left: 135px;
+  z-index: 10;
+  animation: fade-in 0.5s ease-out 0.3s both;
+}
+
+.contacto-send-bg {
+  display: block;
+  width: 150px;
+  height: auto;
+}
+
+.contacto-send-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Cinzel-Medium', serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #3a7bd5;
+  padding: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.contacto-send-btn:hover  { opacity: 0.75; }
+.contacto-send-btn:active { opacity: 0.5;  }

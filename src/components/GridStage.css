@@ -1,0 +1,172 @@
+@font-face {
+  font-family: "CinzelExtraBold";
+  src: url("/fonts/Cinzel-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+.grid-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  padding-top: 60px;
+}
+
+.grid-stage.loading {
+  display: none;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0px;
+  max-width: 540px;
+  width: 100%;
+  position: relative;
+  min-height: 300px;
+}
+
+.grid-card {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.grid-card:hover {
+  transform: scale(1.05);
+}
+
+.grid-card .card-back {
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: none;
+  border: none;
+}
+
+.grid-card .card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Texto superpuesto en la carta ───────────────────────────────
+   paint-order: stroke fill → el trazo se pinta DEBAJO del relleno,
+   así el borde grueso no achica el texto (efecto "texto por detrás
+   más grande").
+   ─────────────────────────────────────────────────────────────── */
+.card-text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "CinzelExtraBold", serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  z-index: 3;
+  paint-order: stroke fill;
+}
+
+.card-text-overlay div {
+  line-height: 1.1;
+}
+
+/* Modo dark: texto negro, borde blanco — más grueso abajo e izquierda */
+.grid-stage.dark .card-text-overlay {
+  color: #000000;
+  -webkit-text-stroke: 5px #ffffff;
+  filter: drop-shadow(-2px 3px 0 #ffffff);
+}
+
+/* Modo clear: texto blanco, borde negro — más grueso abajo e izquierda */
+.grid-stage:not(.dark) .card-text-overlay {
+  color: #ffffff;
+  -webkit-text-stroke: 5px #000000;
+  filter: drop-shadow(-2px 3px 0 #000000);
+}
+
+.grid-card .card-label {
+  display: block;
+  margin-top: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: inherit;
+  text-align: center;
+}
+
+.grid-stage:not(.dark) .card-label { color: #2c2c2c; }
+.grid-stage.dark .card-label       { color: #f0e6d3; }
+
+/* ── Mobile responsive ─────────────────────────────────────────── */
+@media (max-width: 500px) {
+  .grid-stage {
+    padding: 8px;
+    padding-top: 40px;
+  }
+  .cards-grid {
+    max-width: 470px;
+    gap: 0px;
+  }
+  .card-text-overlay {
+    font-size: 18px;
+    -webkit-text-stroke: 4px;
+  }
+}
+
+@media (max-width: 430px) {
+  .grid-stage {
+    padding: 6px;
+    padding-top: 36px;
+  }
+  .cards-grid {
+    max-width: 420px;
+    gap: 0px;
+  }
+  .card-text-overlay {
+    font-size: 17px;
+    -webkit-text-stroke: 4px;
+  }
+}
+
+@media (max-width: 390px) {
+  .grid-stage {
+    padding: 6px;
+    padding-top: 32px;
+  }
+  .cards-grid {
+    max-width: 385px;
+    gap: 0px;
+  }
+  .card-text-overlay {
+    font-size: 16px;
+    -webkit-text-stroke: 3px;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid-stage {
+    padding: 4px;
+    padding-top: 28px;
+  }
+  .cards-grid {
+    max-width: 355px;
+    gap: 0px;
+  }
+  .card-text-overlay {
+    font-size: 14px;
+    -webkit-text-stroke: 3px;
+  }
+}

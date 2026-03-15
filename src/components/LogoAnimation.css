@@ -1,0 +1,70 @@
+.logo-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100; /* Above background animation */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* Size matches the canvas exactly so hover/click area covers the logo */
+  width: 500px;
+  height: 500px;
+  overflow: visible;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.logo-canvas {
+  display: block;
+  border: none;
+  outline: none;
+  transform: scale(1);
+  transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  pointer-events: none;
+}
+.logo-container.shrunk .logo-canvas {
+  transform: scale(0);
+}
+
+.logo-container.restoring .logo-canvas {
+  transition: none;
+  animation: logoRestoreGrow 0.79s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes logoRestoreGrow {
+  0%   { transform: scale(0);    }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1);    }
+}
+
+.logo-container.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+
+.logo-placeholder {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo-placeholder:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+}
+
