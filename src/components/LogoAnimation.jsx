@@ -383,6 +383,11 @@ function LogoAnimation({ isDarkMode = true, onClick, cardWidth = DEFAULT_CARD_WI
     }
   }, [onClick]);
 
+  const handleTouchEnd = useCallback((e) => {
+    e.preventDefault();
+    handleClick();
+  }, [handleClick]);
+
   const handleMouseMove = useCallback((event) => {
     const container = event.currentTarget;
     const rect = container.getBoundingClientRect();
@@ -453,6 +458,7 @@ function LogoAnimation({ isDarkMode = true, onClick, cardWidth = DEFAULT_CARD_WI
     <div
       className={`logo-container ${isShrinking ? 'shrunk' : ''} ${isRestoring ? 'restoring' : ''} ${isHidden ? 'hidden' : ''}`}
       onClick={handleClick}
+      onTouchEnd={handleTouchEnd}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       aria-label="Logo"

@@ -8,6 +8,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   /* Size matches the canvas exactly so hover/click area covers the logo */
   width: 500px;
   height: 500px;
