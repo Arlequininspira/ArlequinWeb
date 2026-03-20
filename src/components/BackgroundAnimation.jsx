@@ -7,7 +7,8 @@ const FRAME_WIDTH = 650;
 const FRAME_HEIGHT = 650;
 const MIN_STAR_SIZE = 60;
 const MAX_STAR_SIZE = 120;
-const STAR_COUNT = 20;
+// Fewer stars on mobile to reduce canvas draw calls on low-end devices
+const STAR_COUNT = window.matchMedia('(max-width: 768px)').matches ? 10 : 20;
 const SAFE_ZONE_RADIUS = 80; // Protected area around button
 const BUTTON_POSITION = { x: 45, y: 45 }; // Button center position
 const FRAME_PATH_CLEAR = '/estrellas/estrella_giro_clear_';
@@ -135,12 +136,26 @@ function BackgroundAnimation({ isDarkMode = true }) {
     };
   }, [generateStars]);
 
+  // Reset frame timer when screen wakes up to prevent timestamp jump
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!document.hidden) lastFrameTimeRef.current = 0;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   // Animation loop with Canvas - random star positions
   useEffect(() => {
     if (!isLoaded || imagesRef.current.clear.length === 0) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    // alpha:false eliminates transparency compositing cost — safe because
+    // drawStars always fills the entire canvas with a solid background color.
+    const ctx = canvas.getContext('2d', { alpha: false });
+    // Stars are downscaled from 650px to 60-120px; nearest-neighbor is much
+    // faster than bilinear on mobile and still looks fine for soft star shapes.
+    ctx.imageSmoothingEnabled = false;
 
     const drawStars = () => {
       const dpr = window.devicePixelRatio || 1;

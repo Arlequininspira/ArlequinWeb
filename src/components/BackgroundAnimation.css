@@ -8,5 +8,6 @@
   display: block;
   background-color: #000000;
   pointer-events: none;
+  will-change: transform;
 }
 

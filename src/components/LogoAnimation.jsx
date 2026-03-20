@@ -255,6 +255,10 @@ function LogoAnimation({ isDarkMode = true, onClick, cardWidth = DEFAULT_CARD_WI
     canvas.style.width = `${LOGO_SIZE}px`;
     canvas.style.height = `${LOGO_SIZE}px`;
     ctx.scale(dpr, dpr);
+    // Low-quality smoothing reduces GPU filtering cost while keeping
+    // the logo visually smooth (downscaling 650px → 500px).
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'low';
 
     const drawLogoFrame = (frameIndex) => {
       const imageSet = imagesRef.current[currentThemePrefix];
@@ -308,7 +312,13 @@ function LogoAnimation({ isDarkMode = true, onClick, cardWidth = DEFAULT_CARD_WI
 
     const animate = (timestamp) => {
       const frameDuration = getFrameDuration(animationState);
-      
+
+      // Cap the delta to avoid a burst of frames after the screen wakes up
+      // or the tab is restored (can happen on low-power mobile devices).
+      if (timestamp - lastFrameTimeRef.current > frameDuration * 4) {
+        lastFrameTimeRef.current = timestamp - frameDuration;
+      }
+
       if (timestamp - lastFrameTimeRef.current >= frameDuration) {
         let nextFrame = currentFrameRef.current;
         
