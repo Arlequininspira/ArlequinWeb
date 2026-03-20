@@ -7,12 +7,32 @@ const FRAME_WIDTH = 650;
 const FRAME_HEIGHT = 650;
 const MIN_STAR_SIZE = 60;
 const MAX_STAR_SIZE = 120;
-// Fewer stars on mobile to reduce canvas draw calls on low-end devices
-const STAR_COUNT = window.matchMedia('(max-width: 768px)').matches ? 10 : 20;
-const SAFE_ZONE_RADIUS = 80; // Protected area around button
-const BUTTON_POSITION = { x: 45, y: 45 }; // Button center position
 const FRAME_PATH_CLEAR = '/estrellas/estrella_giro_clear_';
 const FRAME_PATH_DARK = '/estrellas/estrella_giro_dark_';
+
+// Fixed star positions as [x%, y%] of viewport.
+// Distributed around the edges; the center is kept clear for the logo/mask.
+const STAR_POSITIONS_DESKTOP = [
+  // Top edge
+  [12,  8], [35,  5], [50,  6], [65,  5], [88,  8],
+  // Left & right edges
+  [ 4, 22], [96, 22],
+  [ 4, 50], [96, 50],
+  [ 4, 78], [96, 78],
+  // Bottom edge
+  [12, 92], [35, 95], [65, 95], [88, 92],
+];
+
+// Mobile: logo fills most of the width, so stars live in the top/bottom strips
+// and extreme corners — 9 total.
+const STAR_POSITIONS_MOBILE = [
+  // Top strip
+  [ 8,  6], [50,  5], [92,  6],
+  [15, 15],           [85, 15],
+  // Bottom strip
+  [ 5, 88], [95, 88],
+  [28, 95],           [72, 95],
+];
 
 function BackgroundAnimation({ isDarkMode = true }) {
   const canvasRef = useRef(null);
@@ -23,45 +43,24 @@ function BackgroundAnimation({ isDarkMode = true }) {
   const lastFrameTimeRef = useRef(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Calculate distance between two points
-  const getDistance = (x1, y1, x2, y2) => {
-    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-  };
-
-  // Generate random star positions avoiding the button area
+  // Build the star list from fixed percentage positions
   const generateStars = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const canvasWidth = canvas.width / dpr;
-    const canvasHeight = canvas.height / dpr;
+    const w = canvas.width  / dpr;
+    const h = canvas.height / dpr;
 
-    // Generate fixed number of stars avoiding button area
-    const stars = [];
-    let attempts = 0;
-    const maxAttempts = 1000;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const positions = isMobile ? STAR_POSITIONS_MOBILE : STAR_POSITIONS_DESKTOP;
 
-    while (stars.length < STAR_COUNT && attempts < maxAttempts) {
-      const x = Math.random() * canvasWidth;
-      const y = Math.random() * canvasHeight;
-      
-      // Check if star is outside the safe zone around the button
-      const distanceToButton = getDistance(x, y, BUTTON_POSITION.x, BUTTON_POSITION.y);
-      
-      if (distanceToButton > SAFE_ZONE_RADIUS) {
-        stars.push({
-          x,
-          y,
-          size: MIN_STAR_SIZE + Math.random() * (MAX_STAR_SIZE - MIN_STAR_SIZE),
-          frameOffset: Math.floor(Math.random() * TOTAL_FRAMES)
-        });
-      }
-      
-      attempts++;
-    }
-
-    starsRef.current = stars;
+    starsRef.current = positions.map(([xPct, yPct]) => ({
+      x: (xPct / 100) * w,
+      y: (yPct / 100) * h,
+      size: MIN_STAR_SIZE + Math.random() * (MAX_STAR_SIZE - MIN_STAR_SIZE),
+      frameOffset: Math.floor(Math.random() * TOTAL_FRAMES),
+    }));
   }, []);
 
   // Preload all images (both clear and dark versions)
