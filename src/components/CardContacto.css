@@ -80,10 +80,9 @@
   outline: none;
 }
 
-.contacto-textarea {
-  resize: none;
-  height: 52px;
-  line-height: 1.5;
+.contacto-field:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .contacto-word-count {
@@ -104,16 +103,23 @@
 .card-contacto-outer {
   width: 450px;
   height: 680px;
-  overflow: hidden;
+  overflow: visible;
 }
 
-/* ── Send button — esquina inferior derecha de la imagen final ── */
+/* ── Send button — esquina inferior derecha de la imagen final ──
+   Porcentajes relativos al contenedor 450×680px:
+     bottom: -80px → -80/680 = -11.765%
+     right:   57px →  57/450 = 12.667%
+   El parent .card-que-es-arlequin ya escala via transform, así que
+   los % se mantienen correctos en todas las resoluciones.          */
 .contacto-send-area {
   position: absolute;
-  bottom: 126px;
-  right: 91px;
-  z-index: 10;
-  animation: fade-in 0.5s ease-out 0.3s both;
+  bottom: 0;
+  right: 0;
+  left: 3%;
+  z-index: 50;
+  animation: contacto-form-fadein 0.5s ease-out 0.3s both;
+  pointer-events: none;
 }
 
 /* Short desktop/laptop screens — the card scales down, so the
@@ -130,28 +136,20 @@
   }
 
   .contacto-send-area {
-    bottom: 125px;
-    right: 65px;
+    bottom: 0;
+    right: 0;
+    left: 3%;
   }
 }
 
-.contacto-send-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #e7b81d;
-  border-color: red;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(-34deg);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.contacto-send-canvas {
+  display: block;
+  position: relative;
+  z-index: 50;
+  pointer-events: none; /* solo visual — window listener maneja los clicks */
 }
 
-.contacto-send-btn:hover:not(:disabled)  { opacity: 0.75; transform: rotate(-34deg) translateX(3px) translateY(-3px); }
-.contacto-send-btn:active:not(:disabled) { opacity: 0.5;  transform: rotate(-34deg) translateX(6px) translateY(-6px); }
-.contacto-send-btn:disabled { opacity: 0.4; cursor: default; }
+
 
 .contacto-status {
   display: block;

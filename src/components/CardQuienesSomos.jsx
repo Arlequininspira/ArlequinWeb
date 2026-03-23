@@ -19,7 +19,7 @@ const CARD_FRAMES_DARK = [
   '00012_arlequin_frente_dark.avif',
 ];
 
-// Clear mode: dorso_clear + frente_dark
+// Clear mode: dorso_clear + frente_clear
 const CARD_FRAMES_CLEAR = [
   '00000_arlequin_dorso_clear.avif',
   '00001_arlequin_dorso_clear.avif',
@@ -28,24 +28,25 @@ const CARD_FRAMES_CLEAR = [
   '00004_arlequin_dorso_clear.avif',
   '00005_arlequin_dorso_clear.avif',
   '00006_arlequin_dorso_clear.avif',
-  '00007_arlequin_frente_dark.avif',
-  '00008_arlequin_frente_dark.avif',
-  '00009_arlequin_frente_dark.avif',
-  '00010_arlequin_frente_dark.avif',
-  '00011_arlequin_frente_dark.avif',
-  '00012_arlequin_frente_dark.avif',
+  '00007_arlequin_frente_clear.avif',
+  '00008_arlequin_frente_clear.avif',
+  '00009_arlequin_frente_clear.avif',
+  '00010_arlequin_frente_clear.avif',
+  '00011_arlequin_frente_clear.avif',
+  '00012_arlequin_frente_clear.avif',
 ];
 
-const CARD_FINAL_FRAME = '00012_arlequin_frente_dark_fija.avif';
+const CARD_FINAL_FRAME_DARK  = '00012_arlequin_frente_dark_fija.avif';
+const CARD_FINAL_FRAME_CLEAR = '00012_arlequin_frente_clear_fija.avif';
 
-// Close animation: dark frente → dorso (theme-matched)
+// Close animation: frente → dorso (theme-matched)
 const CLOSE_FRAMES_CLEAR = [
-  '00013_arlequin_frente_dark.avif',
-  '00014_arlequin_frente_dark.avif',
-  '00015_arlequin_frente_dark.avif',
-  '00016_arlequin_frente_dark.avif',
-  '00017_arlequin_frente_dark.avif',
-  '00018_arlequin_frente_dark.avif',
+  '00013_arlequin_frente_clear.avif',
+  '00014_arlequin_frente_clear.avif',
+  '00015_arlequin_frente_clear.avif',
+  '00016_arlequin_frente_clear.avif',
+  '00017_arlequin_frente_clear.avif',
+  '00018_arlequin_frente_clear.avif',
   '00019_arlequin_dorso_clear.avif',
   '00020_arlequin_dorso_clear.avif',
   '00021_arlequin_dorso_clear.avif',
@@ -129,8 +130,9 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
   const [isClosing, setIsClosing] = useState(false);
   const [isScalingDown, setIsScalingDown] = useState(false);
 
-  const cardFrames = isDarkMode ? CARD_FRAMES_DARK : CARD_FRAMES_CLEAR;
-  const totalFrames = cardFrames.length;
+  const cardFrames     = isDarkMode ? CARD_FRAMES_DARK      : CARD_FRAMES_CLEAR;
+  const cardFinalFrame = isDarkMode ? CARD_FINAL_FRAME_DARK : CARD_FINAL_FRAME_CLEAR;
+  const totalFrames    = cardFrames.length;
   const currentPage = PAGES[currentPageIndex];
   const isLastPage = currentPageIndex === PAGES.length - 1;
 
@@ -187,7 +189,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
         return;
       }
 
-      const openPromises = [...cardFrames, CARD_FINAL_FRAME].map(file =>
+      const openPromises = [...cardFrames, cardFinalFrame].map(file =>
         new Promise(resolve => {
           const img = new Image();
           img.onload = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
