@@ -23,6 +23,8 @@ const OPENING_FRAME_DURATION   = 35;
 const CLOSING_FRAME_DURATION   = 35;
 const ESTRELLAS_FRAME_DURATION = 40;
 const ARLEQUIN_FRAME_DURATION  = 60;
+const MOBILE_OPEN_HOLD_MS      = 4000; // time mask stays open on mobile before closing
+const MOBILE_LOOP_PAUSE_MS     = 500;  // pause between close and next open on mobile
 
 // Arlequin animation frames (unchanged)
 const ARLEQUIN_FRAMES_DARK = [
@@ -167,12 +169,21 @@ function LogoAnimation({
 
   const isArlequinCompleteRef = useRef(false);
 
+  const isMobileRef        = useRef(false);
+  const mobileLoopTimerRef = useRef(null);
+  const prevAnimStateRef   = useRef(ANIMATION_STATE.IDLE);
+
   const [isLoaded, setIsLoaded]               = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   // Animation state and hover — pure refs, never trigger re-renders
   const animationStateRef = useRef(ANIMATION_STATE.IDLE);
   const hoveredRef        = useRef(false);
   const currentThemePrefix = isDarkMode ? 'dark' : 'clear';
+
+  // Detect touch-only devices (no hover support) once on mount
+  useEffect(() => {
+    isMobileRef.current = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  }, []);
 
   // ── Image preloading ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -402,12 +413,47 @@ function LogoAnimation({
         drawIsologo(cuerpoMascaraFrameRef.current, estrellasFrameRef.current);
       }
 
+      // ── Mobile auto-loop: detect state transitions ───────────────────────
+      if (isMobileRef.current) {
+        const cur = animationStateRef.current;
+        if (cur !== prevAnimStateRef.current) {
+          if (cur === ANIMATION_STATE.OPEN) {
+            // Mask fully open — hold for 4s then close
+            if (mobileLoopTimerRef.current) clearTimeout(mobileLoopTimerRef.current);
+            mobileLoopTimerRef.current = setTimeout(() => {
+              hoveredRef.current = false;
+              if (animationStateRef.current === ANIMATION_STATE.OPEN) {
+                animationStateRef.current = ANIMATION_STATE.CLOSING;
+              }
+            }, MOBILE_OPEN_HOLD_MS);
+          } else if (cur === ANIMATION_STATE.IDLE) {
+            // Mask fully closed — restart the loop after a short pause
+            if (mobileLoopTimerRef.current) clearTimeout(mobileLoopTimerRef.current);
+            mobileLoopTimerRef.current = setTimeout(() => {
+              hoveredRef.current = true;
+              animationStateRef.current = ANIMATION_STATE.OPENING;
+            }, MOBILE_LOOP_PAUSE_MS);
+          }
+          prevAnimStateRef.current = cur;
+        }
+      }
+
       animationRef.current = requestAnimationFrame(animate);
     };
+
+    // On mobile, kick off the first cycle (only if idle — avoids restart on re-renders)
+    if (isMobileRef.current && animationStateRef.current === ANIMATION_STATE.IDLE) {
+      hoveredRef.current = true;
+      animationStateRef.current = ANIMATION_STATE.OPENING;
+    }
 
     animationRef.current = requestAnimationFrame(animate);
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (mobileLoopTimerRef.current) {
+        clearTimeout(mobileLoopTimerRef.current);
+        mobileLoopTimerRef.current = null;
+      }
     };
   }, [isLoaded, showPlaceholder, currentThemePrefix, cardWidth, cardHeight]);
 
