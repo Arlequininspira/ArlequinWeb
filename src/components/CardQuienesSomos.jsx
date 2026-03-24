@@ -130,8 +130,9 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
   const [isClosing, setIsClosing] = useState(false);
   const [isScalingDown, setIsScalingDown] = useState(false);
 
-  const cardFrames     = isDarkMode ? CARD_FRAMES_DARK      : CARD_FRAMES_CLEAR;
-  const cardFinalFrame = isDarkMode ? CARD_FINAL_FRAME_DARK : CARD_FINAL_FRAME_CLEAR;
+  // CardQuienesSomos always uses dark cards regardless of site theme
+  const cardFrames     = CARD_FRAMES_DARK;
+  const cardFinalFrame = CARD_FINAL_FRAME_DARK;
   const totalFrames    = cardFrames.length;
   const currentPage = PAGES[currentPageIndex];
   const isLastPage = currentPageIndex === PAGES.length - 1;
@@ -166,10 +167,10 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
   // On theme change: silently swaps image buffers without resetting animation state
   useEffect(() => {
     const wasLoaded = isLoadedRef.current;
-    const themeCloseFrames = isDarkMode ? CLOSE_FRAMES_DARK : CLOSE_FRAMES_CLEAR;
+    const themeCloseFrames = CLOSE_FRAMES_DARK;
 
     const loadImages = async () => {
-      const themeKey = isDarkMode ? 'dark' : 'clear';
+      const themeKey = 'dark';
 
       if (_openCache[themeKey]) {
         imagesRef.current = _openCache[themeKey];
@@ -232,7 +233,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
     };
 
     loadImages();
-  }, [isDarkMode]);
+  }, []);
 
   // Draw first frame
   useEffect(() => {
@@ -349,7 +350,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
     <div className="card-que-es-arlequin">
       <button className="card-close-btn" onClick={handleClose} title="Cerrar">
         <img
-          src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`}
+          src="/Cartas/arlequin_elemento_web_X_dark.avif"
           alt="Cerrar"
           className="card-close-btn-img"
         />
