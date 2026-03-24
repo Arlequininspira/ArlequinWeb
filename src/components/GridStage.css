@@ -179,11 +179,11 @@
     padding-bottom: 70px;
   }
   .cards-grid {
-    max-width: 470px;
+    max-width: 370px;
     gap: 0px;
   }
   .card-text-overlay {
-    font-size: 18px;
+    font-size: 16px;
     -webkit-text-stroke: 4px;
   }
 }
@@ -195,12 +195,12 @@
     padding-bottom: 65px;
   }
   .cards-grid {
-    max-width: 420px;
+    max-width: 330px;
     gap: 0px;
   }
   .card-text-overlay {
-    font-size: 17px;
-    -webkit-text-stroke: 4px;
+    font-size: 15px;
+    -webkit-text-stroke: 3px;
   }
 }
 
@@ -211,11 +211,11 @@
     padding-bottom: 60px;
   }
   .cards-grid {
-    max-width: 385px;
+    max-width: 300px;
     gap: 0px;
   }
   .card-text-overlay {
-    font-size: 16px;
+    font-size: 14px;
     -webkit-text-stroke: 3px;
   }
 }
@@ -227,11 +227,11 @@
     padding-bottom: 55px;
   }
   .cards-grid {
-    max-width: 355px;
+    max-width: 275px;
     gap: 0px;
   }
   .card-text-overlay {
-    font-size: 14px;
+    font-size: 13px;
     -webkit-text-stroke: 3px;
   }
 }
