@@ -350,7 +350,7 @@ function CardQuienesSomos({ isDarkMode, onClose, fromGrid = false }) {
     <div className="card-que-es-arlequin">
       <button className="card-close-btn" onClick={handleClose} title="Cerrar">
         <img
-          src={isDarkMode ? "/Cartas/arlequin_elemento_web_X_dark.avif" : "/Cartas/arlequin_elemento_web_X_clear.avif"}
+          src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`}
           alt="Cerrar"
           className="card-close-btn-img"
         />
