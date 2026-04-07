@@ -56,8 +56,8 @@
 }
 
 .grid-card .card-back img {
-  width: 98%;
-  height: 100%;
+  width: 90%;
+  height: 95%;
   object-fit: cover;
 }
 
