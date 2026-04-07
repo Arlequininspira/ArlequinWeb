@@ -187,13 +187,9 @@
     padding-bottom: 92px;
   }
   .cards-grid {
-    max-width: 510px;
-    gap: 0;
+    max-width: 420px;
+    gap: 8px;
   }
-  .grid-card:nth-child(-n+2) { margin-bottom: -28px; }
-  .grid-card:nth-child(n+3)  { margin-top: -28px; }
-  .grid-card:nth-child(odd)  { margin-right: -14px; }
-  .grid-card:nth-child(even) { margin-left: -14px; }
   .card-text-overlay {
     font-size: 16px;
     -webkit-text-stroke: 0;
@@ -207,13 +203,9 @@
     padding-bottom: 90px;
   }
   .cards-grid {
-    max-width: 450px;
-    gap: 0;
+    max-width: 380px;
+    gap: 8px;
   }
-  .grid-card:nth-child(-n+2) { margin-bottom: -24px; }
-  .grid-card:nth-child(n+3)  { margin-top: -24px; }
-  .grid-card:nth-child(odd)  { margin-right: -12px; }
-  .grid-card:nth-child(even) { margin-left: -12px; }
   .card-text-overlay {
     font-size: 15px;
     -webkit-text-stroke: 0;
@@ -227,13 +219,9 @@
     padding-bottom: 86px;
   }
   .cards-grid {
-    max-width: 410px;
-    gap: 0;
+    max-width: 346px;
+    gap: 6px;
   }
-  .grid-card:nth-child(-n+2) { margin-bottom: -22px; }
-  .grid-card:nth-child(n+3)  { margin-top: -22px; }
-  .grid-card:nth-child(odd)  { margin-right: -11px; }
-  .grid-card:nth-child(even) { margin-left: -11px; }
   .card-text-overlay {
     font-size: 14px;
     -webkit-text-stroke: 0;
@@ -247,13 +235,9 @@
     padding-bottom: 82px;
   }
   .cards-grid {
-    max-width: 378px;
-    gap: 0;
+    max-width: 318px;
+    gap: 6px;
   }
-  .grid-card:nth-child(-n+2) { margin-bottom: -20px; }
-  .grid-card:nth-child(n+3)  { margin-top: -20px; }
-  .grid-card:nth-child(odd)  { margin-right: -10px; }
-  .grid-card:nth-child(even) { margin-left: -10px; }
   .card-text-overlay {
     font-size: 13px;
     -webkit-text-stroke: 0;
