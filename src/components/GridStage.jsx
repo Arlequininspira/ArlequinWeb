@@ -80,8 +80,12 @@ function GridStage({ onCardClick, onCardPreClick, isDarkMode }) {
     const vpCenterX = window.innerWidth / 2;
     const vpCenterY = window.innerHeight / 2;
 
-    // Scale needed to go from grid card width to component canvas width (450px)
-    const scaleToComponent = 450 / rect.width;
+    // Scale needed to go from grid card width to component canvas width
+    // On mobile use 85% of viewport width to avoid overflowing the screen
+    const targetWidth = window.innerWidth <= 500
+      ? window.innerWidth * 0.85
+      : 450;
+    const scaleToComponent = targetWidth / rect.width;
 
     if (onCardPreClick) onCardPreClick(index + 1);
 
