@@ -59,8 +59,8 @@
 }
 
 .grid-card .card-back img {
-  width: 90%;
-  height: 95%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -188,7 +188,7 @@
   }
   .cards-grid {
     max-width: 510px;
-    gap: 4px;
+    gap: 2px;
   }
   .card-text-overlay {
     font-size: 16px;
@@ -204,7 +204,7 @@
   }
   .cards-grid {
     max-width: 450px;
-    gap: 4px;
+    gap: 2px;
   }
   .card-text-overlay {
     font-size: 15px;
@@ -220,7 +220,7 @@
   }
   .cards-grid {
     max-width: 410px;
-    gap: 4px;
+    gap: 2px;
   }
   .card-text-overlay {
     font-size: 14px;
@@ -236,7 +236,7 @@
   }
   .cards-grid {
     max-width: 378px;
-    gap: 4px;
+    gap: 2px;
   }
   .card-text-overlay {
     font-size: 13px;
