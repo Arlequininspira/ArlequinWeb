@@ -61,7 +61,7 @@
 .grid-card .card-back img {
   width: 90%;
   height: 95%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* ── Texto superpuesto en la carta ───────────────────────────────
