@@ -12,12 +12,12 @@ const CARD_FRAMES_CLEAR = [
   '00004_arlequin_dorso_clear.avif',
   '00005_arlequin_dorso_clear.avif',
   '00006_arlequin_dorso_clear.avif',
-  '00007_arlequin_contacto_clear.avif',
-  '00008_arlequin_contacto_clear.avif',
-  '00009_arlequin_contacto_clear.avif',
-  '00010_arlequin_contacto_clear.avif',
-  '00011_arlequin_contacto_clear.avif',
-  '00012_arlequin_contacto_clear.avif',
+  '00007arlequin_contacto_dark.avif',
+  '00008arlequin_contacto_dark.avif',
+  '00009arlequin_contacto_dark.avif',
+  '00010arlequin_contacto_dark.avif',
+  '00011arlequin_contacto_dark.avif',
+  '00012arlequin_contacto_dark.avif',
 ];
 
 const CARD_FRAMES_BLACK = [
@@ -28,17 +28,16 @@ const CARD_FRAMES_BLACK = [
   '00004_arlequin_dorso_dark.avif',
   '00005_arlequin_dorso_dark.avif',
   '00006_arlequin_dorso_dark.avif',
-  '00007_arlequin_contacto_black.avif',
-  '00008_arlequin_contacto_black.avif',
-  '00009_arlequin_contacto_black.avif',
-  '00010_arlequin_contacto_black.avif',
-  '00011_arlequin_contacto_black.avif',
-  '00012_arlequin_contacto_black.avif',
+  '00007arlequin_contacto_dark.avif',
+  '00008arlequin_contacto_dark.avif',
+  '00009arlequin_contacto_dark.avif',
+  '00010arlequin_contacto_dark.avif',
+  '00011arlequin_contacto_dark.avif',
+  '00012arlequin_contacto_dark.avif',
 ];
 
 const CARD_FINAL_FRAME_CLEAR = 'arlequin_contacto_clear_boton.avif';
 const CARD_FINAL_FRAME_BLACK  = 'arlequin_contacto_dark_boton.avif';
-
 
 const FRENTE_FRAMES_CLEAR = [
   '00007_arlequin_frente_clear.avif',
@@ -60,13 +59,30 @@ const FRENTE_FRAMES_BLACK = [
 
 const _frenteCache = {};
 
+// Post-send animation: 00013→00018 contacto, luego 00019→00023 dorso gracias
+const POST_SEND_FRAMES = [
+  '00013arlequin_contacto_dark.avif',
+  '00014arlequin_contacto_dark.avif',
+  '00015arlequin_contacto_dark.avif',
+  '00016arlequin_contacto_dark.avif',
+  '00017arlequin_contacto_dark.avif',
+  '00018arlequin_contacto_dark.avif',
+  '00019arlequin_dorso_dark_gracias.avif',
+  '00020arlequin_dorso_dark_gracias.avif',
+  '00021arlequin_dorso_dark_gracias.avif',
+  '00022arlequin_dorso_dark_gracias.avif',
+  '00023arlequin_dorso_dark_gracias.avif',
+];
+
+const _postSendCache = {};
+
 const CLOSE_FRAMES_CLEAR = [
-  '00013_arlequin_contacto_clear.avif',
-  '00014_arlequin_contacto_clear.avif',
-  '00015_arlequin_contacto_clear.avif',
-  '00016_arlequin_contacto_clear.avif',
-  '00017_arlequin_contacto_clear.avif',
-  '00018_arlequin_contacto_clear.avif',
+  '00013_arlequin_frente_clear.avif',
+  '00014_arlequin_frente_clear.avif',
+  '00015_arlequin_frente_clear.avif',
+  '00016_arlequin_frente_clear.avif',
+  '00017_arlequin_frente_clear.avif',
+  '00018_arlequin_frente_clear.avif',
   '00019_arlequin_dorso_clear.avif',
   '00020_arlequin_dorso_clear.avif',
   '00021_arlequin_dorso_clear.avif',
@@ -75,12 +91,12 @@ const CLOSE_FRAMES_CLEAR = [
 ];
 
 const CLOSE_FRAMES_BLACK = [
-  '00013_arlequin_contacto_black.avif',
-  '00014_arlequin_contacto_black.avif',
-  '00015_arlequin_contacto_black.avif',
-  '00016_arlequin_contacto_black.avif',
-  '00017_arlequin_contacto_black.avif',
-  '00018_arlequin_contacto_black.avif',
+  '00013_arlequin_frente_dark.avif',
+  '00014_arlequin_frente_dark.avif',
+  '00015_arlequin_frente_dark.avif',
+  '00016_arlequin_frente_dark.avif',
+  '00017_arlequin_frente_dark.avif',
+  '00018_arlequin_frente_dark.avif',
   '00019_arlequin_dorso_dark.avif',
   '00020_arlequin_dorso_dark.avif',
   '00021_arlequin_dorso_dark.avif',
@@ -124,11 +140,12 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
   const btnPhaseRef      = useRef('loop'); // 'loop' | 'send' | 'done'
   const btnLastTimeRef   = useRef(0);
 
-  // Post-send reverse animation refs
-  const postSendAnimRef  = useRef(null);
-  const postSendFrameRef = useRef(12);
-  const postSendLastRef  = useRef(0);
-  const frenteFramesRef  = useRef([]);
+  // Post-send animation refs
+  const postSendAnimRef    = useRef(null);
+  const postSendFrameRef   = useRef(0);
+  const postSendLastRef    = useRef(0);
+  const frenteFramesRef    = useRef([]);
+  const postSendImagesRef  = useRef([]);
 
   const [isLoaded,          setIsLoaded]          = useState(false);
   const [canStartAnimation, setCanStartAnimation] = useState(false);
@@ -333,6 +350,21 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
         });
       }
 
+      // Precarga frames de animación post-send (contacto 13→18 + gracias 19→23)
+      if (_postSendCache['dark']) {
+        postSendImagesRef.current = _postSendCache['dark'];
+      } else {
+        Promise.all(POST_SEND_FRAMES.map(file => new Promise(resolve => {
+          const img = new Image();
+          img.onload  = () => img.decode().then(() => resolve(img)).catch(() => resolve(img));
+          img.onerror = () => resolve(null);
+          img.src = `/Cartas/${file}`;
+        }))).then(results => {
+          _postSendCache['dark'] = results;
+          postSendImagesRef.current = results;
+        });
+      }
+
       if (!wasLoaded && !preload) {
         isLoadedRef.current = true;
         setIsLoaded(true);
@@ -492,12 +524,11 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
   }, [isClosing, isLoaded]);
 
-  // Post-send animation: reversa 12→6, luego frente 0→5, luego carta fija
+  // Post-send animation: 00013→00018 contacto, 00019→00023 gracias, luego carta fija frente
   useEffect(() => {
     if (!btnPhaseDone) return;
     setShowContent(false);
 
-    // Detener el loop de apertura que sigue corriendo en background
     if (animationRef.current) { cancelAnimationFrame(animationRef.current); animationRef.current = null; }
 
     const canvas = canvasRef.current;
@@ -506,7 +537,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
 
     const drawFija = () => {
       const frames = frenteFramesRef.current;
-      const fija = frames[frames.length - 1];
+      const fija = frames[frames.length - 1]; // 00012_arlequin_frente con mensaje
       if (fija) {
         ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
         ctx.drawImage(fija, 0, 0, CARD_WIDTH, CARD_HEIGHT);
@@ -516,54 +547,44 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
       }
     };
 
-    // Fase 2: frente abre desde el fold point (0→5)
-    const animateFrente = (timestamp) => {
-      if (!frenteFramesRef.current.length) {
-        postSendAnimRef.current = requestAnimationFrame(animateFrente);
+    // Anima frames POST_SEND_FRAMES en orden (00013→00018 contacto, 00019→00023 gracias)
+    postSendFrameRef.current = 0;
+    postSendLastRef.current  = 0;
+
+    const animatePostSend = (timestamp) => {
+      const frames = postSendImagesRef.current;
+      if (!frames.length) {
+        postSendAnimRef.current = requestAnimationFrame(animatePostSend);
         return;
       }
       if (postSendLastRef.current === 0) postSendLastRef.current = timestamp;
       if (timestamp - postSendLastRef.current >= CARD_FRAME_DURATION) {
         postSendLastRef.current += CARD_FRAME_DURATION;
-        const img = frenteFramesRef.current[postSendFrameRef.current];
+        const img = frames[postSendFrameRef.current];
         if (img) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(img, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
-        if (postSendFrameRef.current < frenteFramesRef.current.length - 1) {
+        if (postSendFrameRef.current < frames.length - 1) {
           postSendFrameRef.current++;
-          postSendAnimRef.current = requestAnimationFrame(animateFrente);
+          postSendAnimRef.current = requestAnimationFrame(animatePostSend);
         } else {
           drawFija();
         }
       } else {
-        postSendAnimRef.current = requestAnimationFrame(animateFrente);
+        postSendAnimRef.current = requestAnimationFrame(animatePostSend);
       }
     };
 
-    // Fase 1: contacto cierra hasta fold point (12→6), sin tocar los dorso
-    postSendFrameRef.current = 12;
-    postSendLastRef.current  = 0;
-
-    const animateReversa = (timestamp) => {
-      if (postSendLastRef.current === 0) postSendLastRef.current = timestamp;
-      if (timestamp - postSendLastRef.current >= CARD_FRAME_DURATION) {
-        postSendLastRef.current += CARD_FRAME_DURATION;
-        const img = imagesRef.current[postSendFrameRef.current];
-        if (img) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(img, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
-        if (postSendFrameRef.current > 6) {
-          postSendFrameRef.current--;
-          postSendAnimRef.current = requestAnimationFrame(animateReversa);
-        } else {
-          postSendFrameRef.current = 0;
-          postSendLastRef.current  = 0;
-          postSendAnimRef.current  = requestAnimationFrame(animateFrente);
-        }
-      } else {
-        postSendAnimRef.current = requestAnimationFrame(animateReversa);
-      }
-    };
-
-    postSendAnimRef.current = requestAnimationFrame(animateReversa);
+    postSendAnimRef.current = requestAnimationFrame(animatePostSend);
     return () => { if (postSendAnimRef.current) cancelAnimationFrame(postSendAnimRef.current); };
   }, [btnPhaseDone]);
+
+  // Función de consola para testear animación post-envío sin enviar email
+  useEffect(() => {
+    window.__testEnvio = () => {
+      btnPhaseRef.current = 'done';
+      setBtnPhaseDone(true);
+    };
+    return () => { delete window.__testEnvio; };
+  }, []);
 
   // Button animation RAF loop
   useEffect(() => {
