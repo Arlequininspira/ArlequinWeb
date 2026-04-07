@@ -53,7 +53,6 @@ function ArlequinMask({ isDarkMode, phase, onTransitionEnd }) {
   // Determinar la posición objetivo basada en la fase
   const getTargetTransforms = (currentPhase) => {
     switch (currentPhase) {
-      case 'logoShrinking':
       case 'maskClosing':
       case 'reverseClosing':
         return positions.CLOSED;

@@ -23,7 +23,7 @@ const OPENING_FRAME_DURATION   = 35;
 const CLOSING_FRAME_DURATION   = 35;
 const ESTRELLAS_FRAME_DURATION = 40;
 const ARLEQUIN_FRAME_DURATION  = 60;
-const MOBILE_OPEN_HOLD_MS      = 4000; // time mask stays open on mobile before closing
+const MOBILE_OPEN_HOLD_MS      = 2000; // time mask stays open on mobile before closing
 const MOBILE_LOOP_PAUSE_MS     = 500;  // pause between close and next open on mobile
 
 // Arlequin animation frames (unchanged)
