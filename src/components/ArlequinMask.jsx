@@ -125,6 +125,22 @@ function ArlequinMask({ isDarkMode, phase, onTransitionEnd }) {
     }
   }, [phase, onTransitionEnd]);
 
+  useEffect(() => {
+    // Fallback timer for maskClosing and maskOpening: on mobile CSS transitions
+    // may never fire transitionend (React can collapse both renders into one browser
+    // paint, skipping the transition entirely). If transitionend hasn't advanced the
+    // phase within 950ms, force the advance here.
+    if ((phase === 'maskClosing' || phase === 'maskOpening') && onTransitionEnd) {
+      const timer = setTimeout(() => {
+        if (!hasNotifiedPhaseRef.current) {
+          hasNotifiedPhaseRef.current = true;
+          onTransitionEnd();
+        }
+      }, 950);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, onTransitionEnd]);
+
   return (
     <div className={className}>
       <div
