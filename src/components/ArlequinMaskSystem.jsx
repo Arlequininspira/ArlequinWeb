@@ -149,6 +149,13 @@ function ArlequinMaskSystem({
     setStage(STAGES.GRID);
   }, []);
 
+  // Handle go-to-contact from CardQueEsArlequin last page
+  const handleGoToContact = useCallback(() => {
+    setSelectedCard(4);
+    setCardFromGrid(true); // instant start, no delay
+    setIsCardExpanding(false);
+  }, []);
+
   // Render current stage content
   const renderStageContent = () => {
     switch (stage) {
@@ -185,6 +192,7 @@ function ArlequinMaskSystem({
               isDarkMode={isDarkMode}
               onClose={handleCardDetailClose}
               onCloseStart={handleCardDetailCloseStart}
+              onGoToContact={selectedCard === 1 ? handleGoToContact : undefined}
               fromGrid={cardFromGrid}
             />
           );

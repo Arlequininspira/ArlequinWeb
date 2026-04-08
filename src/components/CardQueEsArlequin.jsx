@@ -115,7 +115,7 @@ const page1Lines = [
 
 const cardTexts = [page1Lines, page2Lines, page3Lines];
 
-function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false }) {
+function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, fromGrid = false, preload = false }) {
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
   const closeImagesRef = useRef([]);
@@ -126,6 +126,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
   const closeFrameRef = useRef(0);
   const lastCloseFrameTimeRef = useRef(0);
   const isLoadedRef = useRef(false);
+  const goingToContactRef = useRef(false);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [canStartAnimation, setCanStartAnimation] = useState(false);
@@ -142,7 +143,13 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
   const isLastPage = currentCardIndex === cardTexts.length - 1;
 
   const handleNextCard = () => {
-    if (currentCardIndex < cardTexts.length - 1) setCurrentCardIndex(prev => prev + 1);
+    if (currentCardIndex < cardTexts.length - 1) {
+      setCurrentCardIndex(prev => prev + 1);
+    } else if (onGoToContact) {
+      goingToContactRef.current = true;
+      setShowNavIcons(false);
+      setIsClosing(true);
+    }
   };
 
   const handlePrevCard = () => {
@@ -331,14 +338,19 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
           closeFrameRef.current++;
           animationRef.current = requestAnimationFrame(animate);
         } else {
-          // Show frame 00000 (card back), then scale down before returning to grid
-          const frame0 = imagesRef.current[0];
-          if (frame0) {
-            ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-            ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          if (goingToContactRef.current) {
+            goingToContactRef.current = false;
+            if (onGoToContact) onGoToContact();
+          } else {
+            // Show frame 00000 (card back), then scale down before returning to grid
+            const frame0 = imagesRef.current[0];
+            if (frame0) {
+              ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+              ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+            }
+            setIsScalingDown(true);
+            setTimeout(() => onClose(), 400);
           }
-          setIsScalingDown(true);
-          setTimeout(() => onClose(), 400);
         }
       } else {
         animationRef.current = requestAnimationFrame(animate);
@@ -385,9 +397,8 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
           <button
             className="card-nav-button card-nav-prev"
             onClick={handleNextCard}
-            title="Página siguiente"
-            disabled={isLastPage}
-            style={{ opacity: isLastPage ? 0.3 : 1, cursor: isLastPage ? 'default' : 'pointer' }}
+            title={isLastPage ? 'Contacto' : 'Página siguiente'}
+            style={{ opacity: 1, cursor: 'pointer' }}
           >
             <img src="/Cartas/arlequin_baraja_A_pieza_avanzar_web.avif" alt="Adelante" />
           </button>
