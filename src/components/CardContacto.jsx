@@ -258,6 +258,9 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     if (frames[0]) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frames[0], 0, 0, CARD_WIDTH, CARD_HEIGHT); }
 
     const animate = (timestamp) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = timestamp - CARD_FRAME_DURATION;
+      }
       if (timestamp - lastTimeRef.current >= CARD_FRAME_DURATION) {
         lastTimeRef.current += CARD_FRAME_DURATION;
         const idx = frameIdxRef.current;

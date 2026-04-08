@@ -327,6 +327,9 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
     const frames = closeImagesRef.current;
 
     const animate = (timestamp) => {
+      if (lastCloseFrameTimeRef.current === 0) {
+        lastCloseFrameTimeRef.current = timestamp - CARD_FRAME_DURATION;
+      }
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) {

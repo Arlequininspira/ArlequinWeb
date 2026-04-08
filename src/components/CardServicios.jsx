@@ -341,6 +341,9 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
     const frames = closeImagesRef.current;
 
     const animate = (timestamp) => {
+      if (lastCloseFrameTimeRef.current === 0) {
+        lastCloseFrameTimeRef.current = timestamp - CARD_FRAME_DURATION;
+      }
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
