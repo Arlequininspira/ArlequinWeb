@@ -93,7 +93,7 @@ function ThemeToggleStar({ isDarkMode, onToggle }) {
     
     // Get device pixel ratio for sharp rendering on high-DPI displays
     const dpr = window.devicePixelRatio || 1;
-    const displaySize = 48; // Match the CSS size
+    const displaySize = 58; // Match the CSS size
     
     // Set canvas internal resolution to match display size
     canvas.width = displaySize * dpr;
