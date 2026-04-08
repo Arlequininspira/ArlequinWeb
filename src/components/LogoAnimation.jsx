@@ -513,6 +513,21 @@ function LogoAnimation({
     }
   }, []);
 
+  // ── Reset logo animation state when restoring ─────────────────────────────
+  // When returning from grid to home, cuerpoMascara refs are still at OPEN (frame 16).
+  // Reset them to IDLE/frame-0 so the logo appears un-tilted when it grows back.
+  useEffect(() => {
+    if (!isRestoring) return;
+    animationStateRef.current       = ANIMATION_STATE.IDLE;
+    cuerpoMascaraFrameRef.current   = 0;
+    estrellasFrameRef.current       = 0;
+    estrellasPhaseRef.current       = 'initial';
+    hoveredRef.current              = false;
+    pendingMobileClickRef.current   = false;
+    lastCuerpoMascaraTimeRef.current = 0;
+    lastEstrellasTimeRef.current    = 0;
+  }, [isRestoring]);
+
   // ── Shrink / restore callbacks ────────────────────────────────────────────
   useEffect(() => {
     if (isShrinking && onShrinkComplete) {

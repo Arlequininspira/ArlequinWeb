@@ -229,7 +229,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap at 2x for 60Hz mobile perf
     canvas.width  = Math.round(CARD_WIDTH * dpr);
     canvas.height = Math.round(CARD_HEIGHT * dpr);
     canvas.style.width  = `${CARD_WIDTH}px`;
@@ -307,6 +307,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
 
   // ── Preload button frames ────────────────────────────────────────────────────
   useEffect(() => {
+    if (preload) return; // skip heavy button preload — loads on actual open
     const t = theme;
     let cancelled = false;
     setIsBtnLoaded(false);
@@ -359,7 +360,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     const firstFrame = btnLoopFramesRef.current[0];
     if (!firstFrame) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = firstFrame.naturalWidth;
     const h = firstFrame.naturalHeight;
     const displayH = Math.round(h * BTN_DISPLAY_WIDTH / w);

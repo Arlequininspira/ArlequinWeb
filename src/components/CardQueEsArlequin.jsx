@@ -252,7 +252,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(CARD_WIDTH * dpr);
     canvas.height = Math.round(CARD_HEIGHT * dpr);
     canvas.style.width = `${CARD_WIDTH}px`;
@@ -271,7 +271,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(CARD_WIDTH * dpr);
     canvas.height = Math.round(CARD_HEIGHT * dpr);
     canvas.style.width = `${CARD_WIDTH}px`;

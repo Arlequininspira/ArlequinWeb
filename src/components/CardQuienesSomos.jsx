@@ -241,7 +241,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(CARD_WIDTH * dpr);
     canvas.height = Math.round(CARD_HEIGHT * dpr);
     canvas.style.width = `${CARD_WIDTH}px`;
@@ -260,7 +260,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(CARD_WIDTH * dpr);
     canvas.height = Math.round(CARD_HEIGHT * dpr);
     canvas.style.width = `${CARD_WIDTH}px`;
