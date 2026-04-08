@@ -632,13 +632,16 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
                 className="contacto-send-canvas"
                 style={{
                   opacity: formValido || enviado ? 1 : 0.4,
-                  pointerEvents: formValido && !enviando && !enviado ? 'auto' : 'none',
-                  cursor: formValido && !enviando && !enviado ? 'pointer' : 'default',
+                  pointerEvents: 'none',
                 }}
-                onClick={formValido && !enviando && !enviado ? (e) => { e.stopPropagation(); handleBtnClick(); } : undefined}
               />
             )}
           </div>
+
+          {/* Hit area: transparent button over the send graphic, same position as nav buttons */}
+          {!btnPhaseDone && isBtnLoaded && formValido && !enviando && !enviado && (
+            <button className="contacto-btn-hitarea" onClick={handleBtnClick} aria-label="Enviar" />
+          )}
         </>
       )}
     </div>

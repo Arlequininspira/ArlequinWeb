@@ -160,7 +160,24 @@ textarea.contacto-field {
   display: block;
   position: relative;
   z-index: 50;
-  pointer-events: none; /* solo visual — window listener maneja los clicks */
+  pointer-events: none;
+}
+
+/* Área de toque sobre el gráfico del botón enviar.
+   Misma posición que .card-nav-prev (bottom:130 right:90),
+   con margen extra para toque móvil cómodo.               */
+.contacto-btn-hitarea {
+  position: absolute;
+  bottom: 108px;
+  right: 68px;
+  width: 64px;
+  height: 64px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 60;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 
