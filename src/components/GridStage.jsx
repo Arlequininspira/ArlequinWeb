@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import './GridStage.css';
 
 const CARD_LABELS = ['¿Qué es Arlequín?', '¿Quiénes somos?', 'Servicios', 'Contacto'];
@@ -18,7 +18,7 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
   // stacked → dealing → idle  |  restoring → undealing → idle
   const [dealPhase, setDealPhase] = useState('stacked');
 
-  // Translation + scale to move selected card to viewport center at component size
+  // Translation + scale to move selected card to viewport center
   const [expandTransform, setExpandTransform] = useState({ tx: 0, ty: 0, scale: 2 });
 
   // Dynamic step sizes measured from DOM
@@ -28,9 +28,12 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
   const dealTimerRef = useRef(null);
   const prevDealKeyRef = useRef(null); // null = not yet initialized
 
-  // Refs to store the last expand state for reverse (close) animation
+  // Refs for reverse (close) animation
   const lastSelectedRef = useRef(null);
+  // expandRef: scale = targetWidth/cardWidth (used for open animation)
   const lastExpandRef = useRef({ tx: 0, ty: 0, scale: 2 });
+  // restoreRef: scale = cardCanvasWidth/cardWidth (used for restoring snap, matches card component size)
+  const lastRestoreRef = useRef({ tx: 0, ty: 0, scale: 2 });
 
   // Load dorso image; mark cache so future mounts skip the async wait
   useEffect(() => {
@@ -47,18 +50,19 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
   }, [themeSuffix]);
 
   // Shared deal sequence: stacked → (2 RAFs) → dealing → (700ms) → idle
-  // reverse=true: restoring → (2 RAFs) → undealing → (700ms) → idle
+  // reverse=true: restoring → (2 RAFs) → undealing → (820ms) → idle
   const runDeal = useCallback((reverse = false) => {
     if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
     setClickPhase('idle');
 
     if (reverse && lastSelectedRef.current !== null) {
-      // Snap cards to their "just before close" positions, then animate back to grid
+      // Snap to restoring position (uses card canvas size = 450px, matches card component)
+      // then animate back to grid positions
       const snapSelected = lastSelectedRef.current;
-      const snapExpand = { ...lastExpandRef.current };
+      const snapRestore = { ...lastRestoreRef.current };
 
       setSelectedCard(snapSelected);
-      setExpandTransform(snapExpand);
+      setExpandTransform(snapRestore);
       setDealPhase('restoring');
 
       let raf2;
@@ -111,8 +115,10 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     return runDeal(false);
   }, [isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-deal when dealKey increments (returning from a card detail)
-  useEffect(() => {
+  // Re-deal when dealKey increments (returning from a card detail).
+  // useLayoutEffect: fires synchronously before the browser paints, so the
+  // clickPhase='complete' intermediate state is never visible to the user.
+  useLayoutEffect(() => {
     if (prevDealKeyRef.current === null) {
       prevDealKeyRef.current = dealKey; // initialise without running
       return;
@@ -120,7 +126,7 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     if (dealKey === prevDealKeyRef.current) return;
     prevDealKeyRef.current = dealKey;
     if (!isLoaded) return;
-    return runDeal(true); // reverse: card flies back to slot, others fan out
+    return runDeal(true);
   }, [dealKey, isLoaded, runDeal]);
 
   // Measure actual card positions ONLY when cards are in their natural grid positions
@@ -155,28 +161,31 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     const vpCenterX = window.innerWidth / 2;
     const vpCenterY = window.innerHeight / 2;
 
-    // Scale needed to go from grid card width to component canvas width
-    // On mobile use 85% of viewport width to avoid overflowing the screen
-    const targetWidth = window.innerWidth <= 500
-      ? window.innerWidth * 0.85
-      : 390;
-    const scaleToComponent = targetWidth / rect.width;
+    const tx = vpCenterX - cardCenterX;
+    const ty = vpCenterY - cardCenterY;
 
-    const transform = {
-      tx: vpCenterX - cardCenterX,
-      ty: vpCenterY - cardCenterY,
-      scale: scaleToComponent,
-    };
+    // Scale for the OPEN animation: card expands to 390px (desktop) / 85vw (mobile)
+    const expandTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
+    const scaleToComponent = expandTargetWidth / rect.width;
+
+    // Scale for the RESTORING snap: matches the card component canvas (450px desktop)
+    // so there's no size jump when the card component unmounts and GridStage takes over
+    const restoreTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 450;
+    const restoreScale = restoreTargetWidth / rect.width;
+
+    const expandTransformVal = { tx, ty, scale: scaleToComponent };
+    const restoreTransformVal = { tx, ty, scale: restoreScale };
 
     // Store for reverse (close) animation
     lastSelectedRef.current = index;
-    lastExpandRef.current = transform;
+    lastExpandRef.current = expandTransformVal;
+    lastRestoreRef.current = restoreTransformVal;
 
     if (onCardPreClick) onCardPreClick(index + 1);
     if (onExpandStart) onExpandStart();
 
     setSelectedCard(index);
-    setExpandTransform(transform);
+    setExpandTransform(expandTransformVal);
     setClickPhase('stacking');
 
     // After all cards stack, expand selected to center at component size
@@ -222,7 +231,7 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
 
       if (dealPhase === 'restoring') {
         if (isSelected) {
-          // Snap selected card to viewport center (where it was when card detail opened)
+          // Snap selected card to viewport center at card-component size (no transition)
           const { tx, ty, scale } = expandTransform;
           return {
             transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
@@ -267,7 +276,7 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
 
       if (isSelected) {
         if (clickPhase === 'expanding' || clickPhase === 'complete') {
-          // Move to viewport center at component canvas size
+          // Move to viewport center at expand size (390px desktop)
           const { tx, ty, scale } = expandTransform;
           return {
             transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
