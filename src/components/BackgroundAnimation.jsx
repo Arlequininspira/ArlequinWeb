@@ -157,9 +157,8 @@ function BackgroundAnimation({ isDarkMode = true }) {
     // alpha:false eliminates transparency compositing cost — safe because
     // drawStars always fills the entire canvas with a solid background color.
     const ctx = canvas.getContext('2d', { alpha: false });
-    // Stars are downscaled from 650px to 60-120px; nearest-neighbor is much
-    // faster than bilinear on mobile and still looks fine for soft star shapes.
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     const drawStars = () => {
       const dpr = window.devicePixelRatio || 1;

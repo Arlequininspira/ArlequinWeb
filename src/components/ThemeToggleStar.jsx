@@ -102,8 +102,7 @@ function ThemeToggleStar({ isDarkMode, onToggle }) {
     // Scale context to match device pixel ratio
     ctx.scale(dpr, dpr);
     
-    // Disable image smoothing for sharper rendering
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
     // Clear canvas on theme change
