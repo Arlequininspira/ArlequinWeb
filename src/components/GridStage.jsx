@@ -56,8 +56,8 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     setClickPhase('idle');
 
     if (reverse && lastSelectedRef.current !== null) {
-      // Snap to restoring position (uses card canvas size = 450px, matches card component)
-      // then animate back to grid positions
+      // Snap to restoring position (280px on desktop — card visible at center but not enormous)
+      // then pause, then animate back to grid positions
       const snapSelected = lastSelectedRef.current;
       const snapRestore = { ...lastRestoreRef.current };
 
@@ -65,22 +65,26 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
       setExpandTransform(snapRestore);
       setDealPhase('restoring');
 
-      let raf2;
-      const raf1 = requestAnimationFrame(() => {
-        raf2 = requestAnimationFrame(() => {
-          setDealPhase('undealing');
-          dealTimerRef.current = setTimeout(() => {
-            dealTimerRef.current = null;
-            lastSelectedRef.current = null;
-            setSelectedCard(null);
-            setDealPhase('idle');
-            if (onDealComplete) onDealComplete();
-          }, 1600);
+      // Pause at center so the user sees the dorso before the deal-back animation
+      let raf1, raf2;
+      const pauseTimer = setTimeout(() => {
+        raf1 = requestAnimationFrame(() => {
+          raf2 = requestAnimationFrame(() => {
+            setDealPhase('undealing');
+            dealTimerRef.current = setTimeout(() => {
+              dealTimerRef.current = null;
+              lastSelectedRef.current = null;
+              setSelectedCard(null);
+              setDealPhase('idle');
+              if (onDealComplete) onDealComplete();
+            }, 1600);
+          });
         });
-      });
+      }, 600);
 
       return () => {
-        cancelAnimationFrame(raf1);
+        clearTimeout(pauseTimer);
+        if (raf1) cancelAnimationFrame(raf1);
         if (raf2) cancelAnimationFrame(raf2);
         if (dealTimerRef.current) { clearTimeout(dealTimerRef.current); dealTimerRef.current = null; }
       };
@@ -168,9 +172,9 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     const expandTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
     const scaleToComponent = expandTargetWidth / rect.width;
 
-    // Scale for the RESTORING snap: matches the card component canvas (450px desktop)
-    // so there's no size jump when the card component unmounts and GridStage takes over
-    const restoreTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 450;
+    // Scale for the RESTORING snap: smaller than the card component (280px desktop)
+    // so the dorso appears as a proper card at center, not filling the screen
+    const restoreTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.6 : 280;
     const restoreScale = restoreTargetWidth / rect.width;
 
     const expandTransformVal = { tx, ty, scale: scaleToComponent };

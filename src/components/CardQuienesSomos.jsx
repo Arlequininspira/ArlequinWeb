@@ -339,7 +339,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
             ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
           if (fromGrid) {
-            setTimeout(() => onClose(), 700);
+            requestAnimationFrame(() => onClose());
           } else {
             setIsScalingDown(true);
             setTimeout(() => onClose(), 400);

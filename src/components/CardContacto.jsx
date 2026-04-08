@@ -276,7 +276,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
           if (animPhase === 'postSend') { setAnimPhase('fixedGracias'); setShowGracias(true); }
           if (animPhase === 'closing')  {
             if (fromGrid) {
-              setTimeout(() => onClose(), 700);
+              requestAnimationFrame(() => onClose());
             } else {
               setIsScalingDown(true);
               setTimeout(() => onClose(), 400);
