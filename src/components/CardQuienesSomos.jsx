@@ -130,6 +130,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
   const [showContent, setShowContent] = useState(false);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+  const [isHidingUI, setIsHidingUI] = useState(false);
   const [isScalingDown, setIsScalingDown] = useState(false);
 
   // Animation frames follow the theme; fixed final frame is always dark
@@ -148,10 +149,13 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
   };
 
   const handleClose = () => {
-    if (isClosing) return;
+    if (isClosing || isHidingUI) return;
+    setIsHidingUI(true);
     if (onCloseStart) onCloseStart();
-    setShowContent(false);
-    setIsClosing(true);
+    setTimeout(() => {
+      setShowContent(false);
+      setIsClosing(true);
+    }, 350);
   };
 
   // Start open animation: immediate if fromGrid, delayed otherwise
@@ -339,7 +343,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
             ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
           if (fromGrid) {
-            requestAnimationFrame(() => onClose());
+            onClose();
           } else {
             setIsScalingDown(true);
             setTimeout(() => onClose(), 400);
@@ -359,7 +363,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
 
   return (
     <div className="card-que-es-arlequin">
-      <button className="card-close-btn" onClick={handleClose} title="Cerrar">
+      <button className={`card-close-btn${isHidingUI ? ' card-close-btn--hiding' : ''}`} onClick={handleClose} title="Cerrar">
         <img
           src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`}
           alt="Cerrar"

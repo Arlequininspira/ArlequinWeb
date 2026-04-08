@@ -86,6 +86,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
   const [showContent,  setShowContent]  = useState(false);
   const [showGracias,  setShowGracias]  = useState(false);
   const [isScalingDown,setIsScalingDown]= useState(false);
+  const [isHidingUI,   setIsHidingUI]   = useState(false);
   const [isBtnLoaded,  setIsBtnLoaded]  = useState(false);
   const [btnPhaseDone, setBtnPhaseDone] = useState(false);
 
@@ -102,11 +103,14 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
 
   // ── Handlers ────────────────────────────────────────────────────────────────
   const handleClose = () => {
-    if (animPhase === 'closing') return;
+    if (animPhase === 'closing' || isHidingUI) return;
+    setIsHidingUI(true);
     if (onCloseStart) onCloseStart();
-    setShowContent(false);
-    setShowGracias(false);
-    setAnimPhase('closing');
+    setTimeout(() => {
+      setShowContent(false);
+      setShowGracias(false);
+      setAnimPhase('closing');
+    }, 350);
   };
 
   const handleEnviar = async () => {
@@ -276,7 +280,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
           if (animPhase === 'postSend') { setAnimPhase('fixedGracias'); setShowGracias(true); }
           if (animPhase === 'closing')  {
             if (fromGrid) {
-              requestAnimationFrame(() => onClose());
+              onClose();
             } else {
               setIsScalingDown(true);
               setTimeout(() => onClose(), 400);
@@ -436,7 +440,7 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
 
   return (
     <div className="card-que-es-arlequin card-contacto-outer">
-      <button className="card-close-btn" onClick={handleClose} title="Cerrar">
+      <button className={`card-close-btn${isHidingUI ? ' card-close-btn--hiding' : ''}`} onClick={handleClose} title="Cerrar">
         <img
           src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`}
           alt="Cerrar"

@@ -172,6 +172,7 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
   const [showNavIcons,      setShowNavIcons]      = useState(false);
   const [currentCardIndex,  setCurrentCardIndex]  = useState(0);
   const [isClosing,         setIsClosing]         = useState(false);
+  const [isHidingUI,        setIsHidingUI]        = useState(false);
   const [isScalingDown,     setIsScalingDown]     = useState(false);
 
   const themeSuffix  = isDarkMode ? 'dark' : 'clear';
@@ -188,10 +189,13 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
     if (currentCardIndex > 0) setCurrentCardIndex(p => p - 1);
   };
   const handleClose = () => {
-    if (isClosing) return;
+    if (isClosing || isHidingUI) return;
+    setIsHidingUI(true);
     if (onCloseStart) onCloseStart();
-    setShowNavIcons(false);
-    setIsClosing(true);
+    setTimeout(() => {
+      setShowNavIcons(false);
+      setIsClosing(true);
+    }, 350);
   };
 
   // Start open animation
@@ -358,7 +362,7 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
           const frame0 = imagesRef.current[0];
           if (frame0) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
           if (fromGrid) {
-            requestAnimationFrame(() => onClose());
+            onClose();
           } else {
             setIsScalingDown(true);
             setTimeout(() => onClose(), 400);
@@ -378,7 +382,7 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
 
   return (
     <div className="card-que-es-arlequin">
-      <button className="card-close-btn" onClick={handleClose} title="Cerrar">
+      <button className={`card-close-btn${isHidingUI ? ' card-close-btn--hiding' : ''}`} onClick={handleClose} title="Cerrar">
         <img
           src={`/Cartas/arlequin_elemento_web_X_${themeSuffix === 'clear' ? 'clare' : themeSuffix}.avif`}
           alt="Cerrar"
