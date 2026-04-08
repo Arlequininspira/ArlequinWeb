@@ -52,6 +52,7 @@ const CLOSE_FRAMES_CLEAR = [
   '00021_arlequin_dorso_clear.avif',
   '00022_arlequin_dorso_clear.avif',
   '00023_arlequin_dorso_clear.avif',
+  '00000_arlequin_dorso_clear.avif',
 ];
 
 const CLOSE_FRAMES_DARK = [
@@ -66,6 +67,7 @@ const CLOSE_FRAMES_DARK = [
   '00021_arlequin_dorso_dark.avif',
   '00022_arlequin_dorso_dark.avif',
   '00023_arlequin_dorso_dark.avif',
+  '00000_arlequin_dorso_dark.avif',
 ];
 
 const CARD_FRAME_DURATION = 40;
@@ -337,7 +339,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
             ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
           if (fromGrid) {
-            onClose();
+            requestAnimationFrame(() => onClose());
           } else {
             setIsScalingDown(true);
             setTimeout(() => onClose(), 400);

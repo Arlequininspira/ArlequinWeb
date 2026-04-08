@@ -47,6 +47,7 @@ const CLOSE_FRAMES_CLEAR = [
   '00021_arlequin_dorso_clear.avif',
   '00022_arlequin_dorso_clear.avif',
   '00023_arlequin_dorso_clear.avif',
+  '00000_arlequin_dorso_clear.avif',
 ];
 
 const CLOSE_FRAMES_DARK = [
@@ -61,6 +62,7 @@ const CLOSE_FRAMES_DARK = [
   '00021_arlequin_dorso_dark.avif',
   '00022_arlequin_dorso_dark.avif',
   '00023_arlequin_dorso_dark.avif',
+  '00000_arlequin_dorso_dark.avif',
 ];
 
 const CARD_FINAL_FRAME_CLEAR = '00012_arlequin_frente_clear_fija.avif';
@@ -352,8 +354,8 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
               ctx.drawImage(frame0, 0, 0, CARD_WIDTH, CARD_HEIGHT);
             }
             if (fromGrid) {
-              // GridStage handles the reverse animation — no CSS exit-scale needed
-              onClose();
+              // Wait one frame so the browser paints the dorso before GridStage takes over
+              requestAnimationFrame(() => onClose());
             } else {
               setIsScalingDown(true);
               setTimeout(() => onClose(), 400);
