@@ -1,0 +1,115 @@
+/*
+ * BREAKPOINTS & LAYOUT VARIABLES — single source of truth
+ *
+ * --bp-* vars are documentation only (CSS can't use custom props in @media).
+ * All layout-critical vars (escudo, footer, mask) are readable via
+ * getComputedStyle() from JavaScript.
+ *
+ * TODO (cambio 4): add ResizeObserver in App.jsx to update --footer-clearance
+ * dynamically when low-end mode disables the footer scale(1.4) transform.
+ */
+
+:root {
+  /* ── Breakpoint reference ────────────────────────────────────────── */
+  --bp-xs:  360px;
+  --bp-sm:  390px;
+  --bp-md:  430px;
+  --bp-lg:  600px;
+  --bp-xl:  900px;
+  --bp-xxl: 1200px;
+
+  /* ── Escudo (desktop ≥769px wide, full-height screen) ───────────── */
+  --escudo-height:    94px;
+  --escudo-top:       20px;
+  /* grid padding-top = top + height + 20px gap */
+  --escudo-clearance: 134px;
+
+  /* ── Footer (desktop ≥501px wide) ───────────────────────────────── */
+  --footer-height:    55px;
+  --footer-bottom:    8px;
+  /* grid padding-bottom = height + bottom + 8px gap */
+  --footer-clearance: 71px;
+
+  /* ── Mask open distance — read by ArlequinMask.jsx ──────────────── */
+  /* Must be large enough so mask decorations clear the cards-grid.    */
+  /* Derived: maskHalfWidth + openDist - imgWidth ≥ gridHalfWidth + 20 */
+  --mask-open-distance: 280px;
+}
+
+/* ── Tablet portrait, 501–768px wide ────────────────────────────────── */
+@media (max-width: 768px) and (min-width: 431px) {
+  :root {
+    --escudo-height:    90px;
+    --escudo-clearance: 130px;  /* 20 + 90 + 20 */
+  }
+}
+
+/* ── Mask: tablet 601–900px ──────────────────────────────────────────── */
+@media (max-width: 900px) and (min-width: 601px) {
+  :root {
+    --mask-open-distance: 260px;
+  }
+}
+
+/* ── Mobile ≤600px (footer gains scale(1.4) visual height) ──────────── */
+@media (max-width: 600px) {
+  :root {
+    --footer-height:    80px;
+    --footer-clearance: 120px;  /* 80×1.4 visual + bottom + margin */
+    --mask-open-distance: 180px;
+  }
+}
+
+/* ── Mobile ≤430px ───────────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  :root {
+    --escudo-height:    72px;
+    --escudo-top:       10px;
+    --escudo-clearance: 98px;   /* 10 + 72 + 16 */
+    --mask-open-distance: 170px;
+  }
+}
+
+/* ── Mobile ≤390px ───────────────────────────────────────────────────── */
+@media (max-width: 390px) {
+  :root {
+    --escudo-clearance: 96px;   /* 10 + 72 + 14 */
+    --mask-open-distance: 155px;
+  }
+}
+
+/* ── Mobile ≤360px ───────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  :root {
+    --escudo-clearance: 92px;   /* 10 + 72 + 10 */
+    --mask-open-distance: 140px;
+  }
+}
+
+/* ── Short desktop/laptop ≤780px tall, ≥431px wide ──────────────────── */
+@media (max-height: 780px) and (min-width: 431px) {
+  :root {
+    --escudo-height:    88px;
+    --escudo-top:       14px;
+    --escudo-clearance: 122px;  /* 14 + 88 + 20 */
+    --footer-clearance:  68px;
+  }
+}
+
+/* ── Very short desktop ≤650px tall, ≥431px wide ──────────────────────  */
+@media (max-height: 650px) and (min-width: 431px) {
+  :root {
+    --escudo-height:    72px;
+    --escudo-top:       10px;
+    --escudo-clearance: 100px;  /* 10 + 72 + 18 */
+    --footer-clearance:  64px;
+  }
+}
+
+/* ── Extremely short ≤580px tall, ≥431px wide ──────────────────────────  */
+@media (max-height: 580px) and (min-width: 431px) {
+  :root {
+    --escudo-clearance: 92px;
+    --footer-clearance: 58px;
+  }
+}

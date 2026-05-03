@@ -1,3 +1,5 @@
+@import './styles/breakpoints.css';
+
 @font-face {
   font-family: 'NewRocker-Regular';
   src: url('/fonts/NewRocker-Regular.ttf') format('truetype');
@@ -20,13 +22,15 @@
 
 html, body {
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background-color: #000000;
 }
 
 #root {
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
 }
 

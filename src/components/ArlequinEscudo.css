@@ -1,6 +1,6 @@
 .arlequin-escudo {
   position: fixed !important;
-  top: 20px !important;
+  top: var(--escudo-top, 20px) !important;
   left: 50% !important;
   transform: translateX(-50%) scale(1) !important;
   z-index: 1003 !important;
@@ -20,7 +20,7 @@
     opacity: 0;
   }
   to {
-    top: 20px;
+    top: var(--escudo-top, 20px);
     opacity: 1;
   }
 }
@@ -30,49 +30,11 @@
 }
 
 .arlequin-escudo .escudo-image {
-  width: 94px !important;
+  width: var(--escudo-height, 94px) !important;
   height: auto !important;
   display: block !important;
-}
-
-/* Short desktop screens: reduce escudo to free vertical space
-   Fires at 1229×692 (notebook 125%) and below */
-@media (max-height: 780px) and (min-width: 431px) {
-  .arlequin-escudo .escudo-image {
-    width: 88px !important;
-  }
-  .arlequin-escudo {
-    top: 14px !important;
-  }
-}
-
-@media (max-height: 650px) and (min-width: 431px) {
-  .arlequin-escudo .escudo-image {
-    width: 72px !important;
-  }
-  .arlequin-escudo {
-    top: 10px !important;
-  }
-}
-
-/* Tablet portrait (501–768px wide) */
-@media (max-width: 768px) and (min-width: 431px) {
-  .arlequin-escudo .escudo-image {
-    width: 90px !important;
-  }
-}
-
-
-@media (max-width: 430px) {
-  .arlequin-escudo .escudo-image {
-    width: 72px !important;
-  }
-  .arlequin-escudo {
-    top: 10px !important;
-  }
 }
 
 .arlequin-escudo:not(.minimized):hover {
   transform: translateX(-50%) scale(1.05) !important;
 }
-

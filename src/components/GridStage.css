@@ -13,7 +13,10 @@
   width: 100%;
   height: 100%;
   padding: 20px;
-  padding-top: 72px;
+  /* padding-top clears the fixed escudo; padding-bottom clears the footer.
+     Both values come from breakpoints.css and update with media queries. */
+  padding-top: var(--escudo-clearance, 134px);
+  padding-bottom: var(--footer-clearance, 71px);
 }
 
 .grid-stage.loading {
@@ -118,20 +121,16 @@
 .grid-stage:not(.dark) .card-label { color: #2c2c2c; }
 .grid-stage.dark .card-label       { color: #f0e6d3; }
 
-/* ── Height-based responsive: short screens
-   padding-top clears the fixed escudo; padding-bottom clears the footer.
-   flex justify-content:center then centers the grid in the remaining space.
-   Formula: max-width ≤ (vh - padding-top - padding-bottom) × 3/4
-
-   1229×692 (notebook 125%): 692 - 112 - 68 = 512px → max-width 370px
-   1093×614 (notebook 125%, smaller): 614 - 94 - 64 = 456px → max-width 330px
-   <580px: 580 - 80 - 58 = 442px → max-width 310px
-*/
+/* ── Height-based responsive: short screens ─────────────────────
+   padding-top/bottom come from --escudo-clearance / --footer-clearance
+   in breakpoints.css (both updated by height media queries there).
+   Only the base padding and cards-grid max-width need overriding here.
+   ─────────────────────────────────────────────────────────────── */
 @media (max-height: 780px) and (min-width: 501px) {
   .grid-stage {
     padding: 8px;
-    padding-top: 130px;
-    padding-bottom: 68px;
+    padding-top: var(--escudo-clearance, 122px);
+    padding-bottom: var(--footer-clearance, 68px);
   }
   .cards-grid {
     max-width: 396px;
@@ -145,8 +144,8 @@
 @media (max-height: 650px) and (min-width: 501px) {
   .grid-stage {
     padding: 6px;
-    padding-top: 108px;
-    padding-bottom: 64px;
+    padding-top: var(--escudo-clearance, 100px);
+    padding-bottom: var(--footer-clearance, 64px);
   }
   .cards-grid {
     max-width: 353px;
@@ -160,8 +159,8 @@
 @media (max-height: 580px) and (min-width: 501px) {
   .grid-stage {
     padding: 4px;
-    padding-top: 92px;
-    padding-bottom: 58px;
+    padding-top: var(--escudo-clearance, 92px);
+    padding-bottom: var(--footer-clearance, 58px);
   }
   .cards-grid {
     max-width: 332px;
@@ -172,7 +171,7 @@
   }
 }
 
-/* ── Width-based responsive: tablet portrait (501–768px wide) */
+/* ── Width-based responsive: tablet portrait (501–768px wide) ─── */
 @media (max-width: 768px) and (min-width: 501px) {
   .cards-grid {
     max-width: 440px;
@@ -183,8 +182,8 @@
 @media (max-width: 500px) {
   .grid-stage {
     padding: 8px;
-    padding-top: 80px;
-    padding-bottom: 92px;
+    padding-top: var(--escudo-clearance, 134px);
+    padding-bottom: var(--footer-clearance, 120px);
   }
   .cards-grid {
     max-width: 370px;
@@ -199,8 +198,8 @@
 @media (max-width: 430px) {
   .grid-stage {
     padding: 6px;
-    padding-top: 100px;
-    padding-bottom: 90px;
+    padding-top: var(--escudo-clearance, 98px);
+    padding-bottom: var(--footer-clearance, 120px);
   }
   .cards-grid {
     max-width: 336px;
@@ -215,8 +214,8 @@
 @media (max-width: 390px) {
   .grid-stage {
     padding: 6px;
-    padding-top: 95px;
-    padding-bottom: 86px;
+    padding-top: var(--escudo-clearance, 96px);
+    padding-bottom: var(--footer-clearance, 120px);
   }
   .cards-grid {
     max-width: 306px;
@@ -231,8 +230,8 @@
 @media (max-width: 360px) {
   .grid-stage {
     padding: 4px;
-    padding-top: 88px;
-    padding-bottom: 82px;
+    padding-top: var(--escudo-clearance, 92px);
+    padding-bottom: var(--footer-clearance, 120px);
   }
   .cards-grid {
     max-width: 280px;

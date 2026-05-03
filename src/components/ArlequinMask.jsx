@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import './ArlequinMask.css';
 
+// Reads --mask-open-distance CSS variable (defined in breakpoints.css).
+// Returns a pixel number; falls back to 230 if variable is missing.
+function getOpenDistance() {
+  return parseFloat(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--mask-open-distance')
+      .trim()
+  ) || 230;
+}
+
 // Hook para calcular las posiciones basadas en el tamaño del contenedor
 // Así la animación tendrá la misma proporción relativa en desktop y mobile
 function useMaskPositions() {
@@ -9,18 +19,21 @@ function useMaskPositions() {
   useEffect(() => {
     const updatePositions = () => {
       const isMobile = window.innerWidth <= 600;
-      
+      // Open distance is responsive via CSS variable in breakpoints.css.
+      // This re-reads on every resize so it stays in sync with media queries.
+      const openDist = getOpenDistance();
+
       if (isMobile) {
         setPositions({
           OFFSCREEN: { left: 'translateX(-300px)', right: 'translateX(300px)' },
           CLOSED:    { left: 'translateX(17px)',    right: 'translateX(-20px)' },
-          OPEN:      { left: 'translateX(-100px)',  right: 'translateX(100px)' }
+          OPEN:      { left: `translateX(-${openDist}px)`, right: `translateX(${openDist}px)` }
         });
       } else {
         setPositions({
           OFFSCREEN: { left: 'translateX(-1000px)', right: 'translateX(1000px)' },
           CLOSED:    { left: 'translateX(-9px)',     right: 'translateX(5px)' },
-          OPEN:      { left: 'translateX(-230px)',  right: 'translateX(230px)' }
+          OPEN:      { left: `translateX(-${openDist}px)`, right: `translateX(${openDist}px)` }
         });
       }
     };

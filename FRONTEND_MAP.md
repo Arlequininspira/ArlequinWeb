@@ -163,7 +163,7 @@ NONE → QUESTION → GRID → CARD_DETAIL
 
 | Qué cambiar | Dónde |
 |------------|-------|
-| Tamaño desktop (120px) | `ArlequinEscudo.css` → `.arlequin-escudo img` width |
+| Tamaño desktop (94px) | `ArlequinEscudo.css` → `--escudo-height` CSS var (breakpoints.css) |
 | Tamaño móvil ≤430px (72px) | `ArlequinEscudo.css` → `@media (max-width: 430px)` |
 | Posición vertical (top: 20px) | `ArlequinEscudo.css` → `.arlequin-escudo` top |
 | Animación entrada (slide-down) | `ArlequinEscudo.css` → `@keyframes slide-down` |
