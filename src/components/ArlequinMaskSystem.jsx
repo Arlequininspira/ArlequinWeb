@@ -200,10 +200,12 @@ function ArlequinMaskSystem({
 
   return (
     <div className="arlequin-mask-system ready">
-      {/* Preload ALL card images as soon as content becomes visible */}
-      {stage !== STAGES.NONE && Object.entries(CARD_COMPONENTS).map(([key, Component]) => (
-        <Component key={`preload-${key}`} preload={true} isDarkMode={isDarkMode} />
-      ))}
+      {/* Preload only the hovered card; module-level caches in each component
+          ensure the active instance finds images ready without re-fetching. */}
+      {preloadCard !== null && (() => {
+        const Preload = CARD_COMPONENTS[preloadCard];
+        return Preload ? <Preload key={`preload-${preloadCard}`} preload={true} isDarkMode={isDarkMode} /> : null;
+      })()}
       {showEscudo && (
         <ArlequinEscudo
           onClick={handleEscudoClick}

@@ -207,9 +207,8 @@
 /* Card text content */
 .card-text-container {
   position: absolute;
-  top: 30%;
+  top: 200px;
   left: 70px;
-  transform: translate(0, -50%);
   width: 280px;
   z-index: 5;
   pointer-events: none;
@@ -218,21 +217,23 @@
 
 .card-text {
   font-family: 'NewRocker-Regular', serif;
-  font-size: 18px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.45;
   color: #ffffff;
   text-align: left;
   margin: 0;
-  padding: 10px;
-  padding-left: 20px;
+  padding: 5px 8px 5px 15px;
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
 }
 
-.card-text-line {
-  display: block;
-  white-space: nowrap;
-  text-align: left;
-  font-size: 18px;
+.card-text-paragraph {
+  margin: 0 0 10px 0;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.card-text-paragraph:last-child {
+  margin-bottom: 0;
 }
 
 .card-text.card-text--clear {

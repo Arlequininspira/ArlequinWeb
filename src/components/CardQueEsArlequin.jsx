@@ -76,46 +76,22 @@ const CARD_HEIGHT = 680;
 const _openCache  = {};
 const _closeCache = {};
 
-const page3Lines = [
-  { text: '', indent: 0 },
-  { text: '', indent: 0 },
-  { text: 'Además, desarrollamos', indent: 0 },
-  { text: 'productos propios, como,', indent: 0 },
-  { text: 'sistemas de gestión y', indent: 0 },
-  { text: 'páginas con funcionalidades', indent: 0 },
-  { text: 'específicas, que podrán ser', indent: 0 },
-  { text: 'utilizados por otros a través', indent: 0 },
-  { text: 'de un modelo de suscripción.', indent: 0 },
-  { text: '(PRÓXIMAMENTE)', indent: 12 },
+const cardTexts = [
+  [
+    'Arlequín es una empresa enfocada en el diseño y desarrollo de soluciones digitales creativas.',
+    'Más que un nombre, Arlequín es un concepto. Representa al artista completo: alguien que combina distintas habilidades para crear, interpretar y resolver. Esa visión define la forma en que se abordan los proyectos, integrando creatividad y técnica en cada etapa, desde la idea hasta su desarrollo, para transformarlas en soluciones bien pensadas, bien diseñadas y bien ejecutadas.',
+  ],
+  [
+    'Cada proyecto se aborda de forma integral, entendiendo el diseño no solo desde lo estético, sino también desde lo funcional. Cada solución busca responder a una necesidad real y generar una experiencia clara para quienes la utilizan.',
+  ],
+  [
+    'Arlequín diseña y desarrolla sitios web funcionales, adaptables a todo tipo de dispositivos, pensados tanto para el cliente final como para quienes administran un negocio. Se especializa en experiencia de usuario (UX), diseño visual (UI) y programación a medida, analizando cada necesidad para construir plataformas claras, intuitivas y efectivas.',
+  ],
+  [
+    'Además, desarrolla productos propios, como sistemas de gestión y plataformas con funcionalidades específicas, que pueden ser utilizados por terceros a través de un modelo de suscripción.',
+    '(PRÓXIMAMENTE)',
+  ],
 ];
-
-const page2Lines = [
-  { text: '', indent: 0 },
-  { text: '', indent: 0 },
-  { text: 'Nos especializamos en', indent: 0 },
-  { text: 'experiencia de usuario', indent: 0 },
-  { text: '(UX), diseño visual (UI)', indent: 0 },
-  { text: 'y programación a medida.', indent: 0 },
-  { text: 'Analizamos las necesidades', indent: 0 },
-  { text: 'de cada cliente y', indent: 0 },
-  { text: 'construimos plataformas', indent: 0 },
-  { text: 'claras, intuitivas y efectivas.', indent: 0 },
-];
-
-const page1Lines = [
-  { text: 'Arlequín es una marca', indent: 0 },
-  { text: 'enfocada en brindar', indent: 0 },
-  { text: 'soluciones digitales.', indent: 0 },
-  { text: 'Diseñamos y desarrollamos', indent: 0 },
-  { text: 'sitios web funcionales,', indent: 0 },
-  { text: 'adaptables a todo tipo de', indent: 0 },
-  { text: 'dispositivos, pensados tanto', indent: 0 },
-  { text: 'para el cliente final como', indent: 0 },
-  { text: 'para quien administra el', indent: 0 },
-  { text: 'negocio.', indent: 0 },
-];
-
-const cardTexts = [page1Lines, page2Lines, page3Lines];
 
 function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, fromGrid = false, preload = false }) {
   const canvasRef = useRef(null);
@@ -401,10 +377,10 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
       {showNavIcons && (
         <div className="card-text-container">
           <div className={`card-text ${!isDarkMode ? 'card-text--clear' : ''}`}>
-            {cardTexts[currentCardIndex].map((line, index) => (
-              <div key={index} className="card-text-line" style={{ marginRight: line.indent + 'px' }}>
-                {line.text}
-              </div>
+            {cardTexts[currentCardIndex].map((paragraph, index) => (
+              <p key={index} className="card-text-paragraph">
+                {paragraph}
+              </p>
             ))}
           </div>
         </div>

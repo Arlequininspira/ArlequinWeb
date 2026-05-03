@@ -124,6 +124,17 @@
   outline: none;
 }
 
+.theme-toggle.no-pulse {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle.dark-mode,
+  .theme-toggle.light-mode {
+    animation: none;
+  }
+}
+
 /* Tooltip styles - one-time onboarding hint */
 .theme-tooltip {
   font-family: 'Cinzel Black', serif;

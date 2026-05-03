@@ -337,6 +337,12 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
             className="grid-card"
             style={getCardStyle(index)}
             onClick={() => handleCardClick(index)}
+            onMouseEnter={() => {
+              if (clickPhase === 'idle' && dealPhase === 'idle' && onCardPreClick) onCardPreClick(index + 1);
+            }}
+            onTouchStart={() => {
+              if (clickPhase === 'idle' && dealPhase === 'idle' && onCardPreClick) onCardPreClick(index + 1);
+            }}
             disabled={clickPhase !== 'idle' || dealPhase !== 'idle'}
           >
             <div className="card-back">

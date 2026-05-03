@@ -4,6 +4,7 @@ import ThemeToggleStar from './components/ThemeToggleStar'
 import LogoAnimation from './components/LogoAnimation'
 import ArlequinMaskSystem from './components/ArlequinMaskSystem'
 import FooterBanner from './components/FooterBanner'
+import { useLowEndDevice } from './hooks/useLowEndDevice'
 import './App.css'
 
 const THEME_STORAGE_KEY = 'themeMode';
@@ -26,6 +27,7 @@ function App() {
   });
 
   const [phase, setPhase] = useState(ANIMATION_PHASE.HOME);
+  const { isLowEnd, prefersReducedMotion } = useLowEndDevice();
 
   useEffect(() => {
     localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? 'dark' : 'light');
@@ -97,8 +99,8 @@ function App() {
 
   return (
     <div className="app">
-      <BackgroundAnimation isDarkMode={isDarkMode} />
-      <ThemeToggleStar isDarkMode={isDarkMode} onToggle={handleToggle} />
+      <BackgroundAnimation isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} />
+      <ThemeToggleStar isDarkMode={isDarkMode} onToggle={handleToggle} isLowEnd={isLowEnd} />
 
       <LogoAnimation
         isDarkMode={isDarkMode}
