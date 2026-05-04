@@ -75,16 +75,6 @@ const CARD_HEIGHT = 680;
 const _openCache  = {};
 const _closeCache = {};
 
-const getCardDimensions = () => {
-  const style = getComputedStyle(document.documentElement);
-  const w = parseFloat(style.getPropertyValue('--grid-card-width'));
-  const h = parseFloat(style.getPropertyValue('--grid-card-height'));
-  return {
-    w: isNaN(w) || w < 10 ? CARD_WIDTH : w,
-    h: isNaN(h) || h < 10 ? CARD_HEIGHT : h,
-  };
-};
-
 // ── 7 páginas de contenido ────────────────────────────────────────
 const page1Lines = [
   { text: 'En Arlequín diseñamos y', indent: 0 },
@@ -240,9 +230,8 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
           const ctx = canvas.getContext('2d');
           const finalFrame = _openCache[themeKey][_openCache[themeKey].length - 1];
           if (finalFrame) {
-            const { w: CW, h: CH } = getCardDimensions();
-            ctx.clearRect(0, 0, CW, CH);
-            ctx.drawImage(finalFrame, 0, 0, CW, CH);
+            ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+            ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
         }
         return;
@@ -282,9 +271,8 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
         const ctx = canvas.getContext('2d');
         const finalFrame = openResults[openResults.length - 1];
         if (finalFrame) {
-          const { w: CW, h: CH } = getCardDimensions();
-          ctx.clearRect(0, 0, CW, CH);
-          ctx.drawImage(finalFrame, 0, 0, CW, CH);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
       }
     };
@@ -297,14 +285,13 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const { w: CW, h: CH } = getCardDimensions();
-    canvas.width = Math.round(CW * dpr);
-    canvas.height = Math.round(CH * dpr);
-    canvas.style.width = `${CW}px`;
-    canvas.style.height = `${CH}px`;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
     ctx.scale(dpr, dpr);
     const first = imagesRef.current[0];
-    if (first) { ctx.clearRect(0, 0, CW, CH); ctx.drawImage(first, 0, 0, CW, CH); }
+    if (first) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(first, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
   }, [isLoaded]);
 
   // Open animation loop
@@ -314,22 +301,21 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const { w: CW, h: CH } = getCardDimensions();
-    canvas.width = Math.round(CW * dpr);
-    canvas.height = Math.round(CH * dpr);
-    canvas.style.width = `${CW}px`;
-    canvas.style.height = `${CH}px`;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
     ctx.scale(dpr, dpr);
 
     const drawFrame = () => {
       if (isCompleteRef.current) {
         const final = imagesRef.current[totalFrames];
-        if (final) { ctx.clearRect(0, 0, CW, CH); ctx.drawImage(final, 0, 0, CW, CH); }
+        if (final) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(final, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
         if (!isClosing) setShowNavIcons(true);
         return;
       }
       const frame = imagesRef.current[currentFrameRef.current];
-      if (frame) { ctx.clearRect(0, 0, CW, CH); ctx.drawImage(frame, 0, 0, CW, CH); }
+      if (frame) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
     };
 
     drawFrame();
@@ -358,7 +344,6 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
 
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
-    const { w: CW, h: CH } = getCardDimensions();
     closeFrameRef.current      = 0;
     lastCloseFrameTimeRef.current = 0;
     canvas.style.transition = '';
@@ -372,8 +357,8 @@ function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, pr
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) {
-          ctx.clearRect(0, 0, CW, CH);
-          ctx.drawImage(frame, 0, 0, CW, CH);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
         lastCloseFrameTimeRef.current += CARD_FRAME_DURATION;
         if (closeFrameRef.current < frames.length - 1) {

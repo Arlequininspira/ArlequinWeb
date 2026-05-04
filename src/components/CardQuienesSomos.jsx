@@ -77,16 +77,6 @@ const CARD_HEIGHT = 680;
 const _openCache  = {};
 const _closeCache = {};
 
-const getCardDimensions = () => {
-  const style = getComputedStyle(document.documentElement);
-  const w = parseFloat(style.getPropertyValue('--grid-card-width'));
-  const h = parseFloat(style.getPropertyValue('--grid-card-height'));
-  return {
-    w: isNaN(w) || w < 10 ? CARD_WIDTH : w,
-    h: isNaN(h) || h < 10 ? CARD_HEIGHT : h,
-  };
-};
-
 // 4 pages: 0-1 photos, 2-3 text
 const PAGES = [
   {
@@ -217,9 +207,8 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
           const ctx = canvas.getContext('2d');
           const finalFrame = _openCache[themeKey][_openCache[themeKey].length - 1];
           if (finalFrame) {
-            const { w: CW, h: CH } = getCardDimensions();
-            ctx.clearRect(0, 0, CW, CH);
-            ctx.drawImage(finalFrame, 0, 0, CW, CH);
+            ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+            ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
           }
         }
         return;
@@ -261,9 +250,8 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
         const ctx = canvas.getContext('2d');
         const finalFrame = openResults[openResults.length - 1];
         if (finalFrame) {
-          const { w: CW, h: CH } = getCardDimensions();
-          ctx.clearRect(0, 0, CW, CH);
-          ctx.drawImage(finalFrame, 0, 0, CW, CH);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
       }
     };
@@ -277,16 +265,15 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const { w: CW, h: CH } = getCardDimensions();
-    canvas.width = Math.round(CW * dpr);
-    canvas.height = Math.round(CH * dpr);
-    canvas.style.width = `${CW}px`;
-    canvas.style.height = `${CH}px`;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
     ctx.scale(dpr, dpr);
     const firstFrame = imagesRef.current[0];
     if (firstFrame) {
-      ctx.clearRect(0, 0, CW, CH);
-      ctx.drawImage(firstFrame, 0, 0, CW, CH);
+      ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+      ctx.drawImage(firstFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
     }
   }, [isLoaded]);
 
@@ -297,27 +284,26 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const { w: CW, h: CH } = getCardDimensions();
-    canvas.width = Math.round(CW * dpr);
-    canvas.height = Math.round(CH * dpr);
-    canvas.style.width = `${CW}px`;
-    canvas.style.height = `${CH}px`;
+    canvas.width = Math.round(CARD_WIDTH * dpr);
+    canvas.height = Math.round(CARD_HEIGHT * dpr);
+    canvas.style.width = `${CARD_WIDTH}px`;
+    canvas.style.height = `${CARD_HEIGHT}px`;
     ctx.scale(dpr, dpr);
 
     const drawFrame = () => {
       if (isCompleteRef.current) {
         const finalFrame = imagesRef.current[totalFrames];
         if (finalFrame) {
-          ctx.clearRect(0, 0, CW, CH);
-          ctx.drawImage(finalFrame, 0, 0, CW, CH);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
         if (!isClosing) setShowContent(true);
         return;
       }
       const frame = imagesRef.current[currentFrameRef.current];
       if (frame) {
-        ctx.clearRect(0, 0, CW, CH);
-        ctx.drawImage(frame, 0, 0, CW, CH);
+        ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+        ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
       }
     };
 
@@ -348,7 +334,6 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const { w: CW, h: CH } = getCardDimensions();
     closeFrameRef.current = 0;
     lastCloseFrameTimeRef.current = 0;
     canvas.style.transition = '';
@@ -362,8 +347,8 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) {
-          ctx.clearRect(0, 0, CW, CH);
-          ctx.drawImage(frame, 0, 0, CW, CH);
+          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
         }
         lastCloseFrameTimeRef.current += CARD_FRAME_DURATION;
         if (closeFrameRef.current < frames.length - 1) {

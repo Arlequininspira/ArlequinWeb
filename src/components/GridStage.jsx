@@ -141,8 +141,6 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
       const r2 = cards[2].getBoundingClientRect();
       setColStep(r1.left - r0.left);
       setRowStep(r2.top - r0.top);
-      document.documentElement.style.setProperty('--grid-card-width',  `${r0.width}px`);
-      document.documentElement.style.setProperty('--grid-card-height', `${r0.height}px`);
     };
 
     measure();
