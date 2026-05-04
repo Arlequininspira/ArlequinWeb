@@ -64,7 +64,11 @@
 .grid-card .card-back img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* fill matches ctx.drawImage(img,0,0,W,H) semantics in the card canvas:
+     the canvas stretches the dorso to fill its buffer, so the grid img must
+     do the same to avoid a visible size jump at the close→deal transition.
+     Dorso aspect (0.72) vs 3:4 slot (0.75) = ~4% horizontal stretch, imperceptible. */
+  object-fit: fill;
 }
 
 /* ── Texto superpuesto en la carta ───────────────────────────────
