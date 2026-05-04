@@ -95,8 +95,9 @@ function ArlequinMaskSystem({
     setStage(STAGES.DEALING);
   }, []);
 
-  // Called by CardDealAnimation when Phase B finishes
+  // Called by CardDealAnimation when Phase B finishes (both initial entry and close return)
   const handleDealAnimationComplete = useCallback(() => {
+    setIsCardExpanding(false); // restore escudo visibility
     setStage(STAGES.GRID);
   }, []);
 
@@ -150,12 +151,12 @@ function ArlequinMaskSystem({
     setIsCardExpanding(true);
   }, []);
 
-  // Handle close from individual card detail
+  // Handle close from individual card detail — re-run deal animation instead of
+  // reverse-deal in GridStage, which avoids the size jump from canvas padding mismatch.
   const handleCardDetailClose = useCallback(() => {
     setSelectedCard(null);
     setCardFromGrid(false);
-    setDealKey(k => k + 1);
-    setStage(STAGES.GRID);
+    setStage(STAGES.DEALING);
   }, []);
 
   // Handle go-to-contact from CardQueEsArlequin last page
@@ -236,18 +237,17 @@ function ArlequinMaskSystem({
 
       {stage !== STAGES.MASK_SHOWING && stage !== STAGES.NONE && (
         <div className={`mask-content${isShrinkingOut ? ' shrinking-out' : ''}`}>
-          {/* GridStage stays mounted during CARD_DETAIL so re-deal fires without flash */}
-          {(stage === STAGES.GRID || stage === STAGES.CARD_DETAIL) && (
-            <div style={stage !== STAGES.GRID ? { display: 'none' } : undefined}>
-              <GridStage
-                onCardClick={handleGridCardClick}
-                onCardPreClick={handleGridCardPreClick}
-                onExpandStart={handleCardExpandStart}
-                onDealComplete={handleDealComplete}
-                isDarkMode={isDarkMode}
-                dealKey={dealKey}
-              />
-            </div>
+          {/* GridStage only mounts in stable GRID stage; CardDealAnimation handles
+              both entry and return-from-card transitions, so no display:none trick needed */}
+          {stage === STAGES.GRID && (
+            <GridStage
+              onCardClick={handleGridCardClick}
+              onCardPreClick={handleGridCardPreClick}
+              onExpandStart={handleCardExpandStart}
+              onDealComplete={handleDealComplete}
+              isDarkMode={isDarkMode}
+              dealKey={dealKey}
+            />
           )}
           {renderStageContent()}
         </div>
