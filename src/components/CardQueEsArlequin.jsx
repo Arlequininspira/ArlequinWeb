@@ -93,6 +93,16 @@ const cardTexts = [
   ],
 ];
 
+const getCardDimensions = () => {
+  const style = getComputedStyle(document.documentElement);
+  const w = parseFloat(style.getPropertyValue('--grid-card-width'));
+  const h = parseFloat(style.getPropertyValue('--grid-card-height'));
+  return {
+    w: isNaN(w) || w < 10 ? CARD_WIDTH : w,
+    h: isNaN(h) || h < 10 ? CARD_HEIGHT : h,
+  };
+};
+
 function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, fromGrid = false, preload = false }) {
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
@@ -178,8 +188,9 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
           const ctx = canvas.getContext('2d');
           const finalFrame = _openCache[themeKey][_openCache[themeKey].length - 1];
           if (finalFrame) {
-            ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-            ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+            const { w: CW, h: CH } = getCardDimensions();
+            ctx.clearRect(0, 0, CW, CH);
+            ctx.drawImage(finalFrame, 0, 0, CW, CH);
           }
         }
         return;
@@ -221,8 +232,9 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
         const ctx = canvas.getContext('2d');
         const finalFrame = openResults[openResults.length - 1];
         if (finalFrame) {
-          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-          ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          const { w: CW, h: CH } = getCardDimensions();
+          ctx.clearRect(0, 0, CW, CH);
+          ctx.drawImage(finalFrame, 0, 0, CW, CH);
         }
       }
     };
@@ -236,15 +248,16 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(CARD_WIDTH * dpr);
-    canvas.height = Math.round(CARD_HEIGHT * dpr);
-    canvas.style.width = `${CARD_WIDTH}px`;
-    canvas.style.height = `${CARD_HEIGHT}px`;
+    const { w: CW, h: CH } = getCardDimensions();
+    canvas.width = Math.round(CW * dpr);
+    canvas.height = Math.round(CH * dpr);
+    canvas.style.width = `${CW}px`;
+    canvas.style.height = `${CH}px`;
     ctx.scale(dpr, dpr);
     const firstFrame = imagesRef.current[0];
     if (firstFrame) {
-      ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-      ctx.drawImage(firstFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+      ctx.clearRect(0, 0, CW, CH);
+      ctx.drawImage(firstFrame, 0, 0, CW, CH);
     }
   }, [isLoaded]);
 
@@ -255,26 +268,27 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(CARD_WIDTH * dpr);
-    canvas.height = Math.round(CARD_HEIGHT * dpr);
-    canvas.style.width = `${CARD_WIDTH}px`;
-    canvas.style.height = `${CARD_HEIGHT}px`;
+    const { w: CW, h: CH } = getCardDimensions();
+    canvas.width = Math.round(CW * dpr);
+    canvas.height = Math.round(CH * dpr);
+    canvas.style.width = `${CW}px`;
+    canvas.style.height = `${CH}px`;
     ctx.scale(dpr, dpr);
 
     const drawFrame = () => {
       if (isCompleteRef.current) {
         const finalFrame = imagesRef.current[totalFrames];
         if (finalFrame) {
-          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-          ctx.drawImage(finalFrame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.clearRect(0, 0, CW, CH);
+          ctx.drawImage(finalFrame, 0, 0, CW, CH);
         }
         if (!isClosing) setShowNavIcons(true);
         return;
       }
       const frame = imagesRef.current[currentFrameRef.current];
       if (frame) {
-        ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-        ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+        ctx.clearRect(0, 0, CW, CH);
+        ctx.drawImage(frame, 0, 0, CW, CH);
       }
     };
 
@@ -305,6 +319,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    const { w: CW, h: CH } = getCardDimensions();
     closeFrameRef.current = 0;
     lastCloseFrameTimeRef.current = 0;
     canvas.style.transition = '';
@@ -318,8 +333,8 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
       if (timestamp - lastCloseFrameTimeRef.current >= CARD_FRAME_DURATION) {
         const frame = frames[closeFrameRef.current];
         if (frame) {
-          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-          ctx.drawImage(frame, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.clearRect(0, 0, CW, CH);
+          ctx.drawImage(frame, 0, 0, CW, CH);
         }
         lastCloseFrameTimeRef.current += CARD_FRAME_DURATION;
         if (closeFrameRef.current < frames.length - 1) {
@@ -330,16 +345,13 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, onGoToContact, f
             goingToContactRef.current = false;
             if (onGoToContact) onGoToContact();
           } else {
-            // Last frame is 00000 — smooth shrink to grid card size, then hand off
-            const _tw = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
             if (fromGrid) {
-              const _th = _tw * 4 / 3;
-              const rendered = canvasRef.current.getBoundingClientRect();
-              const _sx = (_tw / rendered.width).toFixed(4);
-              const _sy = (_th / rendered.height).toFixed(4);
-              canvas.style.transition = 'transform 0.55s ease-in-out';
-              canvas.style.transform = `scaleX(${_sx}) scaleY(${_sy})`;
-              setTimeout(() => onClose(), 650);
+              // Shrink to CardDealAnimation's init state (scale 0.05, opacity 0)
+              // so the growing phase continues visually from the same starting point.
+              canvas.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+              canvas.style.transform = 'scale(0.05)';
+              canvas.style.opacity = '0';
+              setTimeout(() => onClose(), 350);
             } else {
               setIsScalingDown(true);
               setTimeout(() => onClose(), 400);

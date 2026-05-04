@@ -141,6 +141,8 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
       const r2 = cards[2].getBoundingClientRect();
       setColStep(r1.left - r0.left);
       setRowStep(r2.top - r0.top);
+      document.documentElement.style.setProperty('--grid-card-width',  `${r0.width}px`);
+      document.documentElement.style.setProperty('--grid-card-height', `${r0.height}px`);
     };
 
     measure();
@@ -167,10 +169,9 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
     const expandTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
     const scaleToComponent = expandTargetWidth / rect.width;
 
-    // Scale for the RESTORING snap: same as the expand animation (390px desktop / 85vw mobile)
-    // matches what the grid shows when opening a card, so no size jump on close
-    const restoreTargetWidth = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
-    const restoreScale = restoreTargetWidth / rect.width;
+    // Scale for the RESTORING snap: 1:1 so the card snaps to its natural grid size.
+    // Canvas now matches grid card dimensions, so no expansion needed.
+    const restoreScale = 1;
 
     const expandTransformVal = { tx, ty, scale: scaleToComponent };
     const restoreTransformVal = { tx, ty, scale: restoreScale };
@@ -230,10 +231,10 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
 
       if (dealPhase === 'restoring') {
         if (isSelected) {
-          // Snap selected card to viewport center at card-component size (no transition)
-          const { tx, ty, scale } = expandTransform;
+          // Snap selected card to viewport center at 1:1 scale (matches canvas size)
+          const { tx, ty } = expandTransform;
           return {
-            transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
+            transform: `translate(${tx}px, ${ty}px) scale(1)`,
             zIndex: 15,
             transition: 'none',
           };

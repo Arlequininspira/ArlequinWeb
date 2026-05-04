@@ -57,6 +57,16 @@ const _postSendCache = {};
 const _closeCache    = {};
 const _btnCache      = {};
 
+const getCardDimensions = () => {
+  const style = getComputedStyle(document.documentElement);
+  const w = parseFloat(style.getPropertyValue('--grid-card-width'));
+  const h = parseFloat(style.getPropertyValue('--grid-card-height'));
+  return {
+    w: isNaN(w) || w < 10 ? CARD_WIDTH : w,
+    h: isNaN(h) || h < 10 ? CARD_HEIGHT : h,
+  };
+};
+
 // ── Component ─────────────────────────────────────────────────────────────────
 function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false }) {
   const canvasRef         = useRef(null);
@@ -234,13 +244,14 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap at 2x for 60Hz mobile perf
-    canvas.width  = Math.round(CARD_WIDTH * dpr);
-    canvas.height = Math.round(CARD_HEIGHT * dpr);
-    canvas.style.width  = `${CARD_WIDTH}px`;
-    canvas.style.height = `${CARD_HEIGHT}px`;
+    const { w: CW, h: CH } = getCardDimensions();
+    canvas.width  = Math.round(CW * dpr);
+    canvas.height = Math.round(CH * dpr);
+    canvas.style.width  = `${CW}px`;
+    canvas.style.height = `${CH}px`;
     ctx.scale(dpr, dpr);
     const first = openImagesRef.current[0];
-    if (first) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(first, 0, 0, CARD_WIDTH, CARD_HEIGHT); }
+    if (first) { ctx.clearRect(0, 0, CW, CH); ctx.drawImage(first, 0, 0, CW, CH); }
   }, [isLoaded]);
 
   // ── Main animation loop ──────────────────────────────────────────────────────
@@ -255,13 +266,14 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     if (animPhase === 'postSend') frames = postSendImagesRef.current;
     if (animPhase === 'closing')  frames = closeImagesRef.current;
 
+    const { w: CW, h: CH } = getCardDimensions();
     frameIdxRef.current = 0;
     lastTimeRef.current = 0;
     canvas.style.transition = '';
     canvas.style.transform = '';
 
     // Draw first frame immediately
-    if (frames[0]) { ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT); ctx.drawImage(frames[0], 0, 0, CARD_WIDTH, CARD_HEIGHT); }
+    if (frames[0]) { ctx.clearRect(0, 0, CW, CH); ctx.drawImage(frames[0], 0, 0, CW, CH); }
 
     const animate = (timestamp) => {
       if (lastTimeRef.current === 0) {
@@ -272,8 +284,8 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
         const idx = frameIdxRef.current;
         const img = frames[idx];
         if (img) {
-          ctx.clearRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-          ctx.drawImage(img, 0, 0, CARD_WIDTH, CARD_HEIGHT);
+          ctx.clearRect(0, 0, CW, CH);
+          ctx.drawImage(img, 0, 0, CW, CH);
         }
 
         if (idx < frames.length - 1) {
@@ -284,16 +296,11 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
           if (animPhase === 'opening')  { setAnimPhase('fixedForm');    setShowContent(true); }
           if (animPhase === 'postSend') { setAnimPhase('fixedGracias'); setShowGracias(true); }
           if (animPhase === 'closing')  {
-            // Smooth shrink to grid card size, then hand off
-            const _tw = window.innerWidth <= 500 ? window.innerWidth * 0.85 : 390;
             if (fromGrid) {
-              const _th = _tw * 4 / 3;
-              const rendered = canvasRef.current.getBoundingClientRect();
-              const _sx = (_tw / rendered.width).toFixed(4);
-              const _sy = (_th / rendered.height).toFixed(4);
-              canvas.style.transition = 'transform 0.55s ease-in-out';
-              canvas.style.transform = `scaleX(${_sx}) scaleY(${_sy})`;
-              setTimeout(() => onClose(), 650);
+              canvas.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+              canvas.style.transform = 'scale(0.05)';
+              canvas.style.opacity = '0';
+              setTimeout(() => onClose(), 350);
             } else {
               setIsScalingDown(true);
               setTimeout(() => onClose(), 400);
