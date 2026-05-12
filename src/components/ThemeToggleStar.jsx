@@ -84,7 +84,7 @@ function ThemeToggleStar({ isDarkMode, onToggle, isLowEnd = false }) {
     ctx.clearRect(0, 0, displaySize, displaySize);
 
     const drawFrame = () => {
-      const imageSet = isDarkMode ? imagesRef.current.clear : imagesRef.current.dark;
+      const imageSet = isDarkMode ? imagesRef.current.dark : imagesRef.current.clear;
       const frame = imageSet[currentFrameRef.current];
       if (frame) {
         ctx.clearRect(0, 0, displaySize, displaySize);
@@ -123,14 +123,14 @@ function ThemeToggleStar({ isDarkMode, onToggle, isLowEnd = false }) {
   return (
     <div className="theme-toggle-wrapper">
       <button
-        className={`theme-toggle ${isDarkMode ? 'dark-mode' : 'light-mode'}${isLowEnd ? ' no-pulse' : ''}`}
+        className={`theme-toggle ${isDarkMode ? 'light-mode' : 'dark-mode'}${isLowEnd ? ' no-pulse' : ''}`}
         onClick={onToggle}
         aria-label="Toggle theme"
       >
         <canvas ref={canvasRef} className="theme-toggle-canvas" />
       </button>
-      {showTooltip && (
-        <span className={`theme-tooltip ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
+      {false && showTooltip && (
+        <span className={`theme-tooltip ${isDarkMode ? 'light-mode' : 'dark-mode'}`}>
           {tooltipText}
         </span>
       )}
