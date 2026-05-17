@@ -69,6 +69,7 @@ const CARD_FINAL_FRAME_CLEAR = '00012_arlequin_frente_clear_fija.avif';
 const CARD_FINAL_FRAME_DARK = '00012_arlequin_frente_dark_fija.avif';
 
 const CARD_FRAME_DURATION = 25;
+const CARD_FRAME_DURATION_LOW_END = 50;
 const CARD_WIDTH = 550;
 const CARD_HEIGHT = 680;
 
@@ -104,7 +105,12 @@ const cardTexts = [
   ],
 ];
 
-function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false }) {
+function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false, isLowEnd = false, prefersReducedMotion = false }) {
+  // Only mobile gets the reduced FPS — desktop ALWAYS runs at the original rate
+  // to avoid any regression. isLowEnd/prefersReducedMotion act as kill-switches
+  // on top of mobile detection.
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  const frameDuration = isMobile ? CARD_FRAME_DURATION_LOW_END : CARD_FRAME_DURATION;
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
   const closeImagesRef = useRef([]);
@@ -300,7 +306,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
 
       const elapsed = timestamp - lastFrameTimeRef.current;
 
-      if (elapsed >= CARD_FRAME_DURATION) {
+      if (elapsed >= frameDuration) {
         lastFrameTimeRef.current = timestamp;
 
         if (!isCompleteRef.current) {
@@ -354,7 +360,7 @@ function CardQueEsArlequin({ isDarkMode, onClose, onCloseStart, fromGrid = false
 
       const elapsed = timestamp - lastCloseFrameTimeRef.current;
 
-      if (elapsed >= CARD_FRAME_DURATION) {
+      if (elapsed >= frameDuration) {
         lastCloseFrameTimeRef.current = timestamp;
 
         const frame = frames[closeFrameRef.current];
