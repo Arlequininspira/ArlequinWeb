@@ -154,7 +154,10 @@ const cardTexts = [page1Lines, page2Lines, page3Lines, page4Lines, page5Lines, p
 
 // ─────────────────────────────────────────────────────────────────
 function CardServicios({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false, isLowEnd = false, prefersReducedMotion = false }) {
-  const frameDuration = (isLowEnd || prefersReducedMotion) ? CARD_FRAME_DURATION_LOW_END : CARD_FRAME_DURATION;
+  // Only mobile gets the reduced FPS — desktop ALWAYS runs at the original rate
+  // to avoid any regression.
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  const frameDuration = isMobile ? CARD_FRAME_DURATION_LOW_END : CARD_FRAME_DURATION;
   const canvasRef          = useRef(null);
   const imagesRef          = useRef([]);
   const closeImagesRef     = useRef([]);

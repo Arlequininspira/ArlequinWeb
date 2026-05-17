@@ -94,7 +94,9 @@ function ThemeToggleStar({ isDarkMode, onToggle, isLowEnd = false }) {
 
     drawFrame();
 
-    if (isLowEnd) return;
+    // Skip animation only on mobile low-end devices — desktop always animates.
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isLowEnd && isMobile) return;
 
     const handleVisibility = () => {
       if (!document.hidden) lastFrameTimeRef.current = 0;

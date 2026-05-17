@@ -146,11 +146,16 @@ function BackgroundAnimation({ isDarkMode = true, isLowEnd = false, prefersReduc
       }
     };
 
-    // Always draw one frame (static bg on low-end / reduced-motion)
+    // Always draw one frame (static bg on low-end mobile / reduced-motion mobile)
     drawStars();
 
+    // Skip animation only on mobile devices that are constrained or whose user
+    // opted into reduced motion. Desktop ALWAYS animates regardless of what
+    // hardwareConcurrency/deviceMemory report — those signals are unreliable
+    // on desktop browsers and a static background is a worse UX than the cost
+    // of an 18-FPS canvas draw on a powerful machine.
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    if (isLowEnd || (isMobile && prefersReducedMotion)) return;
+    if (isMobile && (isLowEnd || prefersReducedMotion)) return;
 
     const animate = (timestamp) => {
       if (lastFrameTimeRef.current === 0) lastFrameTimeRef.current = timestamp;

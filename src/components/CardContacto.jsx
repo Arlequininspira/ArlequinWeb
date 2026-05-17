@@ -61,9 +61,11 @@ const _btnCache      = {};
 
 // ── Component ─────────────────────────────────────────────────────────────────
 function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false, isLowEnd = false, prefersReducedMotion = false }) {
-  const lowEndMode = isLowEnd || prefersReducedMotion;
-  const cardFrameDuration = lowEndMode ? CARD_FRAME_DURATION_LOW_END : CARD_FRAME_DURATION;
-  const btnFrameDuration  = lowEndMode ? BTN_FRAME_DURATION_LOW_END  : BTN_FRAME_DURATION;
+  // Only mobile gets the reduced FPS — desktop ALWAYS runs at the original rate
+  // to avoid any regression.
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  const cardFrameDuration = isMobile ? CARD_FRAME_DURATION_LOW_END : CARD_FRAME_DURATION;
+  const btnFrameDuration  = isMobile ? BTN_FRAME_DURATION_LOW_END  : BTN_FRAME_DURATION;
   const canvasRef         = useRef(null);
   const openImagesRef     = useRef([]);
   const postSendImagesRef = useRef([]);
