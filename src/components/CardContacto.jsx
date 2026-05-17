@@ -47,7 +47,7 @@ const BTN_SEND_START     = 72;
 const BTN_SEND_END       = 168;
 const BTN_FRAME_DURATION = 40;
 const BTN_DISPLAY_WIDTH  = 500;
-const CARD_FRAME_DURATION = 40;
+const CARD_FRAME_DURATION = 25;
 const CARD_WIDTH  = 550;
 const CARD_HEIGHT = 680;
 
