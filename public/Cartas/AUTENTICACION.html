@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helpers API — Documentación de Autenticación</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 60px 80px;
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+    color: #fff;
+    page-break-after: always;
+  }
+  .cover .logo {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #4fc3f7;
+    margin-bottom: 60px;
+    font-weight: 600;
+  }
+  .cover h1 {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+  .cover h1 span { color: #4fc3f7; }
+  .cover .subtitle {
+    font-size: 16px;
+    color: #90caf9;
+    margin-bottom: 60px;
+    font-weight: 300;
+  }
+  .cover .meta {
+    display: flex;
+    gap: 40px;
+    margin-top: auto;
+  }
+  .cover .meta-item label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4fc3f7;
+    margin-bottom: 4px;
+  }
+  .cover .meta-item span {
+    font-size: 14px;
+    color: #e3f2fd;
+  }
+  .cover .badge-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .cover .badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-hash { background: rgba(79,195,247,0.2); color: #4fc3f7; border: 1px solid #4fc3f7; }
+  .badge-jwt  { background: rgba(76,175,80,0.2);  color: #81c784; border: 1px solid #81c784; }
+
+  /* ── CONTENT ── */
+  .page {
+    padding: 50px 70px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f3460;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #4fc3f7;
+    margin-top: 40px;
+  }
+  h2:first-child { margin-top: 0; }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #16213e;
+    margin: 28px 0 10px;
+  }
+
+  p { margin-bottom: 10px; color: #333; }
+
+  /* ── STEP BLOCKS ── */
+  .step {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-num.blue { background: #0f3460; }
+  .step-num.green { background: #388e3c; }
+  .step-body { flex: 1; }
+  .step-body strong { display: block; margin-bottom: 6px; font-size: 13px; color: #1a1a2e; }
+
+  /* ── CODE BLOCKS ── */
+  pre, code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+  }
+  pre {
+    background: #0d1117;
+    color: #c9d1d9;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 10px 0;
+    overflow: auto;
+    line-height: 1.5;
+  }
+  .kw  { color: #ff7b72; }   /* keyword / method */
+  .url { color: #79c0ff; }   /* URL */
+  .hdr { color: #d2a8ff; }   /* header name */
+  .val { color: #a5d6ff; }   /* header value */
+  .str { color: #a8ff93; }   /* string value */
+  .cmt { color: #8b949e; }   /* comment */
+  .num { color: #f2cc60; }   /* numbers */
+
+  .inline-code {
+    background: #eef2f7;
+    color: #c7254e;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+  }
+
+  /* ── RESPONSE BOX ── */
+  .response-box {
+    border-left: 4px solid #4fc3f7;
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 10px 0;
+  }
+  .response-box.success { border-color: #66bb6a; background: #f1f8e9; }
+  .response-box.error   { border-color: #ef5350; background: #fff5f5; }
+  .response-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 6px;
+  }
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12px;
+  }
+  thead tr {
+    background: #0f3460;
+    color: #fff;
+  }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  tbody tr:nth-child(even) { background: #f5f8ff; }
+  tbody tr:hover { background: #e8f0fe; }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e0e7ff;
+    color: #333;
+  }
+  tbody td:first-child { font-weight: 500; }
+  .method-get  { color: #1565c0; font-weight: 700; }
+  .method-post { color: #2e7d32; font-weight: 700; }
+
+  /* ── NOTE BOX ── */
+  .note {
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    margin: 12px 0;
+    color: #5d4037;
+  }
+  .note strong { color: #e65100; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .flow-box {
+    background: #0f3460;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-box.green { background: #2e7d32; }
+  .flow-arrow {
+    font-size: 20px;
+    color: #4fc3f7;
+    padding: 0 8px;
+    font-weight: 700;
+  }
+  .flow-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 4px;
+    text-align: center;
+  }
+  .flow-item { display: flex; flex-direction: column; align-items: center; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table thead tr { background: #16213e; }
+  .compare-table tbody td:first-child { color: #0f3460; font-weight: 600; }
+  .yes { color: #2e7d32; font-weight: 700; }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill-blue  { background: #e3f2fd; color: #1565c0; }
+  .pill-green { background: #e8f5e9; color: #2e7d32; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid #e0e7ff;
+    margin: 36px 0;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { font-size: 12px; }
+    .cover { min-height: 100vh; }
+    .page { padding: 40px 60px; }
+    pre { font-size: 11px; }
+    h2 { page-break-before: auto; }
+    .no-break { page-break-inside: avoid; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="cover">
+  <div class="logo">Integrity Net · Helpers API</div>
+  <h1>Documentación de<br><span>Autenticación</span></h1>
+  <p class="subtitle">Guía de integración — métodos Hash Token y JWT Bearer</p>
+  <div class="badge-row">
+    <span class="badge badge-hash">Hash Token (Legacy)</span>
+    <span class="badge badge-jwt">JWT Bearer</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item">
+      <label>Ambiente</label>
+      <span>Test</span>
+    </div>
+    <div class="meta-item">
+      <label>Base URL</label>
+      <span>https://tyd.integrityseguros.com.ar:4434</span>
+    </div>
+    <div class="meta-item">
+      <label>Versión</label>
+      <span>V1</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTENT ═══════════════ -->
+<div class="page">
+
+  <!-- ── OVERVIEW ── -->
+  <h2>Resumen</h2>
+  <p>
+    La API expone dos mecanismos de autenticación. Ambos protegen los mismos datos de ubicación
+    pero a través de controladores y flujos distintos.
+  </p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Característica</th>
+        <th>Hash Token (Legacy)</th>
+        <th>JWT Bearer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tipo de token</td>
+        <td>Hash hexadecimal (40 chars)</td>
+        <td>JWT firmado HS256</td>
+      </tr>
+      <tr>
+        <td>Método de login</td>
+        <td><span class="method-get">GET</span> con header <code class="inline-code">Credentials</code></td>
+        <td><span class="method-post">POST</span> con body JSON</td>
+      </tr>
+      <tr>
+        <td>Header en consultas</td>
+        <td><code class="inline-code">Token: &lt;hash&gt;</code></td>
+        <td><code class="inline-code">Authorization: Bearer &lt;jwt&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Controlador de datos</td>
+        <td><code class="inline-code">/Ubicacion</code></td>
+        <td><code class="inline-code">/UbicacionJwt</code></td>
+      </tr>
+      <tr>
+        <td>Swagger</td>
+        <td><span class="pill pill-blue">Integrity Helpers</span></td>
+        <td><span class="pill pill-green">Helpers JWT</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- ════════════ MÉTODO 1 ════════════ -->
+  <h2>Método 1 — Hash Token (Legacy)</h2>
+
+  <h3>Flujo</h3>
+  <div class="flow">
+    <div class="flow-item">
+      <div class="flow-box">Credenciales<br>en Base64</div>
+      <div class="flow-label">usuario|clave → base64</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-box">GET /autenticar<br>Credentials header</div>
+      <div class="flow-label">Paso 1</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-box">Hash Token</div>
+      <div class="flow-label">Respuesta</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-box green">GET /Ubicacion/*<br>Token header</div>
+      <div class="flow-label">Paso 2</div>
+    </div>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="step no-break">
+    <div class="step-num blue">1</div>
+    <div class="step-body">
+      <strong>Obtener token — codificar credenciales y autenticar</strong>
+      <p>
+        Concatenar usuario y clave con el separador <code class="inline-code">|</code>,
+        luego codificar el resultado en <strong>Base64</strong>.
+      </p>
+      <pre><span class="cmt"># Codificación</span>
+<span class="str">"usuario|clave"</span>  →  Base64  →  <span class="val">dXN1YXJpb3xjbGF2ZQ==</span></pre>
+
+      <pre><span class="kw">GET</span> <span class="url">https://tyd.integrityseguros.com.ar:4434/helpers/autenticar</span>
+<span class="hdr">Accept</span>:       <span class="val">text/plain</span>
+<span class="hdr">Credentials</span>: <span class="val">dXN1YXJpb3xjbGF2ZQ==</span></pre>
+
+      <div class="response-box success">
+        <div class="response-label">Response 200 OK</div>
+        <pre style="margin:0;background:transparent;color:#1a3a1a;padding:4px 0;font-size:12px;">A35BA03C9CF94ECE8B2EA11D190E82949484354D</pre>
+      </div>
+
+      <div class="note">
+        <strong>Nota:</strong> el token es un hash hexadecimal de 40 caracteres.
+        Almacenarlo para usar en el siguiente paso.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step no-break">
+    <div class="step-num blue">2</div>
+    <div class="step-body">
+      <strong>Consultar endpoint — enviar token en header</strong>
+      <p>Incluir el hash obtenido en el header <code class="inline-code">Token</code> de cada request.</p>
+
+      <pre><span class="kw">GET</span> <span class="url">https://tyd.integrityseguros.com.ar:4434/general/helpers/Ubicacion/Provincias/bue</span>
+<span class="hdr">Accept</span>: <span class="val">application/json</span>
+<span class="hdr">Token</span>:  <span class="val">A35BA03C9CF94ECE8B2EA11D190E82949484354D</span></pre>
+
+      <div class="response-box success">
+        <div class="response-label">Response 200 OK</div>
+        <pre style="margin:0;background:transparent;color:#1a3a1a;padding:4px 0;font-size:12px;">{
+  "01": "Buenos Aires",
+  "21": "Ciudad de Buenos Aires"
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Ejemplo cURL completo</h3>
+  <pre><span class="cmt"># Paso 1 — autenticar</span>
+<span class="kw">curl</span> -X GET <span class="str">"https://tyd.integrityseguros.com.ar:4434/helpers/autenticar"</span> \
+     -H <span class="str">"Credentials: dXN1YXJpb3xjbGF2ZQ=="</span>
+
+<span class="cmt"># Paso 2 — consultar con el token recibido</span>
+<span class="kw">curl</span> -X GET <span class="str">"https://tyd.integrityseguros.com.ar:4434/general/helpers/Ubicacion/Provincias/bue"</span> \
+     -H <span class="str">"Token: A35BA03C9CF94ECE8B2EA11D190E82949484354D"</span></pre>
+
+  <h3>Endpoints disponibles — controlador <code class="inline-code">/Ubicacion</code></h3>
+  <table class="no-break">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/Localidades/GetByID/{id}</code></td>
+        <td>Localidad por código</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/Localidades/ObtenerLocalidades/{cod_postal}</code></td>
+        <td>Localidades por código postal</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/Localidades/{provincia}/{nombre}</code></td>
+        <td>Localidades por provincia y nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/Provincias/{nombre}</code></td>
+        <td>Provincias filtradas por nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/Paises/{nombre}</code></td>
+        <td>Países filtrados por nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/Ubicacion/CodigoPostal/{localidad}</code></td>
+        <td>Código postal por localidad</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- ════════════ MÉTODO 2 ════════════ -->
+  <h2>Método 2 — JWT Bearer</h2>
+
+  <h3>Flujo</h3>
+  <div class="flow">
+    <div class="flow-item">
+      <div class="flow-box">POST /GenerarToken<br>{ user, pass }</div>
+      <div class="flow-label">Paso 1</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-box">JWT Token<br>{ token: "eyJ..." }</div>
+      <div class="flow-label">Respuesta</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-box green">GET /UbicacionJwt/*<br>Authorization: Bearer</div>
+      <div class="flow-label">Paso 2</div>
+    </div>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="step no-break">
+    <div class="step-num green">1</div>
+    <div class="step-body">
+      <strong>Obtener token JWT — POST con credenciales en body JSON</strong>
+      <p>Enviar usuario y contraseña en el body del request en formato JSON.</p>
+
+      <pre><span class="kw">POST</span> <span class="url">https://tyd.integrityseguros.com.ar:4434/general/helpers/SeguridadJwt/GenerarToken</span>
+<span class="hdr">Content-Type</span>: <span class="val">application/json</span>
+<span class="hdr">Accept</span>:       <span class="val">application/json</span>
+
+{
+  <span class="hdr">"UserName"</span>: <span class="str">"user"</span>,
+  <span class="hdr">"Password"</span>: <span class="str">"pass"</span>
+}</pre>
+
+      <div class="response-box success">
+        <div class="response-label">Response 200 OK</div>
+        <pre style="margin:0;background:transparent;color:#1a3a1a;padding:4px 0;font-size:12px;">{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaWQiOiIxNDI3N..."
+}</pre>
+      </div>
+
+      <div class="response-box error">
+        <div class="response-label">Response 401 Unauthorized — credenciales inválidas</div>
+        <pre style="margin:0;background:transparent;color:#7f1d1d;padding:4px 0;font-size:12px;">{ "error": "Credenciales inválidas." }</pre>
+      </div>
+
+      <div class="note">
+        <strong>Expiración:</strong> el JWT tiene validez limitada (por defecto 30 minutos).
+        Al recibir 401 en una consulta, repetir este paso para obtener un nuevo token.
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step no-break">
+    <div class="step-num green">2</div>
+    <div class="step-body">
+      <strong>Consultar endpoint protegido — enviar JWT en header Authorization</strong>
+      <p>
+        Incluir el JWT en el header <code class="inline-code">Authorization</code>
+        con el prefijo <code class="inline-code">Bearer</code> seguido de un espacio.
+      </p>
+
+      <pre><span class="kw">GET</span> <span class="url">https://tyd.integrityseguros.com.ar:4434/general/helpers/UbicacionJwt/Provincias/bue</span>
+<span class="hdr">Accept</span>:        <span class="val">application/json</span>
+<span class="hdr">Authorization</span>: <span class="val">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaWQiOiIx...</span></pre>
+
+      <div class="response-box success">
+        <div class="response-label">Response 200 OK</div>
+        <pre style="margin:0;background:transparent;color:#1a3a1a;padding:4px 0;font-size:12px;">{
+  "01": "Buenos Aires",
+  "21": "Ciudad de Buenos Aires"
+}</pre>
+      </div>
+
+      <div class="response-box error">
+        <div class="response-label">Response 401 Unauthorized — token inválido o expirado</div>
+        <pre style="margin:0;background:transparent;color:#7f1d1d;padding:4px 0;font-size:12px;">{ "error": "Unauthorized" }</pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Ejemplo cURL completo</h3>
+  <pre><span class="cmt"># Paso 1 — obtener JWT</span>
+<span class="kw">curl</span> -X POST <span class="str">"https://tyd.integrityseguros.com.ar:4434/general/helpers/SeguridadJwt/GenerarToken"</span> \
+     -H <span class="str">"Content-Type: application/json"</span> \
+     -d <span class="str">'{"UserName":"user","Password":"pass"}'</span>
+
+<span class="cmt"># Paso 2 — consultar con Bearer token</span>
+<span class="kw">curl</span> -X GET <span class="str">"https://tyd.integrityseguros.com.ar:4434/general/helpers/UbicacionJwt/Provincias/bue"</span> \
+     -H <span class="str">"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span></pre>
+
+  <h3>Endpoints disponibles — controlador <code class="inline-code">/UbicacionJwt</code></h3>
+  <table class="no-break">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="method-post">POST</span></td>
+        <td><code class="inline-code">/SeguridadJwt/GenerarToken</code></td>
+        <td>Genera el token JWT (login)</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/Localidades/GetByID/{id}</code></td>
+        <td>Localidad por código</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/Localidades/ObtenerLocalidades/{cod_postal}</code></td>
+        <td>Localidades por código postal</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/Localidades/{provincia}/{nombre}</code></td>
+        <td>Localidades por provincia y nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/Provincias/{nombre}</code></td>
+        <td>Provincias filtradas por nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/Paises/{nombre}</code></td>
+        <td>Países filtrados por nombre</td>
+      </tr>
+      <tr>
+        <td><span class="method-get">GET</span></td>
+        <td><code class="inline-code">/UbicacionJwt/CodigoPostal/{localidad}</code></td>
+        <td>Código postal por localidad</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- ── FOOTER NOTE ── -->
+
+</div><!-- /page -->
+
+</body>
+</html>

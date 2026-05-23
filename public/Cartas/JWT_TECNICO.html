@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>JWT — Especificación Técnica</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 80px;
+    background: linear-gradient(135deg, #1b2838 0%, #0d1117 100%);
+    color: #fff;
+    page-break-after: always;
+  }
+  .cover .tag {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #a5d6ff;
+    margin-bottom: 50px;
+    font-weight: 600;
+  }
+  .cover h1 { font-size: 40px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .cover h1 span { color: #f2cc60; }
+  .cover .subtitle { font-size: 15px; color: #8b949e; margin-bottom: 50px; }
+  .cover .pills { display: flex; gap: 10px; margin-bottom: 50px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .pill-yellow { background: rgba(242,204,96,.15); color: #f2cc60; border: 1px solid #f2cc60; }
+  .pill-blue   { background: rgba(165,214,255,.12); color: #a5d6ff; border: 1px solid #a5d6ff; }
+  .pill-green  { background: rgba(163,230,53,.12);  color: #a3e635; border: 1px solid #a3e635; }
+  .cover .meta { display: flex; gap: 40px; margin-top: auto; }
+  .cover .meta-item label { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #a5d6ff; margin-bottom: 4px; }
+  .cover .meta-item span { font-size: 13px; color: #e6edf3; }
+
+  .page { padding: 50px 70px; max-width: 900px; margin: 0 auto; }
+
+  h2 {
+    font-size: 20px; font-weight: 700; color: #1b2838;
+    padding-bottom: 10px; border-bottom: 3px solid #f2cc60;
+    margin: 44px 0 16px;
+  }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 14px; font-weight: 700; color: #1b2838; margin: 24px 0 10px; }
+
+  p { color: #333; margin-bottom: 10px; }
+
+  pre, code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+  }
+  pre {
+    background: #0d1117; color: #c9d1d9;
+    border-radius: 6px; padding: 16px 20px;
+    margin: 10px 0; line-height: 1.6; overflow: auto;
+  }
+  .inline-code {
+    background: #eef2f7; color: #c7254e;
+    padding: 1px 6px; border-radius: 3px;
+    font-family: 'Consolas', monospace; font-size: 12px;
+  }
+
+  /* token colors */
+  .t-key   { color: #d2a8ff; }
+  .t-str   { color: #a5d6ff; }
+  .t-num   { color: #f2cc60; }
+  .t-bool  { color: #ff7b72; }
+  .t-cmt   { color: #8b949e; font-style: italic; }
+  .t-label { color: #a3e635; font-weight: bold; }
+  .t-sep   { color: #ff7b72; font-weight: bold; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 14px 0; font-size: 12px;
+  }
+  thead tr { background: #1b2838; color: #fff; }
+  thead th { padding: 10px 14px; text-align: left; font-weight: 600; }
+  tbody tr:nth-child(even) { background: #f8f9ff; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e4e8f0; color: #333; vertical-align: top; }
+  tbody td:first-child { font-family: 'Consolas', monospace; font-size: 12px; color: #c7254e; white-space: nowrap; }
+
+  .box {
+    border-radius: 6px; padding: 14px 18px; margin: 14px 0;
+  }
+  .box-yellow { background: #fffbeb; border-left: 4px solid #f2cc60; }
+  .box-blue   { background: #eff6ff; border-left: 4px solid #3b82f6; }
+  .box-green  { background: #f0fdf4; border-left: 4px solid #22c55e; }
+  .box-red    { background: #fff5f5; border-left: 4px solid #ef5350; }
+  .box-label  { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; color: #555; }
+
+  .kv-row { display: flex; gap: 12px; margin: 6px 0; align-items: baseline; }
+  .kv-key { font-family: 'Consolas', monospace; font-size: 12px; color: #c7254e; min-width: 180px; flex-shrink: 0; }
+  .kv-val { color: #333; font-size: 13px; }
+
+  .segment-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 14px 0; }
+  .seg {
+    padding: 8px 14px; border-radius: 6px;
+    font-family: 'Consolas', monospace; font-size: 11px;
+    font-weight: 700; word-break: break-all; max-width: 260px;
+  }
+  .seg-header  { background: #1e1e2e; color: #ff7b72; border: 1px solid #ff7b72; }
+  .seg-payload { background: #1e2e1e; color: #a3e635; border: 1px solid #a3e635; }
+  .seg-sig     { background: #2e1e1e; color: #f2cc60; border: 1px solid #f2cc60; }
+  .seg-dot     { font-size: 22px; font-weight: 900; color: #555; align-self: center; }
+  .seg-label   { font-size: 10px; text-align: center; color: #666; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+  .seg-item    { display: flex; flex-direction: column; }
+
+  hr { border: none; border-top: 1px solid #e4e8f0; margin: 36px 0; }
+
+  .algo-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
+  .algo-box {
+    background: #1b2838; color: #f2cc60;
+    padding: 8px 16px; border-radius: 6px;
+    font-family: 'Consolas', monospace; font-size: 13px; font-weight: 700;
+  }
+  .algo-arrow { font-size: 20px; color: #8b949e; }
+  .algo-desc  { font-size: 13px; color: #555; }
+
+  @media print {
+    .cover { min-height: 100vh; }
+    .page { padding: 40px 60px; }
+    pre { font-size: 11px; }
+    .no-break { page-break-inside: avoid; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="tag">Integrity Seguros · Helpers API</div>
+  <h1>JWT — Especificación<br><span>Técnica</span></h1>
+  <p class="subtitle">Algoritmo, clave secreta, estructura de claims y validación.<br>Referencia para integración con API Gateway.</p>
+  <div class="pills">
+    <span class="pill pill-yellow">HS256</span>
+    <span class="pill pill-blue">Symmetric Key</span>
+    <span class="pill pill-green">RFC 7519</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item">
+      <label>Algoritmo</label>
+      <span>HMAC SHA-256</span>
+    </div>
+    <div class="meta-item">
+      <label>Tipo de clave</label>
+      <span>Simétrica (shared secret)</span>
+    </div>
+    <div class="meta-item">
+      <label>Expiración</label>
+      <span>Configurable (default 30 min)</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="page">
+
+  <!-- ESTRUCTURA DEL TOKEN -->
+  <h2>Estructura del token JWT</h2>
+  <p>El token sigue el estándar <strong>RFC 7519</strong>. Está compuesto por tres segmentos en Base64URL separados por puntos:</p>
+
+  <div class="segment-row">
+    <div class="seg-item">
+      <div class="seg seg-header">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</div>
+      <div class="seg-label">Header</div>
+    </div>
+    <div class="seg-dot">.</div>
+    <div class="seg-item">
+      <div class="seg seg-payload">eyJzaWQiOiIxNDI3NTk5MTciLCJzeXMiOiIyMDkxIiwi...</div>
+      <div class="seg-label">Payload (claims)</div>
+    </div>
+    <div class="seg-dot">.</div>
+    <div class="seg-item">
+      <div class="seg seg-sig">psOYFvsrF2pfHLhPVGi5bF0NZFwD2UkQZvucnh1ZEcI</div>
+      <div class="seg-label">Signature</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- HEADER -->
+  <h2>Header</h2>
+  <p>El header declara el algoritmo de firma y el tipo de token. Decodificado en Base64URL:</p>
+  <pre>{
+  <span class="t-key">"alg"</span>: <span class="t-str">"HS256"</span>,  <span class="t-cmt">// algoritmo: HMAC SHA-256</span>
+  <span class="t-key">"typ"</span>: <span class="t-str">"JWT"</span>    <span class="t-cmt">// tipo: JSON Web Token</span>
+}</pre>
+
+  <hr>
+
+  <!-- ALGORITMO Y CLAVE -->
+  <h2>Algoritmo y clave de firma</h2>
+
+  <h3>Algoritmo</h3>
+  <div class="algo-row">
+    <div class="algo-box">HS256</div>
+    <div class="algo-arrow">→</div>
+    <div class="algo-desc">HMAC con SHA-256 — firma simétrica (misma clave para firmar y validar)</div>
+  </div>
+
+  <h3>Tipo de clave</h3>
+  <div class="box box-yellow no-break">
+    <div class="box-label">Importante</div>
+    <p>
+      La clave es <strong>simétrica (shared secret)</strong>: la misma clave se usa tanto para
+      <strong>generar</strong> el token (en el endpoint de login) como para
+      <strong>validarlo</strong> (en cada request protegido).
+    </p>
+    <br>
+    <div class="kv-row">
+      <span class="kv-key">Encoding de la clave</span>
+      <span class="kv-val">UTF-8</span>
+    </div>
+    <div class="kv-row">
+      <span class="kv-key">Longitud mínima recomendada</span>
+      <span class="kv-val">256 bits (32 caracteres)</span>
+    </div>
+    <div class="kv-row">
+      <span class="kv-key">Origen</span>
+      <span class="kv-val">Configuración interna de la aplicación (no expuesta en el token)</span>
+    </div>
+  </div>
+
+  <h3>Proceso de firma</h3>
+  <pre><span class="t-cmt">// Pseudocódigo de generación</span>
+<span class="t-label">keyBytes</span>     = UTF8.GetBytes(<span class="t-str">secretKey</span>)
+<span class="t-label">signingKey</span>   = new SymmetricSecurityKey(<span class="t-label">keyBytes</span>)
+<span class="t-label">credentials</span>  = new SigningCredentials(<span class="t-label">signingKey</span>, <span class="t-str">"HS256"</span>)
+<span class="t-label">token</span>        = JwtSecurityTokenHandler.CreateToken(descriptor)</pre>
+
+  <h3>Proceso de validación</h3>
+  <pre><span class="t-cmt">// Lo que valida la aplicación en cada request</span>
+TokenValidationParameters {
+  <span class="t-key">ValidateIssuerSigningKey</span>: <span class="t-bool">true</span>,   <span class="t-cmt">// verifica la firma con la clave secreta</span>
+  <span class="t-key">IssuerSigningKey</span>:         <span class="t-str">SymmetricKey(UTF8(secretKey))</span>,
+  <span class="t-key">ValidateIssuer</span>:          <span class="t-bool">false</span>,  <span class="t-cmt">// no valida el campo "iss"</span>
+  <span class="t-key">ValidateAudience</span>:        <span class="t-bool">false</span>   <span class="t-cmt">// no valida el campo "aud"</span>
+}</pre>
+
+  <div class="box box-blue no-break">
+    <div class="box-label">Para API Gateway</div>
+    <p>
+      El gateway debe validar el token usando la <strong>misma clave secreta</strong> con el algoritmo
+      <strong>HS256</strong>. No es necesario validar <code class="inline-code">iss</code> ni
+      <code class="inline-code">aud</code>. Solo se requiere verificar:
+    </p>
+    <ul style="margin-top:8px; padding-left:20px; color:#1e3a5f;">
+      <li>Firma válida (clave correcta)</li>
+      <li>Token no expirado (<code class="inline-code">exp</code> &gt; now)</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <!-- CLAIMS (PAYLOAD) -->
+  <h2>Claims del Payload</h2>
+  <p>Token decodificado — ejemplo real:</p>
+
+  <pre>{
+  <span class="t-key">"sid"</span>:         <span class="t-str">"142759917"</span>,    <span class="t-cmt">// ID de sesión Integrity</span>
+  <span class="t-key">"sys"</span>:         <span class="t-str">"2091"</span>,         <span class="t-cmt">// ID de sistema (fijo)</span>
+  <span class="t-key">"adm"</span>:         <span class="t-str">"true"</span>,         <span class="t-cmt">// es administrador</span>
+  <span class="t-key">"vds"</span>:         <span class="t-str">"true"</span>,         <span class="t-cmt">// puede ver datos sensibles</span>
+  <span class="t-key">"unique_name"</span>: <span class="t-str">"usuario"</span>,      <span class="t-cmt">// nombre de usuario (ClaimTypes.Name)</span>
+  <span class="t-key">"tkn"</span>:         <span class="t-str">"8338FE3C43D14F98811180A91C43FAD652A3D3C3F"</span>, <span class="t-cmt">// master token Integrity</span>
+  <span class="t-key">"nbf"</span>:         <span class="t-num">1779378234</span>,    <span class="t-cmt">// not before (Unix timestamp)</span>
+  <span class="t-key">"exp"</span>:         <span class="t-num">1779380032</span>,    <span class="t-cmt">// expiration (Unix timestamp)</span>
+  <span class="t-key">"iat"</span>:         <span class="t-num">1779378234</span>     <span class="t-cmt">// issued at (Unix timestamp)</span>
+}</pre>
+
+  <h3>Descripción de cada claim</h3>
+  <table class="no-break">
+    <thead>
+      <tr><th>Claim</th><th>Tipo</th><th>Descripción</th><th>Ejemplo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sid</td>
+        <td>string</td>
+        <td>ID numérico de la sesión en Integrity</td>
+        <td><code class="inline-code">"142759917"</code></td>
+      </tr>
+      <tr>
+        <td>sys</td>
+        <td>string</td>
+        <td>Identificador del sistema. Valor fijo.</td>
+        <td><code class="inline-code">"2091"</code></td>
+      </tr>
+      <tr>
+        <td>adm</td>
+        <td>string</td>
+        <td>Indica si el usuario tiene rol administrador</td>
+        <td><code class="inline-code">"true"</code> / <code class="inline-code">"false"</code></td>
+      </tr>
+      <tr>
+        <td>vds</td>
+        <td>string</td>
+        <td>Indica si el usuario puede ver datos sensibles</td>
+        <td><code class="inline-code">"true"</code> / <code class="inline-code">"false"</code></td>
+      </tr>
+      <tr>
+        <td>unique_name</td>
+        <td>string</td>
+        <td>Nombre de usuario. Equivale a <code class="inline-code">ClaimTypes.Name</code> del estándar .NET, serializado como <code class="inline-code">unique_name</code> en JWT.</td>
+        <td><code class="inline-code">"jperez"</code></td>
+      </tr>
+      <tr>
+        <td>tkn</td>
+        <td>string</td>
+        <td>Master token del sistema de sesiones Integrity (hash hexadecimal). Para uso interno.</td>
+        <td><code class="inline-code">"8338FE3C..."</code></td>
+      </tr>
+      <tr>
+        <td>nbf</td>
+        <td>number</td>
+        <td>Not Before — Unix timestamp desde el cual el token es válido</td>
+        <td><code class="inline-code">1779378234</code></td>
+      </tr>
+      <tr>
+        <td>exp</td>
+        <td>number</td>
+        <td>Expiration — Unix timestamp en que el token expira</td>
+        <td><code class="inline-code">1779380032</code></td>
+      </tr>
+      <tr>
+        <td>iat</td>
+        <td>number</td>
+        <td>Issued At — Unix timestamp de generación del token</td>
+        <td><code class="inline-code">1779378234</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- EXPIRACIÓN -->
+  <h2>Expiración</h2>
+  <div class="box box-green no-break">
+    <div class="box-label">Comportamiento</div>
+    <div class="kv-row">
+      <span class="kv-key">Campo</span>
+      <span class="kv-val"><code class="inline-code">exp</code> (Unix timestamp UTC)</span>
+    </div>
+    <div class="kv-row">
+      <span class="kv-key">Duración por defecto</span>
+      <span class="kv-val">30 minutos desde la emisión</span>
+    </div>
+    <div class="kv-row">
+      <span class="kv-key">Cálculo</span>
+      <span class="kv-val"><code class="inline-code">exp = iat + (ExpirationInMinutes × 60)</code></span>
+    </div>
+    <div class="kv-row">
+      <span class="kv-key">Al expirar</span>
+      <span class="kv-val">HTTP 401 Unauthorized — el cliente debe solicitar un nuevo token</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- VALIDACIÓN EN API GATEWAY -->
+  <h2>Configuración para API Gateway</h2>
+  <p>Parámetros necesarios para configurar la validación JWT en cualquier gateway compatible con HS256:</p>
+
+  <table class="no-break">
+    <thead>
+      <tr><th>Parámetro</th><th>Valor</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Algoritmo</td>
+        <td><code class="inline-code">HS256</code> (HMAC SHA-256)</td>
+      </tr>
+      <tr>
+        <td>Tipo de clave</td>
+        <td>Simétrica — shared secret</td>
+      </tr>
+      <tr>
+        <td>Encoding de la clave</td>
+        <td>UTF-8</td>
+      </tr>
+      <tr>
+        <td>Validar Issuer (<code class="inline-code">iss</code>)</td>
+        <td>No requerido</td>
+      </tr>
+      <tr>
+        <td>Validar Audience (<code class="inline-code">aud</code>)</td>
+        <td>No requerido</td>
+      </tr>
+      <tr>
+        <td>Validar Firma</td>
+        <td><strong>Sí</strong> — obligatorio</td>
+      </tr>
+      <tr>
+        <td>Validar Expiración (<code class="inline-code">exp</code>)</td>
+        <td><strong>Sí</strong> — obligatorio</td>
+      </tr>
+      <tr>
+        <td>Header de entrada</td>
+        <td><code class="inline-code">Authorization: Bearer &lt;token&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Claim de identidad</td>
+        <td><code class="inline-code">unique_name</code> (usuario)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box box-red no-break" style="margin-top:20px;">
+    <div class="box-label">Seguridad — clave secreta</div>
+    <p>
+      La clave secreta <strong>no debe transmitirse</strong> por ningún canal público ni incluirse en el token.
+      Debe compartirse de forma segura entre el emisor del token (esta API) y el validador (API Gateway)
+      fuera de banda. Rotar la clave invalida todos los tokens existentes.
+    </p>
+  </div>
+
+  <hr>
+
+  <!-- FLUJO RESUMEN -->
+  <h2>Flujo técnico resumido</h2>
+  <pre><span class="t-cmt">1. Cliente  →  POST /SeguridadJwt/GenerarToken  { UserName, Password }</span>
+<span class="t-cmt">2. API      →  valida credenciales contra sistema de autenticación Integrity</span>
+<span class="t-cmt">3. API      →  construye payload con claims (sid, sys, adm, vds, unique_name, tkn)</span>
+<span class="t-cmt">4. API      →  firma token:  HMAC-SHA256( base64(header) + "." + base64(payload), secretKey )</span>
+<span class="t-cmt">5. API      →  devuelve { "token": "eyJ..." }</span>
+
+<span class="t-cmt">──────────────────────────────────────────────────────────</span>
+
+<span class="t-cmt">6. Cliente  →  GET /UbicacionJwt/*   Authorization: Bearer eyJ...</span>
+<span class="t-cmt">7. Gateway  →  extrae token del header Authorization</span>
+<span class="t-cmt">8. Gateway  →  verifica firma con secretKey (UTF-8, HS256)</span>
+<span class="t-cmt">9. Gateway  →  verifica exp > now</span>
+<span class="t-cmt">10. Gateway →  permite o rechaza el request (200 / 401)</span></pre>
+
+</div>
+</body>
+</html>
