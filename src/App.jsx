@@ -4,6 +4,7 @@ import ThemeToggleStar from './components/ThemeToggleStar'
 import LogoAnimation from './components/LogoAnimation'
 import ArlequinMaskSystem from './components/ArlequinMaskSystem'
 import FooterBanner from './components/FooterBanner'
+import WhatsAppButton from './components/WhatsAppButton'
 import { useLowEndDevice } from './hooks/useLowEndDevice'
 import './App.css'
 
@@ -128,6 +129,7 @@ function App() {
       />
 
       <FooterBanner isDarkMode={isDarkMode} />
+      <WhatsAppButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} />
 
       <main className="content" />
     </div>

@@ -1,0 +1,68 @@
+/* Floating WhatsApp shortcut, bottom-right, kept above the footer banner
+   (desktop banner: 55px tall at bottom 8px).
+   Glow + breathing pulse mirror ThemeToggleStar; the pulse-dark / pulse-light
+   keyframes are defined in ThemeToggleStar.css. */
+.whatsapp-button {
+  position: fixed;
+  right: 20px;
+  bottom: 80px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  z-index: 1500;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Clear app mode: grey/black glow */
+.whatsapp-button.dark-mode {
+  box-shadow: 0 0 18px 6px rgba(0, 0, 0, 0.45);
+  animation: pulse-light 3s ease-in-out infinite;
+}
+
+.whatsapp-button.dark-mode:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 36px 10px rgba(0, 0, 0, 0.65);
+}
+
+/* Dark app mode: white glow */
+.whatsapp-button.light-mode {
+  box-shadow: 0 0 18px 6px rgba(255, 255, 255, 0.45);
+  animation: pulse-dark 3s ease-in-out infinite;
+}
+
+.whatsapp-button.light-mode:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 36px 10px rgba(255, 255, 255, 0.65);
+}
+
+.whatsapp-button:active {
+  transform: scale(0.95);
+}
+
+.whatsapp-button.no-pulse {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-button.dark-mode,
+  .whatsapp-button.light-mode {
+    animation: none;
+  }
+}
+
+/* Mobile banner is 80px scaled 1.4 → ~120px from the bottom edge. */
+@media (max-width: 500px) {
+  .whatsapp-button {
+    right: 16px;
+    bottom: 130px;
+    width: 52px;
+    height: 52px;
+  }
+}

@@ -1,6 +1,7 @@
 {
   "routes": [
     { "src": "^/construccion$", "dest": "/SitioEnConstruccion/index.html" },
+    { "src": "^/firma/?$", "dest": "/Firma/firma_arlequin_svg_interactiva.html" },
     { "handle": "filesystem" },
     { "src": "^/(.*)$", "dest": "/index.html" }
   ]
