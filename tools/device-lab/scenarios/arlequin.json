@@ -1,0 +1,190 @@
+{
+ "name": "Arlequín — recorrido completo",
+ "url": "http://localhost:5173/",
+ "init_storage": {
+  "themeMode": "dark"
+ },
+ "checks": {
+  "no_overlap": [
+   [
+    ".arlequin-escudo:not(.minimized) .escudo-image",
+    ".card-canvas",
+    "escudo pisa la carta"
+   ],
+   [
+    ".footer-banner",
+    ".card-canvas",
+    "footer pisa la carta",
+    14
+   ],
+   [
+    ".arlequin-escudo:not(.minimized) .escudo-image",
+    ".cards-grid",
+    "escudo pisa la grilla"
+   ],
+   [
+    ".footer-banner",
+    ".cards-grid",
+    "footer pisa la grilla",
+    14
+   ],
+   [
+    ".theme-toggle",
+    ".card-canvas",
+    "botón tema pisa la carta"
+   ],
+   [
+    ".whatsapp-button",
+    ".card-canvas",
+    "WhatsApp pisa la carta"
+   ],
+   [
+    ".footer-banner",
+    ".logo-canvas",
+    "footer pisa el logo",
+    14
+   ],
+   [
+    ".theme-toggle",
+    ".logo-canvas",
+    "botón tema pisa el logo"
+   ],
+   [
+    ".arlequin-escudo:not(.minimized) .escudo-image",
+    ".question-stage",
+    "escudo pisa la pregunta"
+   ],
+   [
+    ".whatsapp-button",
+    ".cards-grid",
+    "WhatsApp pisa la grilla"
+   ],
+   [
+    ".theme-toggle",
+    ".cards-grid",
+    "botón tema pisa la grilla"
+   ],
+   [
+    ".whatsapp-button",
+    ".card-close-btn-img",
+    "WhatsApp pisa botón cerrar"
+   ],
+   [
+    ".whatsapp-button",
+    ".logo-canvas",
+    "WhatsApp pisa el logo"
+   ]
+  ],
+  "inside_viewport": [
+   [
+    ".card-canvas",
+    "carta se sale de pantalla"
+   ],
+   [
+    ".cards-grid",
+    "grilla se sale de pantalla"
+   ],
+   [
+    ".logo-canvas",
+    "logo se sale de pantalla"
+   ],
+   [
+    ".card-close-btn-img",
+    "botón cerrar fuera de pantalla"
+   ],
+   [
+    ".question-stage",
+    "pregunta fuera de pantalla"
+   ]
+  ]
+ },
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "shot": "1-home"
+  },
+  {
+   "click": ".logo-container"
+  },
+  {
+   "wait_for": ".question-stage"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "shot": "2-pregunta"
+  },
+  {
+   "click": ".si-btn"
+  },
+  {
+   "wait_for": ".grid-card:not(.grid-card--locked) .card-text-overlay.visible"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "shot": "3-grilla"
+  },
+  {
+   "click": ".grid-card",
+   "nth": 0
+  },
+  {
+   "wait_for": ".card-text-container, .quienes-somos-photo-wrapper, .contacto-form"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "shot": "4-carta1"
+  },
+  {
+   "click": ".card-close-btn"
+  },
+  {
+   "wait_for": ".grid-card:not(.grid-card--locked) .card-text-overlay.visible"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "click": ".grid-card",
+   "nth": 1
+  },
+  {
+   "wait_for": ".card-text-container, .quienes-somos-photo-wrapper, .contacto-form"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "shot": "5-carta2"
+  },
+  {
+   "click": ".card-close-btn"
+  },
+  {
+   "wait_for": ".grid-card:not(.grid-card--locked) .card-text-overlay.visible"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "click": ".grid-card",
+   "nth": 3
+  },
+  {
+   "wait_for": ".card-text-container, .quienes-somos-photo-wrapper, .contacto-form"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "shot": "6-contacto"
+  }
+ ]
+}

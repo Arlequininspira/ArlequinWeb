@@ -90,13 +90,13 @@
 }
 
 /* Open animation when card is opened from the collect animation.
-   Starts at scale(0.5) ≈ grid-card size so the grow feels continuous. */
+   Starts at ≈ grid-card size so the grow feels continuous. */
 .card-canvas--open-from-collect {
   animation: card-canvas-from-collect 0.3s ease-out forwards !important;
 }
 
 @keyframes card-canvas-from-collect {
-  0%   { opacity: 0; transform: translateZ(0) scale(0.5); }
+  0%   { opacity: 0; transform: translateZ(0) scale(var(--card-exit-scale, 0.5)); }
   100% { opacity: 1; transform: translateZ(0) scale(1); }
 }
 
@@ -113,7 +113,7 @@
 
 @keyframes card-exit-scale {
   0%   { opacity: 1; transform: scale(1);    }
-  100% { opacity: 1; transform: scale(0.49); } /* grid card size ≈ 223/450 — hold opacity so CDA covers the canvas without a fade gap */
+  100% { opacity: 1; transform: scale(var(--card-exit-scale, 0.49)); } /* ≈ grid card size (viewportFit.js) — hold opacity so CDA covers the canvas without a fade gap */
 }
 
 @keyframes fade-in {
@@ -269,118 +269,21 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────
-   Scale the entire component so every absolute-positioned child
-   (canvas, title, text, nav buttons) shrinks proportionally.
-   transform-origin: center so it stays centered inside mask-content.
+   One continuous scale for every screen, computed in
+   src/layout/viewportFit.js so the visible card body fits between the
+   escudo and the footer. Individual `scale`/`translate` properties are used
+   (not `transform`) so they compose with the canvas' own animations.
    ──────────────────────────────────────────────────────────────── */
-
-/* Full desktop: tall screens ≥769px wide */
-@media (min-width: 769px) and (min-height: 781px) {
-  .card-que-es-arlequin {
-    transform: scale(1.12);
-    transform-origin: center center;
-  }
+.card-que-es-arlequin {
+  scale: var(--card-scale, 1.12);
+  translate: 0 var(--stage-offset-y, 0px);
+  transform-origin: center center;
 }
 
-/* Short desktop/laptop screens
-   Calibrated against common viewport heights after Windows DPI scaling:
-   - 1536×864 @ 125% → 1229×692px CSS  ← most common notebook
-   - 1366×768 @ 125% → 1093×614px CSS
-   - 1280×720 @ 100% → 1280×720px CSS
-*/
-
-/* Short desktop / laptop scaling. Hardcoded discrete steps (CSS scale()
-   requires unitless numbers, so we can't use a viewport-height calc()
-   inside clamp()). Each step is tuned against the matching smaller
-   escudo in breakpoints.css. */
-
-/* 721–780px tall: escudo ends y=122 (12+110). */
-@media (max-height: 780px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.70);
-    transform-origin: center center;
-  }
-}
-
-/* 651–720px tall (1229×692 notebook target): escudo box ends y=118,
-   visible escudo image ends y=114. At h=692 scale 0.92:
-     visible card image top y=138 (clears escudo 24px)
-     visible card image bottom y=554 (clears footer y=629 by 75px)
-     close-btn icon at viewport x≈688-766, horizontally right of the
-     centred escudo (x=580-650), so y-overlap is harmless. */
-@media (max-height: 720px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.92);
-    transform-origin: center center;
-  }
-}
-
-/* 581–650px tall: escudo ends y=84 (8+76). */
-@media (max-height: 650px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.60);
-    transform-origin: center center;
-  }
-}
-
-/* ≤580px tall: escudo ends y=74 (6+68). */
-@media (max-height: 580px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.54);
-    transform-origin: center center;
-  }
-}
-
-/* Tablet portrait / small screens between 501-768px wide */
-@media (max-width: 768px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.95);
-    transform-origin: center center;
-  }
-}
-
-/* Tablet portrait + short height combined */
-@media (max-width: 768px) and (max-height: 780px) and (min-width: 501px) {
-  .card-que-es-arlequin {
-    transform: scale(0.85);
-    transform-origin: center center;
-  }
-}
-
-/* Large mobile / small tablet (≤ 500px) */
-@media (max-width: 500px) {
-  .card-canvas {
-    width: 450px !important;
-    height: 680px !important;
-  }
-  .card-que-es-arlequin {
-    transform: scale(0.90);
-    transform-origin: center center;
-  }
-}
-
-/* iPhone Plus / large phones (≤ 430px) */
-@media (max-width: 430px) {
-  .card-que-es-arlequin {
-    transform: scale(0.85);
-    transform-origin: center center;
-  }
-}
-
-/* iPhone SE / small phones (≤ 390px) */
-@media (max-width: 390px) {
-  .card-que-es-arlequin {
-    transform: scale(0.80);
-    transform-origin: center center;
-  }
-}
-
-/* Very small phones (≤ 360px) */
-@media (max-width: 360px) {
-  .card-que-es-arlequin {
-    transform: scale(0.74);
-    transform-origin: center center;
-  }
+/* The .loading placeholder must not shift the layout */
+.card-que-es-arlequin.loading {
+  scale: none;
+  translate: none;
 }
 
 /* ── Performance: pause infinite repaint loops on mobile ──────────

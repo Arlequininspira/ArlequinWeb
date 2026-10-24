@@ -1,141 +1,33 @@
 /*
- * BREAKPOINTS & LAYOUT VARIABLES — single source of truth
+ * LAYOUT VARIABLES — fallbacks only.
  *
- * --bp-* vars are documentation only (CSS can't use custom props in @media).
- * All layout-critical vars (escudo, footer, mask) are readable via
- * getComputedStyle() from JavaScript.
+ * Real values are computed continuously from the visible viewport by
+ * src/layout/viewportFit.js and written as inline custom properties on
+ * <html> (which override these). Values below match the 1920×953 desktop
+ * reference so the page still looks right if JS hasn't run yet.
  *
- * Escudo aspect ratio: 1531×2247px → h/w = 1.4677
- * --escudo-height controls the CSS width of the image (legacy name kept for compat).
- * --escudo-img-height is the real rendered height = escudo-height × 1.4677.
- * --escudo-clearance = --escudo-top + --escudo-img-height + gap
+ * To retune a size, edit computeLayout() in viewportFit.js — not media queries.
  */
 
 :root {
-  /* ── Breakpoint reference ────────────────────────────────────────── */
-  --bp-xs:  360px;
-  --bp-sm:  390px;
-  --bp-md:  430px;
-  --bp-lg:  600px;
-  --bp-xl:  900px;
-  --bp-xxl: 1200px;
-
-  /* ── Escudo (desktop ≥769px wide, full-height screen) ───────────── */
   --escudo-height:     94px;          /* CSS width of image (legacy var name) */
-  --escudo-img-height: 138px;         /* real height = 94 × 1.4677 */
+  --escudo-img-height: 138px;         /* 94 × 1.4677 */
   --escudo-top:        20px;
-  /* grid padding-top = top + img-height + 20px gap */
-  --escudo-clearance:  178px;         /* 20 + 138 + 20 */
+  --escudo-clearance:  178px;         /* band top: escudo bottom + gap */
+  --footer-clearance:  83px;          /* viewport bottom → band bottom */
+  --stage-offset-y:    47px;          /* band center − viewport center */
 
-  /* ── Footer (desktop ≥501px wide) ───────────────────────────────── */
-  --footer-height:    55px;
-  --footer-bottom:    8px;
-  --footer-clearance: 71px;
+  --card-scale:        1.12;
+  --card-exit-scale:   0.49;
 
-  /* ── Mask open distance — read by ArlequinMask.jsx ──────────────── */
-  --mask-open-distance: 224px;
-}
+  --grid-max-width:    490px;
+  --grid-gap:          16px;
+  --grid-card-width:   237px;
+  --grid-font-size:    22px;
+  --grid-text-stroke:  1.5px;
 
-/* ── Tablet portrait, 431–768px wide ────────────────────────────────── */
-@media (max-width: 768px) and (min-width: 431px) {
-  :root {
-    --escudo-height:     90px;
-    --escudo-img-height: 132px;        /* 90 × 1.4677 */
-    --escudo-clearance:  172px;        /* 20 + 132 + 20 */
-  }
-}
+  --mask-scale:         1;
+  --mask-open-distance: 224px;        /* read by ArlequinMask.jsx */
 
-/* ── Mask: tablet 601–900px ──────────────────────────────────────────── */
-@media (max-width: 900px) and (min-width: 601px) {
-  :root {
-    --mask-open-distance: 208px;
-  }
-}
-
-/* ── Mobile ≤600px (footer gains scale(1.4) visual height) ──────────── */
-@media (max-width: 600px) {
-  :root {
-    --footer-height:    80px;
-    --footer-clearance: 120px;
-    --mask-open-distance: 162px;
-  }
-}
-
-/* ── Mobile ≤430px ───────────────────────────────────────────────────── */
-@media (max-width: 430px) {
-  :root {
-    --escudo-height:     72px;
-    --escudo-img-height: 106px;        /* 72 × 1.4677 */
-    --escudo-top:        10px;
-    --escudo-clearance:  136px;        /* 10 + 106 + 20 */
-    --mask-open-distance: 153px;
-  }
-}
-
-/* ── Mobile ≤390px ───────────────────────────────────────────────────── */
-@media (max-width: 390px) {
-  :root {
-    --escudo-clearance:  130px;        /* 10 + 106 + 14 */
-    --mask-open-distance: 140px;
-  }
-}
-
-/* ── Mobile ≤360px ───────────────────────────────────────────────────── */
-@media (max-width: 360px) {
-  :root {
-    --escudo-clearance:  126px;        /* 10 + 106 + 10 */
-    --mask-open-distance: 126px;
-  }
-}
-
-/* ── Short desktop/laptop ≤780px tall, ≥431px wide ──────────────────── */
-@media (max-height: 780px) and (min-width: 431px) {
-  :root {
-    --escudo-height:     75px;
-    --escudo-img-height: 110px;        /* 75 × 1.4677 */
-    --escudo-top:        12px;
-    --escudo-clearance:  142px;        /* 12 + 110 + 20 */
-    --footer-clearance:   68px;
-  }
-}
-
-/* ── Notebook 1229×692 (1536×864 @125%) and similar ≤720px tall ──────── */
-@media (max-height: 720px) and (min-width: 431px) {
-  :root {
-    --escudo-height:     70px;
-    --escudo-img-height: 110px;
-    --escudo-top:         8px;
-    --escudo-clearance: 138px;         /* 8 + 110 + 20 */
-    --footer-clearance:  66px;
-  }
-}
-
-/* Mask spread: only tighten on desktop short notebooks. Mobile (≤600)
-   keeps its own --mask-open-distance from the width-based breakpoints. */
-@media (max-height: 720px) and (min-width: 601px) {
-  :root {
-    --mask-open-distance: 140px;
-  }
-}
-
-/* ── Very short desktop ≤650px tall, ≥431px wide ──────────────────────  */
-@media (max-height: 650px) and (min-width: 431px) {
-  :root {
-    --escudo-height:     52px;
-    --escudo-img-height:  76px;        /* 52 × 1.4677 */
-    --escudo-top:         8px;
-    --escudo-clearance: 104px;         /* 8 + 76 + 20 */
-    --footer-clearance:  64px;
-  }
-}
-
-/* ── Extremely short ≤580px tall, ≥431px wide ──────────────────────────  */
-@media (max-height: 580px) and (min-width: 431px) {
-  :root {
-    --escudo-height:     46px;
-    --escudo-img-height:  68px;        /* 46 × 1.4677 */
-    --escudo-top:         6px;
-    --escudo-clearance:  94px;         /* 6 + 68 + 20 */
-    --footer-clearance:  58px;
-  }
+  --logo-scale:         1;
 }

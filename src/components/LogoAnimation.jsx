@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { readLayoutVar } from '../layout/viewportFit';
 // Animation state is managed entirely by refs — no React state — so the RAF loop
 // never restarts due to animation transitions, preventing mid-animation freezes.
 import './LogoAnimation.css';
@@ -265,19 +266,7 @@ function LogoAnimation({
     // Match canvas buffer to actual rendered pixel size to avoid upscaling blur.
     // The container is CSS-scaled depending on viewport; canvas buffer must match
     // the physical pixels it will actually occupy (displayedCSS × DPR).
-    const getContainerScale = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      if (w <= 360) return 0.62;
-      if (w <= 390) return 0.68;
-      if (w <= 500) return 0.78;
-      if (w <= 768) return 0.88; // tablet portrait
-      if (h <= 580) return 0.68;
-      if (h <= 650) return 0.76;
-      if (h <= 780) return 0.86;
-      return 1.0;
-    };
-    const cssScale    = getContainerScale();
+    const cssScale    = readLayoutVar('--logo-scale', 1);
     const effectiveDpr = cssScale * dpr; // physical pixels per LOGO_SIZE logical px
 
     canvas.width        = Math.round(LOGO_SIZE * effectiveDpr);

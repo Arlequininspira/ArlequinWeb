@@ -16,7 +16,7 @@
   /* padding-top clears the fixed escudo; padding-bottom clears the footer.
      Both values come from breakpoints.css and update with media queries. */
   padding-top: var(--escudo-clearance, 178px);
-  padding-bottom: var(--footer-clearance, 71px);
+  padding-bottom: var(--footer-clearance, 83px);
 }
 
 .grid-stage.loading {
@@ -26,8 +26,8 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  max-width: 490px;
+  gap: var(--grid-gap, 16px);
+  max-width: var(--grid-max-width, 490px);
   width: 100%;
   position: relative;
   min-height: 300px;
@@ -103,7 +103,7 @@
   transition: opacity 200ms ease-out;
   font-family: "CinzelExtraBold", serif;
   font-weight: 900;
-  font-size: 22px;
+  font-size: var(--grid-font-size, 22px);
   letter-spacing: 1px;
   text-transform: uppercase;
   text-align: center;
@@ -130,7 +130,7 @@
    terminar el deal. text-shadow se renderiza inline con el texto. */
 .grid-stage.dark .card-text-overlay {
   color: #000000;
-  -webkit-text-stroke: 1.5px #ffffff;
+  -webkit-text-stroke: var(--grid-text-stroke, 1.5px) #ffffff;
 }
 .grid-stage.dark .card-text-overlay div {
   text-shadow: 0 2px 0 #ffffff;
@@ -139,7 +139,7 @@
 /* Modo clear: texto blanco, borde negro fino uniforme + sombra abajo */
 .grid-stage:not(.dark) .card-text-overlay {
   color: #ffffff;
-  -webkit-text-stroke: 1.5px #000000;
+  -webkit-text-stroke: var(--grid-text-stroke, 1.5px) #000000;
 }
 .grid-stage:not(.dark) .card-text-overlay div {
   text-shadow: 0 2px 0 #000000;
@@ -157,142 +157,13 @@
 .grid-stage:not(.dark) .card-label { color: #2c2c2c; }
 .grid-stage.dark .card-label       { color: #f0e6d3; }
 
-/* ── Height-based responsive: short screens ─────────────────────
-   padding-top/bottom come from --escudo-clearance / --footer-clearance
-   in breakpoints.css (both updated by height media queries there).
-   Only the base padding and cards-grid max-width need overriding here.
+/* ── Responsive ──────────────────────────────────────────────────
+   Grid width, gap and label size come from src/layout/viewportFit.js
+   (sized so both rows fit between escudo and footer on any screen).
    ─────────────────────────────────────────────────────────────── */
-@media (max-height: 780px) and (min-width: 501px) {
-  .grid-stage {
-    padding: 8px;
-    padding-top: var(--escudo-clearance, 163px);
-    padding-bottom: var(--footer-clearance, 68px);
-  }
-  .cards-grid {
-    max-width: 396px;
-  }
-  .card-text-overlay {
-    font-size: 17px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-/* Notebook 1229×692 and similar — cards-grid sized so 2 rows fit between
-   escudo and footer at 651–720px heights. Padding-top trimmed 10px so the
-   centred grid shifts up 5px (user fine-tuning request). */
-@media (max-height: 720px) and (min-width: 501px) {
-  .grid-stage {
-    padding: 6px;
-    padding-top: calc(var(--escudo-clearance, 138px) - 10px);
-    padding-bottom: var(--footer-clearance, 66px);
-  }
-  .cards-grid {
-    max-width: 363px;
-  }
-  .card-text-overlay {
-    font-size: 16px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-@media (max-height: 650px) and (min-width: 501px) {
-  .grid-stage {
-    padding: 6px;
-    padding-top: var(--escudo-clearance, 136px);
-    padding-bottom: var(--footer-clearance, 64px);
-  }
-  .cards-grid {
-    max-width: 290px;
-  }
-  .card-text-overlay {
-    font-size: 15px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-@media (max-height: 580px) and (min-width: 501px) {
-  .grid-stage {
-    padding: 4px;
-    padding-top: var(--escudo-clearance, 128px);
-    padding-bottom: var(--footer-clearance, 58px);
-  }
-  .cards-grid {
-    max-width: 260px;
-  }
-  .card-text-overlay {
-    font-size: 14px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-/* ── Width-based responsive: tablet portrait (501–768px wide) ─── */
-@media (max-width: 768px) and (min-width: 501px) {
-  .cards-grid {
-    max-width: 440px;
-  }
-}
-
-/* ── Mobile responsive ─────────────────────────────────────────── */
 @media (max-width: 500px) {
   .grid-stage {
-    padding: 8px;
-    padding-top: var(--escudo-clearance, 172px);
-    padding-bottom: var(--footer-clearance, 120px);
-  }
-  .cards-grid {
-    max-width: 370px;
-    gap: 8px;
-  }
-  .card-text-overlay {
-    font-size: 16px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-@media (max-width: 430px) {
-  .grid-stage {
-    padding: 6px;
-    padding-top: var(--escudo-clearance, 136px);
-    padding-bottom: var(--footer-clearance, 120px);
-  }
-  .cards-grid {
-    max-width: 336px;
-    gap: 8px;
-  }
-  .card-text-overlay {
-    font-size: 15px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-@media (max-width: 390px) {
-  .grid-stage {
-    padding: 6px;
-    padding-top: var(--escudo-clearance, 130px);
-    padding-bottom: var(--footer-clearance, 120px);
-  }
-  .cards-grid {
-    max-width: 306px;
-    gap: 6px;
-  }
-  .card-text-overlay {
-    font-size: 14px;
-    -webkit-text-stroke: 0;
-  }
-}
-
-@media (max-width: 360px) {
-  .grid-stage {
-    padding: 4px;
-    padding-top: var(--escudo-clearance, 126px);
-    padding-bottom: var(--footer-clearance, 120px);
-  }
-  .cards-grid {
-    max-width: 280px;
-    gap: 6px;
-  }
-  .card-text-overlay {
-    font-size: 13px;
-    -webkit-text-stroke: 0;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }

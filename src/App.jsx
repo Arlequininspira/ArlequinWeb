@@ -5,6 +5,7 @@ import LogoAnimation from './components/LogoAnimation'
 import ArlequinMaskSystem from './components/ArlequinMaskSystem'
 import FooterBanner from './components/FooterBanner'
 import WhatsAppButton from './components/WhatsAppButton'
+import RotateHint from './components/RotateHint'
 import { useLowEndDevice } from './hooks/useLowEndDevice'
 import './App.css'
 
@@ -130,6 +131,7 @@ function App() {
 
       <FooterBanner isDarkMode={isDarkMode} />
       <WhatsAppButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} />
+      <RotateHint isDarkMode={isDarkMode} />
 
       <main className="content" />
     </div>
