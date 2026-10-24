@@ -57,12 +57,14 @@
   }
 }
 
-/* Mobile banner is 80px scaled 1.4 → ~120px from the bottom edge. */
+/* Mobile: top-right corner, mirroring the theme toggle. Bottom-right sat on
+   top of the grid / card on phones once Safari's bars eat the height. */
 @media (max-width: 500px) {
   .whatsapp-button {
-    right: 16px;
-    bottom: 130px;
-    width: 52px;
-    height: 52px;
+    top: 12px;
+    right: 12px;
+    bottom: auto;
+    width: 48px;
+    height: 48px;
   }
 }

@@ -186,3 +186,13 @@
   }
 }
 
+
+/* Mobile: smaller and tighter to the corner so it never reaches the card. */
+@media (max-width: 500px) {
+  .theme-toggle-wrapper {
+    top: 12px;
+    left: 12px;
+    transform: scale(0.8);
+    transform-origin: top left;
+  }
+}
