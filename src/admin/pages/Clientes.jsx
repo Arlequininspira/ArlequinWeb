@@ -67,12 +67,18 @@ export default function Clientes() {
                         </small>
                       </div>
                       <span>
-                        {money(p.amount, p.currency)}
-                        <small>{p.billing_type === 'mensual' ? '/mes' : 'único'}</small>
+                        {Number(p.amount) > 0 ? (
+                          <>
+                            {money(p.amount, p.currency)}
+                            <small>{p.billing_type === 'mensual' ? '/mes' : 'único'}</small>
+                          </>
+                        ) : <small>Sin cargo</small>}
                       </span>
-                      {p.billing_type === 'mensual' && paidThisMonth.has(p.id)
-                        ? <span className="adm-tag ingreso">Mes cobrado</span>
-                        : <button className="adm-btn small primary" onClick={() => setCharge({ project: p, period: month })}>Cobrar</button>}
+                      {Number(p.amount) === 0
+                        ? <span className="adm-tag">Sin cobro</span>
+                        : p.billing_type === 'mensual' && paidThisMonth.has(p.id)
+                          ? <span className="adm-tag ingreso">Mes cobrado</span>
+                          : <button className="adm-btn small primary" onClick={() => setCharge({ project: p, period: month })}>Cobrar</button>}
                       <button className="adm-icon-btn" onClick={() => setEditProject(p)} aria-label="Editar trabajo" title="Editar trabajo">✎</button>
                       {domains.some((d) => d.project_id === p.id) && (
                         <div className="adm-domain-chips">
@@ -184,7 +190,7 @@ function ProjectModal({ project, onClose }) {
       <Form onSubmit={save} onCancel={onClose} danger={!isNew && <ConfirmButton onConfirm={remove} />}>
         <Field label="Nombre" wide><input name="name" defaultValue={project.name ?? ''} placeholder="Web institucional, tienda…" required autoFocus /></Field>
         <Field label="URL" wide><input name="url" defaultValue={project.url ?? ''} placeholder="www.cliente.com" /></Field>
-        <Field label={billing === 'mensual' ? 'Monto por mes' : 'Monto cobrado'}>
+        <Field label={billing === 'mensual' ? 'Monto por mes' : 'Monto cobrado'} hint="0 = sin cobro (sitio propio, canje…): no aparece en “Por cobrar”.">
           <div className="adm-input-group">
             <input name="amount" inputMode="decimal" defaultValue={project.amount ?? ''} required />
             <select name="currency" defaultValue={project.currency ?? 'ARS'}>{CURRENCIES.map((c) => <option key={c}>{c}</option>)}</select>
