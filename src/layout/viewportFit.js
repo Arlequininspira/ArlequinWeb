@@ -92,7 +92,6 @@ export function computeLayout(W, H) {
     '--grid-gap': gridGap,
     '--grid-card-width': gridCardW,
     '--grid-font-size': clamp(12, gridW * 0.045, 22),
-    '--grid-text-stroke': gridW >= 450 ? 1.5 : 0,
     '--mask-scale': maskScale,
     '--mask-open-distance': openDist,
     '--logo-scale': logoScale,
