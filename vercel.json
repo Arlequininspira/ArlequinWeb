@@ -1,5 +1,18 @@
 {
+  "crons": [
+    { "path": "/api/keepalive", "schedule": "0 12 * * *" }
+  ],
   "routes": [
+    {
+      "src": "^/login(/.*)?$",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "no-referrer",
+        "Cache-Control": "no-store"
+      },
+      "continue": true
+    },
     { "src": "^/construccion$", "dest": "/SitioEnConstruccion/index.html" },
     { "src": "^/firma/?$", "dest": "/Firma/firma_arlequin_svg_interactiva.html" },
     { "handle": "filesystem" },
