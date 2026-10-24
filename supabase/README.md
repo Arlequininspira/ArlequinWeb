@@ -51,6 +51,7 @@ Si la base ya estaba creada, correr en el SQL Editor cada archivo nuevo de
 para instalaciones desde cero.
 
 - `002_domains.sql` — dominios de los trabajos con vencimiento anual.
+- `003_account_auth_method.sql` — cuentas con Authenticator (sin contraseña) o contraseña + 2FA.
 
 ## Cómo se conectan los datos
 - **Clientes** → cada cliente tiene N **trabajos** (webs), mensuales o de pago único.

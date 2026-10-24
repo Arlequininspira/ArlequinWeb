@@ -250,6 +250,25 @@ end $$;
 revoke all on function public.renew_domain(uuid, numeric, date, int) from public, anon;
 grant execute on function public.renew_domain(uuid, numeric, date, int) to authenticated;
 
+-- ── Cuentas: método de acceso (authenticator / 2FA) ────────────────────
+alter table public.accounts
+  add column if not exists auth_method text not null default 'password',
+  add column if not exists auth_app    text,      -- Google Authenticator, Microsoft Authenticator…
+  add column if not exists auth_device text;      -- dónde está: "celular de Ariel"
+
+do $$ begin
+  alter table public.accounts
+    add constraint accounts_auth_method_chk check (auth_method in ('password', 'password_2fa', 'authenticator'));
+exception when duplicate_object then null; end $$;
+
+-- Una cuenta sólo-authenticator no tiene contraseña.
+alter table public.accounts alter column secret drop not null;
+
+do $$ begin
+  alter table public.accounts
+    add constraint accounts_secret_required_chk check (auth_method = 'authenticator' or secret is not null);
+exception when duplicate_object then null; end $$;
+
 -- ── Keep-alive (evita que el plan gratis pause el proyecto) ─────────────
 create table if not exists public.keepalive (
   id        int primary key default 1 check (id = 1),
