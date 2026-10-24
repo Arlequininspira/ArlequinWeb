@@ -4,16 +4,20 @@ import { useStore } from '../lib/store';
 import { CURRENCIES, money, dateAR, todayISO, monthISO } from '../lib/format';
 import { Modal, Field, Form, Empty, ConfirmButton, num, str } from '../components/ui';
 import { ChargeModal } from './Resumen';
+import { DomainModal, RenewDomainModal } from '../components/DomainModals';
+import { domainStatus, dueLabel } from '../lib/domains';
 
 const STATUS_LABEL = { activo: 'Activo', pausado: 'Pausado', finalizado: 'Finalizado' };
 
 export default function Clientes() {
-  const { clients, projects, transactions } = useStore();
+  const { clients, projects, transactions, domains, domainsReady } = useStore();
   const [search, setSearch] = useState('');
   const [editClient, setEditClient] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [charge, setCharge] = useState(null);
   const [history, setHistory] = useState(null);
+  const [editDomain, setEditDomain] = useState(null);   // { domain, clientId }
+  const [renew, setRenew] = useState(null);
 
   const list = clients.filter((c) => !search ||
     `${c.name} ${c.contact_name ?? ''} ${projects.filter((p) => p.client_id === c.id).map((p) => `${p.name} ${p.url ?? ''}`).join(' ')}`
@@ -45,13 +49,16 @@ export default function Clientes() {
                   <h2 className="clickable" onClick={() => setEditClient(c)}>{c.name}</h2>
                   <small className="adm-muted">{[c.contact_name, c.email, c.phone].filter(Boolean).join(' · ')}</small>
                 </div>
-                <button className="adm-btn small ghost" onClick={() => setHistory(c)}>Historial</button>
+                <div className="adm-actions">
+                  <button className="adm-btn small ghost" onClick={() => setHistory(c)}>Historial</button>
+                  <button className="adm-icon-btn" onClick={() => setEditClient(c)} aria-label="Editar cliente" title="Editar cliente">✎</button>
+                </div>
               </header>
 
               {ps.length === 0 ? <Empty>Sin trabajos.</Empty> : (
                 <ul className="adm-list">
                   {ps.map((p) => (
-                    <li key={p.id}>
+                    <li key={p.id} className="adm-project-row">
                       <div>
                         <b className="clickable" onClick={() => setEditProject(p)}>{p.name}</b>
                         <small>
@@ -66,6 +73,19 @@ export default function Clientes() {
                       {p.billing_type === 'mensual' && paidThisMonth.has(p.id)
                         ? <span className="adm-tag ingreso">Mes cobrado</span>
                         : <button className="adm-btn small primary" onClick={() => setCharge({ project: p, period: month })}>Cobrar</button>}
+                      <button className="adm-icon-btn" onClick={() => setEditProject(p)} aria-label="Editar trabajo" title="Editar trabajo">✎</button>
+                      {domains.some((d) => d.project_id === p.id) && (
+                        <div className="adm-domain-chips">
+                          {domains.filter((d) => d.project_id === p.id).map((d) => (
+                            <span key={d.id} className={`adm-domain-chip ${domainStatus(d)}`}>
+                              <button className="adm-chip-main" onClick={() => setEditDomain({ domain: d, clientId: c.id })} title="Editar dominio">
+                                🌐 {d.name} <small>· {domainStatus(d) === 'ok' ? `vence ${dateAR(d.expires_on)}` : dueLabel(d)}</small>
+                              </button>
+                              {domainStatus(d) !== 'ok' && <button className="adm-chip-action" onClick={() => setRenew(d)}>Renovar</button>}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -73,7 +93,12 @@ export default function Clientes() {
 
               <footer className="adm-client-foot">
                 <span className="adm-muted">Cobrado total: {byCur.length ? byCur.map(([cur, v]) => money(v, cur)).join(' + ') : '—'}</span>
-                <button className="adm-btn small" onClick={() => setEditProject({ client_id: c.id })}>+ Trabajo</button>
+                <span className="adm-actions">
+                  {domainsReady && ps.length > 0 && (
+                    <button className="adm-btn small ghost" onClick={() => setEditDomain({ domain: {}, clientId: c.id })}>+ Dominio</button>
+                  )}
+                  <button className="adm-btn small" onClick={() => setEditProject({ client_id: c.id })}>+ Trabajo</button>
+                </span>
               </footer>
             </article>
           );
@@ -84,6 +109,8 @@ export default function Clientes() {
       {editProject && <ProjectModal project={editProject} onClose={() => setEditProject(null)} />}
       {charge && <ChargeModal {...charge} onClose={() => setCharge(null)} />}
       {history && <HistoryModal client={history} onClose={() => setHistory(null)} />}
+      {editDomain && <DomainModal {...editDomain} onClose={() => setEditDomain(null)} />}
+      {renew && <RenewDomainModal domain={renew} onClose={() => setRenew(null)} />}
     </div>
   );
 }

@@ -10,6 +10,23 @@ const IDLE_LOCK_MS = 5 * 60 * 1000;   // auto-lock after 5 min without activity
 const REVEAL_MS = 20 * 1000;          // revealed password hides itself
 const CLIPBOARD_CLEAR_MS = 30 * 1000;
 
+const AUTH_METHODS = {
+  password: 'Contraseña',
+  password_2fa: 'Contraseña + Authenticator',
+  authenticator: 'Sólo Authenticator',
+};
+const AUTH_APPS = ['Google Authenticator', 'Microsoft Authenticator', 'Authy', '1Password', 'Mi Argentina', 'App del banco'];
+const methodOf = (a) => a.auth_method ?? 'password';
+
+function AuthBadge({ account }) {
+  const where = [account.auth_app, account.auth_device].filter(Boolean).join(' · ');
+  return (
+    <span className="adm-auth-badge" title={where || 'Authenticator'}>
+      🔐 {methodOf(account) === 'authenticator' ? 'Authenticator' : '2FA'}{where && <small> · {where}</small>}
+    </span>
+  );
+}
+
 // The derived key lives only in memory (never in storage). Module scope so
 // switching tabs inside the panel doesn't force a re-unlock.
 let vaultKey = null;
@@ -148,7 +165,7 @@ function Vault({ vkey }) {
 
   const clientName = (id) => clients.find((c) => c.id === id)?.name;
   const list = accounts.filter((a) => !search ||
-    `${a.service} ${a.username ?? ''} ${a.url ?? ''} ${a.category} ${clientName(a.client_id) ?? ''}`.toLowerCase().includes(search.toLowerCase()));
+    `${a.service} ${a.username ?? ''} ${a.url ?? ''} ${a.category} ${clientName(a.client_id) ?? ''} ${a.auth_app ?? ''} ${a.auth_device ?? ''}`.toLowerCase().includes(search.toLowerCase()));
   const groups = [...new Set(list.map((a) => a.category))].sort();
 
   return (
@@ -176,12 +193,19 @@ function Vault({ vkey }) {
                   </small>
                 </div>
                 <code className="adm-user-cell" title="Usuario">{a.username}</code>
-                <code className={`adm-secret${revealed[a.id] ? ' shown' : ''}`}>{revealed[a.id] ?? '••••••••••'}</code>
-                <span className="adm-row-actions">
-                  <button className="adm-icon-btn" onClick={() => toggleReveal(a)} aria-label={revealed[a.id] ? 'Ocultar' : 'Ver contraseña'}
-                    title={revealed[a.id] ? 'Ocultar' : 'Ver contraseña'}>{revealed[a.id] ? '🙈' : '👁'}</button>
-                  <button className="adm-icon-btn" onClick={() => copy(a)} aria-label="Copiar contraseña" title="Copiar">⧉</button>
-                </span>
+                {methodOf(a) === 'authenticator' ? (
+                  <AuthBadge account={a} />
+                ) : (
+                  <>
+                    {methodOf(a) === 'password_2fa' && <AuthBadge account={a} />}
+                    <code className={`adm-secret${revealed[a.id] ? ' shown' : ''}`}>{revealed[a.id] ?? '••••••••••'}</code>
+                    <span className="adm-row-actions">
+                      <button className="adm-icon-btn" onClick={() => toggleReveal(a)} aria-label={revealed[a.id] ? 'Ocultar' : 'Ver contraseña'}
+                        title={revealed[a.id] ? 'Ocultar' : 'Ver contraseña'}>{revealed[a.id] ? '🙈' : '👁'}</button>
+                      <button className="adm-icon-btn" onClick={() => copy(a)} aria-label="Copiar contraseña" title="Copiar">⧉</button>
+                    </span>
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -207,28 +231,40 @@ function AccountModal({ account, vkey, onClose, onSaved }) {
   const [notes, setNotes] = useState('');
   const [show, setShow] = useState(isNew);
   const [ready, setReady] = useState(isNew);
+  const [method, setMethod] = useState(methodOf(account));
+  const usesPassword = method !== 'authenticator';
+  const usesApp = method !== 'password';
 
   useEffect(() => {
     if (isNew) return;
     (async () => {
-      setPw(await decryptText(vkey, account.secret));
+      if (account.secret) setPw(await decryptText(vkey, account.secret));
       if (account.notes_secret) setNotes(await decryptText(vkey, account.notes_secret));
       setReady(true);
     })();
   }, [account, isNew, vkey]);
 
   const save = async (fd) => {
-    if (!pw) throw new Error('Falta la contraseña.');
+    if (usesPassword && !pw) throw new Error('Falta la contraseña.');
     const row = {
       service: str(fd, 'service'),
       url: str(fd, 'url'),
       username: str(fd, 'username'),
       category: str(fd, 'category') ?? 'General',
       client_id: str(fd, 'client_id'),
-      secret: await encryptText(vkey, pw),
+      secret: usesPassword ? await encryptText(vkey, pw) : null,
       notes_secret: notes.trim() ? await encryptText(vkey, notes.trim()) : null,
       updated_at: new Date().toISOString(),
     };
+    // Only send the auth columns when they matter, so plain-password accounts
+    // keep working on a database where migration 003 hasn't run yet.
+    if (method !== 'password' || 'auth_method' in account) {
+      Object.assign(row, {
+        auth_method: method,
+        auth_app: usesApp ? str(fd, 'auth_app') : null,
+        auth_device: usesApp ? str(fd, 'auth_device') : null,
+      });
+    }
     await q(isNew ? supabase.from('accounts').insert(row) : supabase.from('accounts').update(row).eq('id', account.id));
     await onSaved();
     onClose();
@@ -244,6 +280,11 @@ function AccountModal({ account, vkey, onClose, onSaved }) {
 
   return (
     <Modal title={isNew ? 'Nueva cuenta' : `Editar · ${account.service}`} onClose={onClose}>
+      <div className="adm-segmented adm-segmented-wrap">
+        {Object.entries(AUTH_METHODS).map(([v, l]) => (
+          <button key={v} type="button" className={method === v ? 'on' : ''} onClick={() => setMethod(v)}>{l}</button>
+        ))}
+      </div>
       <Form onSubmit={save} onCancel={onClose} danger={!isNew && <ConfirmButton onConfirm={remove} />}>
         <Field label="Servicio"><input name="service" defaultValue={account.service ?? ''} placeholder="Hostinger, Gmail, ARCA…" required autoFocus /></Field>
         <Field label="Categoría">
@@ -252,20 +293,34 @@ function AccountModal({ account, vkey, onClose, onSaved }) {
         </Field>
         <Field label="URL" wide><input name="url" defaultValue={account.url ?? ''} /></Field>
         <Field label="Usuario / email" wide><input name="username" defaultValue={account.username ?? ''} autoComplete="off" /></Field>
-        <Field label="Contraseña" wide>
-          <div className="adm-input-group">
-            <input value={pw} onChange={(e) => setPw(e.target.value)} type={show ? 'text' : 'password'} autoComplete="new-password" />
-            <button type="button" className="adm-icon-btn" onClick={() => setShow((s) => !s)} aria-label="Ver">{show ? '🙈' : '👁'}</button>
-            <button type="button" className="adm-btn small ghost" onClick={() => { setPw(generatePassword()); setShow(true); }}>Generar</button>
-          </div>
-        </Field>
+        {usesPassword && (
+          <Field label="Contraseña" wide>
+            <div className="adm-input-group">
+              <input value={pw} onChange={(e) => setPw(e.target.value)} type={show ? 'text' : 'password'} autoComplete="new-password" />
+              <button type="button" className="adm-icon-btn" onClick={() => setShow((s) => !s)} aria-label="Ver">{show ? '🙈' : '👁'}</button>
+              <button type="button" className="adm-btn small ghost" onClick={() => { setPw(generatePassword()); setShow(true); }}>Generar</button>
+            </div>
+          </Field>
+        )}
+        {usesApp && (
+          <>
+            <Field label="App de autenticación">
+              <input name="auth_app" list="adm-auth-apps" defaultValue={account.auth_app ?? 'Google Authenticator'} />
+              <datalist id="adm-auth-apps">{AUTH_APPS.map((a) => <option key={a} value={a} />)}</datalist>
+            </Field>
+            <Field label="¿En qué dispositivo está?">
+              <input name="auth_device" defaultValue={account.auth_device ?? ''} placeholder="Celular de Ariel" />
+            </Field>
+          </>
+        )}
         <Field label="Cliente (opcional)">
           <select name="client_id" defaultValue={account.client_id ?? ''}>
             <option value="">—</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </Field>
-        <Field label="Notas cifradas (códigos de respaldo, PIN…)" wide>
+        <Field label="Notas cifradas (códigos de respaldo, PIN…)" wide
+          hint={usesApp ? 'Guardá acá los códigos de recuperación: si se pierde el celular, son la única forma de entrar.' : undefined}>
           <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
       </Form>

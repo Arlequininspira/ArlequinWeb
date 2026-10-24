@@ -45,11 +45,24 @@ cron diario (12:00 UTC) a `/api/keepalive`, que llama a la función `keepalive_p
 (escribe una fila → actividad real). Ver último ping: `select * from public.keepalive;`.
 Probar a mano: `curl -H "Authorization: Bearer $CRON_SECRET" https://www.arlequininspira.com/api/keepalive`.
 
+## Migraciones
+Si la base ya estaba creada, correr en el SQL Editor cada archivo nuevo de
+`supabase/migrations/` (en orden). Son idempotentes. `schema.sql` ya los incluye
+para instalaciones desde cero.
+
+- `002_domains.sql` — dominios de los trabajos con vencimiento anual.
+- `003_account_auth_method.sql` — cuentas con Authenticator (sin contraseña) o contraseña + 2FA.
+
 ## Cómo se conectan los datos
 - **Clientes** → cada cliente tiene N **trabajos** (webs), mensuales o de pago único.
 - **Cobrar** (en Resumen o Clientes) crea un **ingreso** en Administración de gastos,
   vinculado al cliente y trabajo. Un mismo mes de mantenimiento no se puede cobrar dos veces.
 - **Gastos fijos** (ARCA, dominios, hosting) → **Pagar** crea el gasto y corre el vencimiento
   al mes/año siguiente.
-- **Resumen** muestra lo que falta cobrar este mes, lo que vence en 30 días y los últimos 6 meses.
+- **Dominios** (Clientes → + Dominio): cada trabajo puede tener varios. El vencimiento se
+  calcula solo como el próximo aniversario del registro. Faltando 45 días aparecen en
+  **Resumen → Dominios por vencer** (dorado; rojo a 15 días o vencido). **Renovar** corre el
+  vencimiento 1–5 años y, si lo paga la agencia, registra el gasto "Dominios" del cliente.
+- **Resumen** muestra lo que falta cobrar este mes, gastos fijos y dominios por vencer, y los
+  últimos 6 meses. El número rojo en el menú suma los avisos pendientes.
 - Montos en ARS o USD; los totales se muestran por moneda (no se convierten).

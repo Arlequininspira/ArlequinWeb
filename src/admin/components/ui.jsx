@@ -65,6 +65,7 @@ export function friendlyError(msg = '') {
   if (msg.includes('transactions_project_period_uq')) return 'Ese mes ya está cobrado para este trabajo.';
   if (msg.includes('forbidden') || msg.includes('row-level security')) return 'Tu usuario no tiene permisos de administrador.';
   if (msg.includes('Failed to fetch')) return 'Sin conexión con el servidor.';
+  if (msg.includes('auth_method') || msg.includes('auth_app')) return 'Falta correr supabase/migrations/003_account_auth_method.sql en Supabase.';
   return msg;
 }
 
