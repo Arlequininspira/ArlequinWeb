@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase, isConfigured } from './lib/supabase';
 import { StoreProvider, useStore } from './lib/store';
+import { domainsDueSoon } from './lib/domains';
+import { pendingMaintenance } from './pages/Resumen';
 import Login from './pages/Login';
 import Resumen from './pages/Resumen';
 import Gastos from './pages/Gastos';
@@ -50,7 +52,8 @@ function Shell({ session }) {
     return TABS.some((t) => t.id === h) ? h : 'resumen';
   });
   const [menuOpen, setMenuOpen] = useState(false);
-  const { error } = useStore();
+  const { error, domains, projects, transactions } = useStore();
+  const alerts = domainsDueSoon(domains).length + pendingMaintenance(projects, transactions).length;
 
   const go = (id) => {
     setTab(id);
@@ -71,6 +74,7 @@ function Shell({ session }) {
           {TABS.map((t) => (
             <button key={t.id} className={t.id === tab ? 'active' : ''} onClick={() => go(t.id)}>
               {t.label}
+              {t.id === 'resumen' && alerts > 0 && <span className="adm-nav-badge" title="Avisos pendientes">{alerts}</span>}
             </button>
           ))}
         </nav>

@@ -9,7 +9,7 @@ import { supabase, q } from './supabase';
  */
 const StoreCtx = createContext(null);
 
-const EMPTY = { clients: [], projects: [], transactions: [], recurring: [] };
+const EMPTY = { clients: [], projects: [], transactions: [], recurring: [], domains: [] };
 
 export function StoreProvider({ children }) {
   const [data, setData] = useState(EMPTY);
@@ -18,13 +18,15 @@ export function StoreProvider({ children }) {
 
   const reload = useCallback(async () => {
     try {
-      const [clients, projects, transactions, recurring] = await Promise.all([
+      const [clients, projects, transactions, recurring, domains] = await Promise.all([
         q(supabase.from('clients').select('*').order('name')),
         q(supabase.from('projects').select('*').order('created_at')),
         q(supabase.from('transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false })),
         q(supabase.from('recurring_expenses').select('*').order('next_due')),
+        // Tolerate a database where migration 002 (domains) hasn't run yet.
+        q(supabase.from('domains').select('*').order('expires_on')).catch(() => null),
       ]);
-      setData({ clients, projects, transactions, recurring });
+      setData({ clients, projects, transactions, recurring, domains: domains ?? [], domainsReady: domains !== null });
       setError(null);
     } catch (e) {
       setError(e.message);

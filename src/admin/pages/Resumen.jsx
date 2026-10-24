@@ -3,6 +3,8 @@ import { supabase, q } from '../lib/supabase';
 import { useStore } from '../lib/store';
 import { money, dateAR, todayISO, monthISO, monthLabel, lastMonths, totals } from '../lib/format';
 import { Modal, Field, Form, Empty, num, str } from '../components/ui';
+import { RenewDomainModal } from '../components/DomainModals';
+import { DOMAIN_ALERT_DAYS, domainsDueSoon, domainStatus, dueLabel } from '../lib/domains';
 
 // Monthly projects still not charged for `period` (YYYY-MM).
 export function pendingMaintenance(projects, transactions, period = monthISO()) {
@@ -12,10 +14,11 @@ export function pendingMaintenance(projects, transactions, period = monthISO()) 
 }
 
 export default function Resumen() {
-  const { projects, transactions, recurring, clients } = useStore();
+  const { projects, transactions, recurring, clients, domains, domainsReady } = useStore();
   const [charge, setCharge] = useState(null);
   const [pay, setPay] = useState(null);
   const [cur, setCur] = useState('ARS');
+  const [renew, setRenew] = useState(null);
 
   const month = monthISO();
   const tot = totals(transactions.filter((t) => t.date.startsWith(month)));
@@ -23,6 +26,8 @@ export default function Resumen() {
   const in30 = new Date(Date.now() + 30 * 864e5).toLocaleDateString('sv-SE');
   const dueSoon = recurring.filter((r) => r.active && r.next_due <= in30);
   const clientName = (id) => clients.find((c) => c.id === id)?.name ?? '—';
+  const domainsDue = domainsDueSoon(domains);
+  const domainClient = (d) => clientName(projects.find((p) => p.id === d.project_id)?.client_id);
 
   const months = lastMonths(6);
   const series = months.map((m) => totals(transactions.filter((t) => t.date.startsWith(m)))[cur]);
@@ -80,6 +85,28 @@ export default function Resumen() {
       </div>
 
       <section className="adm-panel">
+        <header className="adm-panel-head"><h2>Dominios por vencer</h2><span className="adm-badge">{domainsDue.length}</span></header>
+        {!domainsReady ? (
+          <p className="adm-warn">Falta correr <code>supabase/migrations/002_domains.sql</code> en Supabase para usar dominios.</p>
+        ) : domainsDue.length === 0 ? (
+          <Empty>{domains.length ? `Ningún dominio vence en los próximos ${DOMAIN_ALERT_DAYS} días.` : 'Cargá los dominios desde Clientes → + Dominio.'}</Empty>
+        ) : (
+          <ul className="adm-list">
+            {domainsDue.map((d) => (
+              <li key={d.id}>
+                <div>
+                  <b>🌐 {d.name}</b>
+                  <small>{domainClient(d)}{d.provider ? ` · ${d.provider}` : ''} · {d.paid_by === 'agencia' ? 'lo pagamos nosotros' : 'lo paga el cliente'}</small>
+                </div>
+                <span className={`adm-due ${domainStatus(d)}`}>{dueLabel(d)}<small>{dateAR(d.expires_on)}</small></span>
+                <button className="adm-btn small primary" onClick={() => setRenew(d)}>Renovar</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="adm-panel">
         <header className="adm-panel-head">
           <h2>Últimos 6 meses</h2>
           <div className="adm-segmented small">
@@ -103,6 +130,7 @@ export default function Resumen() {
 
       {charge && <ChargeModal {...charge} onClose={() => setCharge(null)} />}
       {pay && <PayRecurringModal rec={pay} onClose={() => setPay(null)} />}
+      {renew && <RenewDomainModal domain={renew} onClose={() => setRenew(null)} />}
     </div>
   );
 }
