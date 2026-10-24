@@ -24,7 +24,6 @@
   --grid-gap:          16px;
   --grid-card-width:   237px;
   --grid-font-size:    22px;
-  --grid-text-stroke:  1.5px;
 
   --mask-scale:         1;
   --mask-open-distance: 224px;        /* read by ArlequinMask.jsx */

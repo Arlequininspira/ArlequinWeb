@@ -130,7 +130,7 @@
    terminar el deal. text-shadow se renderiza inline con el texto. */
 .grid-stage.dark .card-text-overlay {
   color: #000000;
-  -webkit-text-stroke: var(--grid-text-stroke, 1.5px) #ffffff;
+  -webkit-text-stroke: 1.5px #ffffff;
 }
 .grid-stage.dark .card-text-overlay div {
   text-shadow: 0 2px 0 #ffffff;
@@ -139,7 +139,7 @@
 /* Modo clear: texto blanco, borde negro fino uniforme + sombra abajo */
 .grid-stage:not(.dark) .card-text-overlay {
   color: #ffffff;
-  -webkit-text-stroke: var(--grid-text-stroke, 1.5px) #000000;
+  -webkit-text-stroke: 1.5px #000000;
 }
 .grid-stage:not(.dark) .card-text-overlay div {
   text-shadow: 0 2px 0 #000000;
