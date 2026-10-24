@@ -6,11 +6,13 @@ import { Modal, Field, Form, Empty, num, str } from '../components/ui';
 import { RenewDomainModal } from '../components/DomainModals';
 import { DOMAIN_ALERT_DAYS, domainsDueSoon, domainStatus, dueLabel } from '../lib/domains';
 
-// Monthly projects still not charged for `period` (YYYY-MM).
+// Monthly projects still not charged for `period` (YYYY-MM). Projects with
+// amount 0 (own sites, favors) never need charging.
 export function pendingMaintenance(projects, transactions, period = monthISO()) {
   const paid = new Set(transactions.filter((t) => t.period === period && t.project_id).map((t) => t.project_id));
   return projects.filter((p) =>
-    p.billing_type === 'mensual' && p.status === 'activo' && p.start_date.slice(0, 7) <= period && !paid.has(p.id));
+    p.billing_type === 'mensual' && p.status === 'activo' && Number(p.amount) > 0 &&
+    p.start_date.slice(0, 7) <= period && !paid.has(p.id));
 }
 
 export default function Resumen() {
