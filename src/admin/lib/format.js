@@ -1,3 +1,5 @@
+export const ADMIN_ICON = '/favicon_back.avif';   // logo + favicon del panel
+
 export const CURRENCIES = ['ARS', 'USD'];
 
 export const INCOME_CATEGORIES = ['Mantenimiento', 'Desarrollo web', 'Diseño', 'Otros'];

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, isConfigured } from './lib/supabase';
 import { StoreProvider, useStore } from './lib/store';
 import { domainsDueSoon } from './lib/domains';
+import { ADMIN_ICON } from './lib/format';
 import { pendingMaintenance } from './pages/Resumen';
 import Login from './pages/Login';
 import Resumen from './pages/Resumen';
@@ -67,7 +68,7 @@ function Shell({ session }) {
     <div className="adm-shell">
       <aside className={`adm-side${menuOpen ? ' open' : ''}`}>
         <div className="adm-brand">
-          <img src="/Cartas/favicon.avif" alt="" />
+          <img src={ADMIN_ICON} alt="" />
           <span>Arlequín<small>Administración</small></span>
         </div>
         <nav>
@@ -107,6 +108,11 @@ export default function AdminApp() {
     meta.name = 'robots';
     meta.content = 'noindex, nofollow';
     document.head.appendChild(meta);
+    // Panel icon: replaces the public site's favicon.
+    const icon = document.querySelector("link[rel~='icon']") ?? document.head.appendChild(document.createElement('link'));
+    icon.rel = 'icon';
+    icon.type = 'image/avif';
+    icon.href = ADMIN_ICON;
   }, []);
 
   if (!isConfigured) {
