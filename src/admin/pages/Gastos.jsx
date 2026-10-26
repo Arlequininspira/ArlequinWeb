@@ -18,6 +18,7 @@ export default function Gastos() {
   const [editTx, setEditTx] = useState(null);       // {} = new
   const [editRec, setEditRec] = useState(null);
   const [payRec, setPayRec] = useState(null);
+  const [partnerDetail, setPartnerDetail] = useState(false);
 
   const clientName = (id) => clients.find((c) => c.id === id)?.name;
   const projectName = (id) => projects.find((p) => p.id === id)?.name;
@@ -64,6 +65,7 @@ export default function Gastos() {
         <header className="adm-panel-head">
           <h2>Movimientos</h2>
           <div className="adm-actions">
+            <button className="adm-btn ghost" onClick={() => setPartnerDetail(true)}>Detalle por socio</button>
             <button className="adm-btn ghost" onClick={exportCSV} disabled={!rows.length}>Exportar CSV</button>
             <button className="adm-btn primary" onClick={() => setEditTx({ kind: 'gasto' })}>+ Movimiento</button>
           </div>
@@ -146,7 +148,47 @@ export default function Gastos() {
       {editTx && <TxModal tx={editTx} onClose={() => setEditTx(null)} onSaved={reload} />}
       {editRec && <RecurringModal rec={editRec} onClose={() => setEditRec(null)} onSaved={reload} />}
       {payRec && <PayRecurringModal rec={payRec} onClose={() => setPayRec(null)} />}
+      {partnerDetail && (
+        <PartnerDetailModal
+          txs={transactions.filter((t) => month === 'todos' || t.date.startsWith(month))}
+          period={month === 'todos' ? 'todos los meses' : monthLabel(month)}
+          onPick={(id) => { setWho(id); setPartnerDetail(false); }}
+          onClose={() => setPartnerDetail(false)} />
+      )}
     </div>
+  );
+}
+
+// Cuánto cobró y pagó cada socio en el período (todo sale de la misma cuenta;
+// es sólo para control). Click en una fila filtra los movimientos.
+function PartnerDetailModal({ txs, period, onPick, onClose }) {
+  const people = [...PARTNERS, { id: '', label: 'Sin asignar' }];
+  const rowsFor = (p) => txs.filter((t) => (t.paid_by ?? '') === p.id);
+  const curs = CURRENCIES.filter((c) => c === 'ARS' || txs.some((t) => t.currency === c));
+  return (
+    <Modal title={`Detalle por socio · ${period}`} onClose={onClose} width={600}>
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead><tr><th>Socio</th><th className="r">Cobró</th><th className="r">Pagó</th><th className="r">Movimientos</th></tr></thead>
+          <tbody>
+            {people.map((p) => {
+              const list = rowsFor(p);
+              if (!p.id && !list.length) return null;
+              const tot = totals(list);
+              return (
+                <tr key={p.id || 'none'} className="clickable" onClick={() => onPick(p.id || 'nadie')} title="Ver sus movimientos">
+                  <td>{p.label}</td>
+                  <td className="r pos">{curs.map((c) => <div key={c}>{money(tot[c].in, c)}</div>)}</td>
+                  <td className="r neg">{curs.map((c) => <div key={c}>{money(tot[c].out, c)}</div>)}</td>
+                  <td className="r">{list.length}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="adm-muted adm-note">Tocá un socio para ver sus movimientos.</p>
+    </Modal>
   );
 }
 
