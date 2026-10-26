@@ -18,6 +18,7 @@ export default function Gastos() {
   const [editTx, setEditTx] = useState(null);       // {} = new
   const [editRec, setEditRec] = useState(null);
   const [payRec, setPayRec] = useState(null);
+  const [partnerDetail, setPartnerDetail] = useState(false);
 
   const clientName = (id) => clients.find((c) => c.id === id)?.name;
   const projectName = (id) => projects.find((p) => p.id === id)?.name;
@@ -36,18 +37,13 @@ export default function Gastos() {
     (cat === 'todas' || t.category === cat) &&
     (!search || `${t.description ?? ''} ${t.category} ${clientName(t.client_id) ?? ''} ${partnerLabel(t.paid_by)}`.toLowerCase().includes(search.toLowerCase())));
   const rows = filtered.filter((t) =>
-    who === 'todos' || (who === 'nadie' ? t.kind === 'gasto' && !t.paid_by : t.paid_by === who));
+    who === 'todos' || (who === 'nadie' ? !t.paid_by : t.paid_by === who));
 
   const tot = totals(rows);
-  // Gastos imputados a cada socio (+ los sin asignar); ignoran el filtro de
-  // socio para poder compararlos lado a lado.
-  const expenses = filtered.filter((t) => t.kind === 'gasto');
-  const byPartner = [...PARTNERS, { id: '', label: 'Sin asignar' }]
-    .map((p) => ({ ...p, tot: totals(expenses.filter((t) => (t.paid_by ?? '') === p.id)) }))
-    .filter((p) => p.id || p.tot.ARS.out || p.tot.USD.out);
+  const whoLabel = who === 'nadie' ? 'Sin asignar' : partnerLabel(who);
 
   const exportCSV = () => downloadCSV(`movimientos-${month}.csv`, [
-    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Pagó', 'Moneda', 'Monto'],
+    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Cobró / pagó', 'Moneda', 'Monto'],
     ...rows.map((t) => [dateAR(t.date), t.kind, t.category, t.description, clientName(t.client_id),
       projectName(t.project_id), partnerLabel(t.paid_by), t.currency, String(t.amount).replace('.', ',')]),
   ]);
@@ -57,28 +53,19 @@ export default function Gastos() {
       <section className="adm-stats">
         {CURRENCIES.map((c) => (tot[c].in || tot[c].out || c === 'ARS') && (
           <div key={c} className="adm-stat-group">
-            <div className="adm-stat in"><span>Ingresos {c}</span><b>{money(tot[c].in, c)}</b></div>
-            <div className="adm-stat out"><span>Gastos {c}</span><b>{money(tot[c].out, c)}</b></div>
+            <div className="adm-stat in"><span>Ingresos {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].in, c)}</b></div>
+            <div className="adm-stat out"><span>Gastos {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].out, c)}</b></div>
             <div className={`adm-stat ${tot[c].in - tot[c].out >= 0 ? 'in' : 'out'}`}>
-              <span>Balance {c}</span><b>{money(tot[c].in - tot[c].out, c)}</b></div>
+              <span>Balance {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].in - tot[c].out, c)}</b></div>
           </div>
         ))}
-        <div className="adm-stat-group">
-          {byPartner.map((p) => (
-            <div key={p.id || 'none'} className={`adm-stat out clickable${who === (p.id || 'nadie') ? ' on' : ''}`}
-              onClick={() => setWho(who === (p.id || 'nadie') ? 'todos' : (p.id || 'nadie'))}
-              title="Filtrar por quién pagó">
-              <span>{p.id ? `Pagó ${p.label}` : 'Gastos sin asignar'}</span><b>{money(p.tot.ARS.out)}</b>
-              {p.tot.USD.out > 0 && <em>+ {money(p.tot.USD.out, 'USD')}</em>}
-            </div>
-          ))}
-        </div>
       </section>
 
       <section className="adm-panel">
         <header className="adm-panel-head">
           <h2>Movimientos</h2>
           <div className="adm-actions">
+            <button className="adm-btn ghost" onClick={() => setPartnerDetail(true)}>Detalle por socio</button>
             <button className="adm-btn ghost" onClick={exportCSV} disabled={!rows.length}>Exportar CSV</button>
             <button className="adm-btn primary" onClick={() => setEditTx({ kind: 'gasto' })}>+ Movimiento</button>
           </div>
@@ -99,8 +86,8 @@ export default function Gastos() {
           </select>
           <select value={who} onChange={(e) => setWho(e.target.value)}>
             <option value="todos">Todos los socios</option>
-            {PARTNERS.map((p) => <option key={p.id} value={p.id}>Pagó {p.label}</option>)}
-            <option value="nadie">Gastos sin asignar</option>
+            {PARTNERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            <option value="nadie">Sin asignar</option>
           </select>
           <input type="search" placeholder="Buscar…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
@@ -108,7 +95,7 @@ export default function Gastos() {
         {rows.length === 0 ? <Empty>No hay movimientos para este filtro.</Empty> : (
           <div className="adm-table-wrap">
             <table className="adm-table">
-              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Pagó</th><th className="r">Monto</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Quién</th><th className="r">Monto</th></tr></thead>
               <tbody>
                 {rows.map((t) => (
                   <tr key={t.id} onClick={() => setEditTx(t)} className="clickable">
@@ -116,7 +103,11 @@ export default function Gastos() {
                     <td><span className={`adm-tag ${t.kind}`}>{t.category}</span></td>
                     <td>{t.description}</td>
                     <td>{clientName(t.client_id)}</td>
-                    <td>{t.paid_by && <span className="adm-tag">{partnerLabel(t.paid_by)}</span>}</td>
+                    <td>
+                      {t.paid_by
+                        ? <span className={`adm-tag ${t.kind}`}>{t.kind === 'ingreso' ? 'Cobró' : 'Pagó'} {partnerLabel(t.paid_by)}</span>
+                        : <span className="adm-muted">Sin asignar</span>}
+                    </td>
                     <td className={`r ${t.kind === 'ingreso' ? 'pos' : 'neg'}`}>
                       {t.kind === 'ingreso' ? '+' : '−'}{money(t.amount, t.currency)}
                     </td>
@@ -157,7 +148,47 @@ export default function Gastos() {
       {editTx && <TxModal tx={editTx} onClose={() => setEditTx(null)} onSaved={reload} />}
       {editRec && <RecurringModal rec={editRec} onClose={() => setEditRec(null)} onSaved={reload} />}
       {payRec && <PayRecurringModal rec={payRec} onClose={() => setPayRec(null)} />}
+      {partnerDetail && (
+        <PartnerDetailModal
+          txs={transactions.filter((t) => month === 'todos' || t.date.startsWith(month))}
+          period={month === 'todos' ? 'todos los meses' : monthLabel(month)}
+          onPick={(id) => { setWho(id); setPartnerDetail(false); }}
+          onClose={() => setPartnerDetail(false)} />
+      )}
     </div>
+  );
+}
+
+// Cuánto cobró y pagó cada socio en el período (todo sale de la misma cuenta;
+// es sólo para control). Click en una fila filtra los movimientos.
+function PartnerDetailModal({ txs, period, onPick, onClose }) {
+  const people = [...PARTNERS, { id: '', label: 'Sin asignar' }];
+  const rowsFor = (p) => txs.filter((t) => (t.paid_by ?? '') === p.id);
+  const curs = CURRENCIES.filter((c) => c === 'ARS' || txs.some((t) => t.currency === c));
+  return (
+    <Modal title={`Detalle por socio · ${period}`} onClose={onClose} width={600}>
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead><tr><th>Socio</th><th className="r">Cobró</th><th className="r">Pagó</th><th className="r">Movimientos</th></tr></thead>
+          <tbody>
+            {people.map((p) => {
+              const list = rowsFor(p);
+              if (!p.id && !list.length) return null;
+              const tot = totals(list);
+              return (
+                <tr key={p.id || 'none'} className="clickable" onClick={() => onPick(p.id || 'nadie')} title="Ver sus movimientos">
+                  <td>{p.label}</td>
+                  <td className="r pos">{curs.map((c) => <div key={c}>{money(tot[c].in, c)}</div>)}</td>
+                  <td className="r neg">{curs.map((c) => <div key={c}>{money(tot[c].out, c)}</div>)}</td>
+                  <td className="r">{list.length}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="adm-muted adm-note">Tocá un socio para ver sus movimientos.</p>
+    </Modal>
   );
 }
 
@@ -178,10 +209,8 @@ function TxModal({ tx, onClose, onSaved }) {
       description: str(fd, 'description'),
       client_id: clientId || null,
       project_id: str(fd, 'project_id'),
+      paid_by: str(fd, 'paid_by'),
     };
-    // Only send paid_by when it matters, so incomes keep saving on a database
-    // where migration 004 hasn't run yet.
-    if (kind === 'gasto' || tx.paid_by) row.paid_by = kind === 'gasto' ? str(fd, 'paid_by') : null;
     if (row.amount <= 0) throw new Error('El monto debe ser mayor a 0');
     await q(isNew ? supabase.from('transactions').insert(row) : supabase.from('transactions').update(row).eq('id', tx.id));
     await onSaved();
@@ -226,7 +255,7 @@ function TxModal({ tx, onClose, onSaved }) {
             </select>
           </Field>
         )}
-        {kind === 'gasto' && <PaidByField defaultValue={isNew ? me : tx.paid_by} />}
+        <PaidByField label={kind === 'gasto' ? '¿Quién pagó?' : '¿Quién cobró?'} defaultValue={isNew ? me : tx.paid_by} />
         <Field label="Detalle" wide><input name="description" defaultValue={tx.description ?? ''} /></Field>
       </Form>
     </Modal>
