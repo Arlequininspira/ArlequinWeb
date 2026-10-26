@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { supabase, q } from '../lib/supabase';
 import { useStore } from '../lib/store';
 import {
@@ -40,13 +40,14 @@ export default function Gastos() {
     who === 'todos' || (who === 'nadie' ? !t.paid_by : t.paid_by === who));
 
   const tot = totals(rows);
-  // Lo cobrado y pagado por cada socio (+ lo sin asignar); ignora el filtro
-  // de socio para poder compararlos lado a lado.
-  const byPartner = [...PARTNERS, { id: '', label: 'Sin asignar' }]
-    .map((p) => ({ ...p, tot: totals(filtered.filter((t) => (t.paid_by ?? '') === p.id)) }))
-    .filter((p) => p.id || p.tot.ARS.in || p.tot.ARS.out || p.tot.USD.in || p.tot.USD.out);
-  // El balance entre socios mira el período completo, sin los demás filtros.
+  // La cuenta de cada socio mira el período completo, sin los demás filtros.
   const periodTxs = transactions.filter((t) => month === 'todos' || t.date.startsWith(month));
+  const movementsRef = useRef(null);
+  const showPartner = (id) => {
+    setWho(id);
+    if (id !== 'todos') movementsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const whoLabel = who === 'nadie' ? 'Sin asignar' : partnerLabel(who);
 
   const exportCSV = () => downloadCSV(`movimientos-${month}.csv`, [
     ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Pagó / cobró', 'Moneda', 'Monto'],
@@ -59,35 +60,34 @@ export default function Gastos() {
       <section className="adm-stats">
         {CURRENCIES.map((c) => (tot[c].in || tot[c].out || c === 'ARS') && (
           <div key={c} className="adm-stat-group">
-            <div className="adm-stat in"><span>Ingresos {c}</span><b>{money(tot[c].in, c)}</b></div>
-            <div className="adm-stat out"><span>Gastos {c}</span><b>{money(tot[c].out, c)}</b></div>
+            <div className="adm-stat in"><span>Ingresos {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].in, c)}</b></div>
+            <div className="adm-stat out"><span>Gastos {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].out, c)}</b></div>
             <div className={`adm-stat ${tot[c].in - tot[c].out >= 0 ? 'in' : 'out'}`}>
-              <span>Balance {c}</span><b>{money(tot[c].in - tot[c].out, c)}</b></div>
+              <span>Balance {c}{who !== 'todos' && ` · ${whoLabel}`}</span><b>{money(tot[c].in - tot[c].out, c)}</b></div>
           </div>
         ))}
-        <div className="adm-stat-group">
-          {byPartner.map((p) => (
-            <div key={p.id || 'none'} className={`adm-stat partner clickable${who === (p.id || 'nadie') ? ' on' : ''}`}
-              onClick={() => setWho(who === (p.id || 'nadie') ? 'todos' : (p.id || 'nadie'))}
-              title="Filtrar por socio">
-              <span>{p.label} · cobró / pagó</span>
-              <b><i className="pos">{money(p.tot.ARS.in)}</i> / <i className="neg">{money(p.tot.ARS.out)}</i></b>
-              {(p.tot.USD.in > 0 || p.tot.USD.out > 0) && <em>USD {money(p.tot.USD.in, 'USD')} / {money(p.tot.USD.out, 'USD')}</em>}
-            </div>
-          ))}
-        </div>
       </section>
 
       <section className="adm-panel">
         <header className="adm-panel-head">
-          <h2>Balance entre socios · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
+          <div>
+            <h2>Cuenta de cada socio · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
+            <small className="adm-muted">Quién cobró, quién pagó y cómo quedan repartiendo 50/50</small>
+          </div>
         </header>
-        <PartnerBalance txs={periodTxs} />
+        <PartnerBalance txs={periodTxs} who={who} onSelect={showPartner} />
       </section>
 
-      <section className="adm-panel">
+      <section className="adm-panel" ref={movementsRef}>
         <header className="adm-panel-head">
-          <h2>Movimientos</h2>
+          <h2>
+            Movimientos
+            {who !== 'todos' && (
+              <button type="button" className="adm-filter-chip" onClick={() => setWho('todos')} title="Quitar filtro">
+                {who === 'nadie' ? 'Sin asignar' : `de ${whoLabel}`} ✕
+              </button>
+            )}
+          </h2>
           <div className="adm-actions">
             <button className="adm-btn ghost" onClick={exportCSV} disabled={!rows.length}>Exportar CSV</button>
             <button className="adm-btn primary" onClick={() => setEditTx({ kind: 'gasto' })}>+ Movimiento</button>
