@@ -168,6 +168,24 @@ html.adm-html #root {
 .adm-stat.in { border-top-color: var(--adm-green); }
 .adm-stat.out { border-top-color: var(--adm-red); }
 .adm-stat.on { box-shadow: inset 0 0 0 1px var(--adm-gold); }
+.adm-stat.partner { border-top-color: var(--adm-gold); }
+.adm-stat.partner b { font-size: 18px; }
+.adm-stat.partner b i { font-style: normal; }
+
+/* Balance entre socios */
+.adm-balance + .adm-balance { margin-top: 18px; }
+.adm-balance-cur { font-size: 13px; color: var(--adm-muted); margin: 0 0 6px; letter-spacing: 0.8px; }
+.adm-balance-table td:first-child { white-space: nowrap; }
+.adm-balance-table tr.group td { color: var(--adm-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; padding-top: 14px; }
+.adm-balance-table tr.cat td:first-child { padding-left: 22px; color: var(--adm-muted); }
+.adm-balance-table tr.sub td { font-weight: 600; }
+.adm-balance-table tr.sub.in td.r { color: var(--adm-green); }
+.adm-balance-table tr.sub.out td.r { color: var(--adm-red); }
+.adm-balance-table tr.net td { font-weight: 700; font-size: 15px; border-top: 2px solid var(--adm-border, rgba(255,255,255,0.12)); }
+.adm-settle { margin-top: 14px; display: grid; gap: 8px; }
+.adm-settle p { margin: 0; }
+.adm-settle-move { font-size: 16px; padding: 10px 14px; border-radius: 8px; background: rgba(242, 194, 48, 0.08); border-left: 3px solid var(--adm-gold); }
+.adm-settle-ok { color: var(--adm-green); }
 
 /* ── Lists ─────────────────────────────────────────────────────────── */
 .adm-list { list-style: none; margin: 0; padding: 0; }

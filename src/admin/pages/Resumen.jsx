@@ -139,7 +139,7 @@ export default function Resumen() {
 
 // Registers a client payment → becomes an "ingreso" in Gastos automatically.
 export function ChargeModal({ project, period, onClose }) {
-  const { reload } = useStore();
+  const { reload, me } = useStore();
   const monthly = project.billing_type === 'mensual';
 
   const save = async (fd) => {
@@ -149,6 +149,7 @@ export function ChargeModal({ project, period, onClose }) {
       p_date: fd.get('date'),
       p_period: monthly ? fd.get('period') : null,
       p_description: str(fd, 'description'),
+      p_paid_by: str(fd, 'paid_by'),
     }));
     await reload();
     onClose();
@@ -160,6 +161,7 @@ export function ChargeModal({ project, period, onClose }) {
         {monthly && <Field label="Mes que se cobra"><input type="month" name="period" defaultValue={period ?? monthISO()} required /></Field>}
         <Field label="Fecha de cobro"><input type="date" name="date" defaultValue={todayISO()} required /></Field>
         <Field label={`Monto (${project.currency})`}><input name="amount" inputMode="decimal" defaultValue={project.amount} required autoFocus /></Field>
+        <PaidByField label="¿Quién cobró?" defaultValue={me} />
         <Field label="Detalle (opcional)" wide><input name="description" placeholder={project.name} /></Field>
       </Form>
       <p className="adm-muted adm-note">Se registra como ingreso en Administración de gastos.</p>

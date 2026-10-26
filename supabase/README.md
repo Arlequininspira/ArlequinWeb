@@ -53,6 +53,7 @@ para instalaciones desde cero.
 - `002_domains.sql` — dominios de los trabajos con vencimiento anual.
 - `003_account_auth_method.sql` — cuentas con Authenticator (sin contraseña) o contraseña + 2FA.
 - `004_transaction_paid_by.sql` — quién pagó cada gasto (Ariel / Lucas).
+- `005_charge_paid_by.sql` — quién cobró cada ingreso (al usar Cobrar).
 
 ## Cómo se conectan los datos
 - **Clientes** → cada cliente tiene N **trabajos** (webs), mensuales o de pago único.

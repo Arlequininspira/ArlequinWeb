@@ -7,6 +7,7 @@ import {
 } from '../lib/format';
 import { Modal, Field, Form, Empty, ConfirmButton, PaidByField, num, str } from '../components/ui';
 import { PayRecurringModal } from './Resumen';
+import PartnerBalance from '../components/PartnerBalance';
 
 export default function Gastos() {
   const { transactions, recurring, clients, projects, reload } = useStore();
@@ -36,18 +37,19 @@ export default function Gastos() {
     (cat === 'todas' || t.category === cat) &&
     (!search || `${t.description ?? ''} ${t.category} ${clientName(t.client_id) ?? ''} ${partnerLabel(t.paid_by)}`.toLowerCase().includes(search.toLowerCase())));
   const rows = filtered.filter((t) =>
-    who === 'todos' || (who === 'nadie' ? t.kind === 'gasto' && !t.paid_by : t.paid_by === who));
+    who === 'todos' || (who === 'nadie' ? !t.paid_by : t.paid_by === who));
 
   const tot = totals(rows);
-  // Gastos imputados a cada socio (+ los sin asignar); ignoran el filtro de
-  // socio para poder compararlos lado a lado.
-  const expenses = filtered.filter((t) => t.kind === 'gasto');
+  // Lo cobrado y pagado por cada socio (+ lo sin asignar); ignora el filtro
+  // de socio para poder compararlos lado a lado.
   const byPartner = [...PARTNERS, { id: '', label: 'Sin asignar' }]
-    .map((p) => ({ ...p, tot: totals(expenses.filter((t) => (t.paid_by ?? '') === p.id)) }))
-    .filter((p) => p.id || p.tot.ARS.out || p.tot.USD.out);
+    .map((p) => ({ ...p, tot: totals(filtered.filter((t) => (t.paid_by ?? '') === p.id)) }))
+    .filter((p) => p.id || p.tot.ARS.in || p.tot.ARS.out || p.tot.USD.in || p.tot.USD.out);
+  // El balance entre socios mira el período completo, sin los demás filtros.
+  const periodTxs = transactions.filter((t) => month === 'todos' || t.date.startsWith(month));
 
   const exportCSV = () => downloadCSV(`movimientos-${month}.csv`, [
-    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Pagó', 'Moneda', 'Monto'],
+    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Pagó / cobró', 'Moneda', 'Monto'],
     ...rows.map((t) => [dateAR(t.date), t.kind, t.category, t.description, clientName(t.client_id),
       projectName(t.project_id), partnerLabel(t.paid_by), t.currency, String(t.amount).replace('.', ',')]),
   ]);
@@ -65,14 +67,22 @@ export default function Gastos() {
         ))}
         <div className="adm-stat-group">
           {byPartner.map((p) => (
-            <div key={p.id || 'none'} className={`adm-stat out clickable${who === (p.id || 'nadie') ? ' on' : ''}`}
+            <div key={p.id || 'none'} className={`adm-stat partner clickable${who === (p.id || 'nadie') ? ' on' : ''}`}
               onClick={() => setWho(who === (p.id || 'nadie') ? 'todos' : (p.id || 'nadie'))}
-              title="Filtrar por quién pagó">
-              <span>{p.id ? `Pagó ${p.label}` : 'Gastos sin asignar'}</span><b>{money(p.tot.ARS.out)}</b>
-              {p.tot.USD.out > 0 && <em>+ {money(p.tot.USD.out, 'USD')}</em>}
+              title="Filtrar por socio">
+              <span>{p.label} · cobró / pagó</span>
+              <b><i className="pos">{money(p.tot.ARS.in)}</i> / <i className="neg">{money(p.tot.ARS.out)}</i></b>
+              {(p.tot.USD.in > 0 || p.tot.USD.out > 0) && <em>USD {money(p.tot.USD.in, 'USD')} / {money(p.tot.USD.out, 'USD')}</em>}
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="adm-panel">
+        <header className="adm-panel-head">
+          <h2>Balance entre socios · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
+        </header>
+        <PartnerBalance txs={periodTxs} />
       </section>
 
       <section className="adm-panel">
@@ -99,8 +109,8 @@ export default function Gastos() {
           </select>
           <select value={who} onChange={(e) => setWho(e.target.value)}>
             <option value="todos">Todos los socios</option>
-            {PARTNERS.map((p) => <option key={p.id} value={p.id}>Pagó {p.label}</option>)}
-            <option value="nadie">Gastos sin asignar</option>
+            {PARTNERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            <option value="nadie">Sin asignar</option>
           </select>
           <input type="search" placeholder="Buscar…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
@@ -108,7 +118,7 @@ export default function Gastos() {
         {rows.length === 0 ? <Empty>No hay movimientos para este filtro.</Empty> : (
           <div className="adm-table-wrap">
             <table className="adm-table">
-              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Pagó</th><th className="r">Monto</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Socio</th><th className="r">Monto</th></tr></thead>
               <tbody>
                 {rows.map((t) => (
                   <tr key={t.id} onClick={() => setEditTx(t)} className="clickable">
@@ -179,9 +189,7 @@ function TxModal({ tx, onClose, onSaved }) {
       client_id: clientId || null,
       project_id: str(fd, 'project_id'),
     };
-    // Only send paid_by when it matters, so incomes keep saving on a database
-    // where migration 004 hasn't run yet.
-    if (kind === 'gasto' || tx.paid_by) row.paid_by = kind === 'gasto' ? str(fd, 'paid_by') : null;
+    row.paid_by = str(fd, 'paid_by');
     if (row.amount <= 0) throw new Error('El monto debe ser mayor a 0');
     await q(isNew ? supabase.from('transactions').insert(row) : supabase.from('transactions').update(row).eq('id', tx.id));
     await onSaved();
@@ -226,7 +234,7 @@ function TxModal({ tx, onClose, onSaved }) {
             </select>
           </Field>
         )}
-        {kind === 'gasto' && <PaidByField defaultValue={isNew ? me : tx.paid_by} />}
+        <PaidByField label={kind === 'gasto' ? '¿Quién pagó?' : '¿Quién cobró?'} defaultValue={isNew ? me : tx.paid_by} />
         <Field label="Detalle" wide><input name="description" defaultValue={tx.description ?? ''} /></Field>
       </Form>
     </Modal>
