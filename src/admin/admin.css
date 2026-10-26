@@ -8,16 +8,22 @@ html.adm-html #root {
   height: auto;
   min-height: 100%;
   overflow: auto;
-  background: var(--adm-bg, #0b0b0d);
+  background: var(--adm-bg, #080a14);
 }
 
 .adm-root {
-  --adm-bg: #0b0b0d;
-  --adm-surface: #141418;
-  --adm-surface-2: #1c1c22;
-  --adm-border: #2a2a32;
-  --adm-text: #ecebe6;
-  --adm-muted: #8d8c95;
+  --adm-bg: #080a14;
+  --adm-surface: #0f1322;
+  --adm-surface-2: #161b2e;
+  --adm-border: #232a45;
+  --adm-text: #e8ecf6;
+  --adm-muted: #8a92ad;
+  /* Marca: colores de favicon_back.avif */
+  --adm-brand: #0a28bd;
+  --adm-brand-hover: #1638d6;
+  --adm-brand-soft: rgba(10, 40, 189, 0.28);
+  --adm-accent: #1adfe0;
+  --adm-accent-soft: rgba(26, 223, 224, 0.12);
   --adm-red: #e0262c;
   --adm-red-soft: rgba(224, 38, 44, 0.14);
   --adm-gold: #f2c230;
@@ -34,7 +40,7 @@ html.adm-html #root {
 }
 
 .adm-root *:focus-visible {
-  outline: 2px solid var(--adm-gold);
+  outline: 2px solid var(--adm-accent);
   outline-offset: 2px;
 }
 
@@ -45,7 +51,7 @@ html.adm-html #root {
   margin: 0;
 }
 
-.adm-root a { color: var(--adm-gold); text-decoration: none; }
+.adm-root a { color: var(--adm-accent); text-decoration: none; }
 .adm-root a:hover { text-decoration: underline; }
 
 .adm-center {
@@ -63,7 +69,7 @@ html.adm-html #root {
 .neg { color: var(--adm-red); }
 .r { text-align: right; }
 .clickable { cursor: pointer; }
-.clickable:hover { color: var(--adm-gold); }
+.clickable:hover { color: var(--adm-accent); }
 
 /* ── Cards / login ─────────────────────────────────────────────────── */
 .adm-card {
@@ -77,12 +83,13 @@ html.adm-html #root {
 
 .adm-login-bg {
   background:
-    repeating-conic-gradient(from 45deg, rgba(224, 38, 44, 0.06) 0 25%, transparent 0 50%) 0 0 / 56px 56px,
+    repeating-conic-gradient(from 45deg, rgba(26, 223, 224, 0.05) 0 25%, transparent 0 50%) 0 0 / 56px 56px,
+    radial-gradient(ellipse at top, rgba(10, 40, 189, 0.35), transparent 60%),
     var(--adm-bg);
 }
 .adm-login { display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .adm-login .adm-field { text-align: left; }
-.adm-login-logo { width: 64px; height: 64px; margin: 0 auto; }
+.adm-login-logo { width: 64px; height: 64px; margin: 0 auto; object-fit: contain; }
 .adm-login h2 { font-size: 26px; }
 .adm-login p { margin: -8px 0 6px; }
 
@@ -104,7 +111,7 @@ html.adm-html #root {
 }
 
 .adm-brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 22px; }
-.adm-brand img { width: 38px; height: 38px; }
+.adm-brand img { width: 38px; height: 38px; object-fit: contain; }
 .adm-brand span { font-family: 'CinzelDecorative-Bold', serif; font-size: 18px; display: flex; flex-direction: column; line-height: 1.1; }
 .adm-brand small { font-family: system-ui, sans-serif; font-size: 11px; color: var(--adm-muted); letter-spacing: 2px; text-transform: uppercase; }
 
@@ -122,7 +129,7 @@ html.adm-html #root {
   border-left: 3px solid transparent;
 }
 .adm-side nav button:hover { background: var(--adm-surface-2); color: var(--adm-text); }
-.adm-side nav button.active { background: var(--adm-red-soft); color: var(--adm-text); border-left-color: var(--adm-red); }
+.adm-side nav button.active { background: var(--adm-brand-soft); color: var(--adm-text); border-left-color: var(--adm-accent); }
 
 .adm-user { display: flex; align-items: center; gap: 8px; padding: 12px 6px 0; border-top: 1px solid var(--adm-border); }
 .adm-user span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--adm-muted); font-size: 12px; }
@@ -167,7 +174,7 @@ html.adm-html #root {
 .adm-stat em { font-style: normal; color: var(--adm-muted); font-size: 12px; }
 .adm-stat.in { border-top-color: var(--adm-green); }
 .adm-stat.out { border-top-color: var(--adm-red); }
-.adm-stat.on { box-shadow: inset 0 0 0 1px var(--adm-gold); }
+.adm-stat.on { box-shadow: inset 0 0 0 1px var(--adm-accent); }
 
 /* ── Lists ─────────────────────────────────────────────────────────── */
 .adm-list { list-style: none; margin: 0; padding: 0; }
@@ -219,9 +226,9 @@ html.adm-html #root {
   width: 100%;
 }
 .adm-filters select, .adm-filters input { width: auto; font-size: 14px; }
-.adm-root input:focus, .adm-root select:focus, .adm-root textarea:focus { border-color: var(--adm-gold); outline: none; }
+.adm-root input:focus, .adm-root select:focus, .adm-root textarea:focus { border-color: var(--adm-accent); outline: none; }
 .adm-root textarea { resize: vertical; }
-.adm-root input[type='checkbox'] { width: auto; accent-color: var(--adm-red); }
+.adm-root input[type='checkbox'] { width: auto; accent-color: var(--adm-brand); }
 .adm-root input[type='date'], .adm-root input[type='month'] { color-scheme: dark; }
 
 .adm-btn {
@@ -239,8 +246,8 @@ html.adm-html #root {
 .adm-btn:hover { border-color: var(--adm-muted); }
 .adm-btn:active { transform: scale(0.97); }
 .adm-btn:disabled { opacity: 0.5; cursor: default; }
-.adm-btn.primary { background: var(--adm-red); border-color: var(--adm-red); color: #fff; }
-.adm-btn.primary:hover { background: #f03338; }
+.adm-btn.primary { background: var(--adm-brand); border-color: var(--adm-brand); color: #fff; }
+.adm-btn.primary:hover { background: var(--adm-brand-hover); border-color: var(--adm-brand-hover); }
 .adm-btn.ghost { background: transparent; }
 .adm-btn.danger { background: transparent; border-color: rgba(224, 38, 44, 0.5); color: #ff6b6f; }
 .adm-btn.small { padding: 5px 10px; font-size: 12px; }
@@ -267,7 +274,7 @@ html.adm-html #root {
 .adm-segmented.small { margin: 0; }
 .adm-segmented button { background: none; border: 0; color: var(--adm-muted); padding: 7px 14px; border-radius: 7px; font: inherit; font-weight: 600; cursor: pointer; }
 .adm-segmented.small button { padding: 3px 10px; font-size: 12px; }
-.adm-segmented button.on { background: var(--adm-surface-2); color: var(--adm-text); }
+.adm-segmented button.on { background: var(--adm-brand-soft); color: var(--adm-text); }
 .adm-segmented button.on.in { background: var(--adm-green-soft); color: var(--adm-green); }
 .adm-segmented button.on.out { background: var(--adm-red-soft); color: #ff6b6f; }
 
@@ -339,13 +346,13 @@ html.adm-html #root {
   white-space: nowrap;
   color: var(--adm-muted);
 }
-.adm-secret.shown { color: var(--adm-gold); border-color: rgba(242, 194, 48, 0.4); user-select: all; }
+.adm-secret.shown { color: var(--adm-accent); border-color: rgba(26, 223, 224, 0.4); user-select: all; }
 .adm-auth-badge {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  border: 1px solid rgba(242, 194, 48, 0.4);
-  color: var(--adm-gold);
+  border: 1px solid rgba(26, 223, 224, 0.4);
+  color: var(--adm-accent);
   border-radius: 999px;
   padding: 3px 10px;
   font-size: 12px;
@@ -400,7 +407,7 @@ html.adm-html #root {
 }
 .adm-domain-chip button { white-space: nowrap; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 3px 10px; }
 .adm-chip-main small { color: var(--adm-muted); }
-.adm-chip-main:hover { color: var(--adm-gold); }
+.adm-chip-main:hover { color: var(--adm-accent); }
 .adm-chip-action { border-left: 1px solid var(--adm-border) !important; font-weight: 600 !important; }
 .adm-domain-chip.pronto { border-color: rgba(242, 194, 48, 0.5); }
 .adm-domain-chip.pronto .adm-chip-action { color: var(--adm-gold); }
@@ -426,7 +433,7 @@ html.adm-html #root {
 }
 
 /* ── Spinner ───────────────────────────────────────────────────────── */
-.adm-spinner { width: 32px; height: 32px; border: 3px solid var(--adm-border, #2a2a32); border-top-color: var(--adm-red, #e0262c); border-radius: 50%; animation: adm-spin 0.8s linear infinite; margin: 20px auto; }
+.adm-spinner { width: 32px; height: 32px; border: 3px solid var(--adm-border, #2a2a32); border-top-color: var(--adm-accent, #1adfe0); border-radius: 50%; animation: adm-spin 0.8s linear infinite; margin: 20px auto; }
 @keyframes adm-spin { to { transform: rotate(360deg); } }
 
 /* ── Responsive ────────────────────────────────────────────────────── */

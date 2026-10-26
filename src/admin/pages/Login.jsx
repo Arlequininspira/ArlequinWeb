@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { ADMIN_ICON } from '../lib/format';
 
 export default function Login({ denied }) {
   const [busy, setBusy] = useState(false);
@@ -30,7 +31,7 @@ export default function Login({ denied }) {
   return (
     <div className="adm-center adm-login-bg">
       <form className="adm-card adm-login" onSubmit={submit}>
-        <img src="/Cartas/favicon.avif" alt="" className="adm-login-logo" />
+        <img src={ADMIN_ICON} alt="" className="adm-login-logo" />
         <h2>Arlequín</h2>
         <p className="adm-muted">Acceso administración</p>
         <label className="adm-field">
