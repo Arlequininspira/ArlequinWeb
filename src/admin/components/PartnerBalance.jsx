@@ -5,27 +5,7 @@ const UNASSIGNED = { id: '', label: 'Sin asignar' };
 const sum = (txs) => txs.reduce((a, t) => a + Number(t.amount), 0);
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-// Who has to pass how much to whom so every partner ends with the same net.
-// Greedy match of the ones above the average against the ones below.
-function settle(nets) {
-  const avg = nets.reduce((a, n) => a + n.net, 0) / nets.length;
-  const over = nets.map((n) => ({ ...n, d: n.net - avg })).filter((n) => n.d > 0.005).sort((a, b) => b.d - a.d);
-  const under = nets.map((n) => ({ ...n, d: avg - n.net })).filter((n) => n.d > 0.005).sort((a, b) => b.d - a.d);
-  const out = [];
-  for (const o of over) {
-    for (const u of under) {
-      const amount = Math.min(o.d, u.d);
-      if (amount <= 0.005) continue;
-      out.push({ from: o, to: u, amount });
-      o.d -= amount;
-      u.d -= amount;
-    }
-  }
-  return { avg, transfers: out };
-}
-
-// Estado de cuenta de un período en una moneda: lo de cada socio, lo sin
-// asignar y el reparto 50/50 de lo asignado.
+// Movimientos de un período en una moneda, separados por quién cobró / pagó.
 function statement(txs) {
   const known = new Set(PARTNERS.map((p) => p.id));
   const owner = (t) => (known.has(t.paid_by) ? t.paid_by : '');
@@ -34,27 +14,16 @@ function statement(txs) {
   const account = (p) => {
     const i = ins.filter((t) => owner(t) === p.id);
     const o = outs.filter((t) => owner(t) === p.id);
-    return { ...p, in: sum(i), out: sum(o), nIn: i.length, nOut: o.length, net: sum(i) - sum(o) };
+    return { ...p, in: sum(i), out: sum(o), nIn: i.length, nOut: o.length };
   };
-  const partners = PARTNERS.map(account);
-  const unassigned = account(UNASSIGNED);
-  const { avg, transfers } = settle(partners);
-  for (const p of partners) {
-    p.share = avg;
-    p.owesTo = transfers.filter((t) => t.from.id === p.id);
-    p.getsFrom = transfers.filter((t) => t.to.id === p.id);
-  }
   return {
-    ins, outs, owner, partners, unassigned, transfers,
-    income: sum(ins), expense: sum(outs), profit: sum(ins) - sum(outs),
-    assigned: txs.length > unassigned.nIn + unassigned.nOut,
+    ins, outs, owner, partners: PARTNERS.map(account), unassigned: account(UNASSIGNED),
   };
 }
 
 /*
- * Cuenta corriente de cada socio para el período: qué cobró, qué pagó, cuánto
- * tiene en mano, cuánto le corresponde (50%) y el saldo a transferir. Abajo,
- * el detalle por categoría.
+ * Todo entra y sale de la misma cuenta: esto sólo muestra quién registró cada
+ * cobro y cada pago del período (control), y abajo el detalle por categoría.
  */
 export default function PartnerBalance({ txs, who, onSelect }) {
   if (!txs.length) return <Empty>No hay movimientos en este período.</Empty>;
@@ -67,7 +36,7 @@ export default function PartnerBalance({ txs, who, onSelect }) {
       <div className="adm-ledger-grid">
         {PARTNERS.map((p) => (
           <PartnerCard key={p.id} partner={p} active={who === p.id} onSelect={onSelect}
-            accounts={currencies.map((c) => ({ cur: c, assigned: st[c].assigned, ...st[c].partners.find((x) => x.id === p.id) }))} />
+            accounts={currencies.map((c) => ({ cur: c, ...st[c].partners.find((x) => x.id === p.id) }))} />
         ))}
       </div>
 
@@ -76,15 +45,13 @@ export default function PartnerBalance({ txs, who, onSelect }) {
           <span>
             <b>{plural(unassignedCount, 'movimiento sin asignar', 'movimientos sin asignar')}</b>
             {' '}({currencies.map((c) => `${money(st[c].unassigned.in, c)} cobrado, ${money(st[c].unassigned.out, c)} pagado`).join(' · ')}).
-            {' '}No entran en el reparto hasta que indiques quién cobró o pagó.
+            {' '}Indicá quién cobró o pagó cada uno.
           </span>
           <button type="button" className="adm-btn small" onClick={() => onSelect(who === 'nadie' ? 'todos' : 'nadie')}>
             {who === 'nadie' ? 'Ver todos' : 'Ver y asignar'}
           </button>
         </div>
       )}
-
-      {currencies.map((c) => <Result key={c} cur={c} st={st[c]} showCur={currencies.length > 1} />)}
 
       <details className="adm-ledger-detail">
         <summary>Detalle por categoría</summary>
@@ -110,40 +77,11 @@ function PartnerCard({ partner, accounts, active, onSelect }) {
       {accounts.map((a) => (
         <dl key={a.cur} className="adm-ledger-lines">
           {accounts.length > 1 && <div className="adm-ledger-cur">{a.cur}</div>}
-          <div><dt>Cobró <small>{plural(a.nIn, 'ingreso', 'ingresos')} que entraron a {partner.label}</small></dt><dd className="pos">+ {money(a.in, a.cur)}</dd></div>
-          <div><dt>Pagó <small>{plural(a.nOut, 'gasto', 'gastos')} que puso {partner.label}</small></dt><dd className="neg">− {money(a.out, a.cur)}</dd></div>
-          <div className="total"><dt>Neto en mano <small>cobró − pagó</small></dt><dd>{money(a.net, a.cur)}</dd></div>
-          {a.assigned && (
-            <>
-              <div><dt>Le corresponde <small>50% de la ganancia asignada</small></dt><dd>{money(a.share, a.cur)}</dd></div>
-              <div className={`saldo ${a.owesTo.length ? 'owes' : a.getsFrom.length ? 'gets' : 'even'}`}>
-                <dt>Saldo</dt>
-                <dd>
-                  {a.owesTo.length
-                    ? a.owesTo.map((t) => <span key={t.to.id}>Debe pasarle <b>{money(t.amount, a.cur)}</b> a {t.to.label}</span>)
-                    : a.getsFrom.length
-                      ? a.getsFrom.map((t) => <span key={t.from.id}>Tiene que recibir <b>{money(t.amount, a.cur)}</b> de {t.from.label}</span>)
-                      : <span>✓ Al día</span>}
-                </dd>
-              </div>
-            </>
-          )}
+          <div><dt>Cobró <small>{plural(a.nIn, 'ingreso', 'ingresos')}</small></dt><dd className="pos">{money(a.in, a.cur)}</dd></div>
+          <div><dt>Pagó <small>{plural(a.nOut, 'gasto', 'gastos')}</small></dt><dd className="neg">{money(a.out, a.cur)}</dd></div>
         </dl>
       ))}
     </article>
-  );
-}
-
-function Result({ cur, st, showCur }) {
-  return (
-    <div className="adm-ledger-result">
-      <span className="lbl">Resultado del período{showCur ? ` (${cur})` : ''}</span>
-      <span className="pos">Ingresos {money(st.income, cur)}</span>
-      <span>−</span>
-      <span className="neg">Gastos {money(st.expense, cur)}</span>
-      <span>=</span>
-      <b className={st.profit >= 0 ? 'pos' : 'neg'}>Ganancia {money(st.profit, cur)}</b>
-    </div>
   );
 }
 
@@ -158,7 +96,7 @@ function CategoryTable({ cur, st, showCur }) {
     <tr key={key} className={className}>
       <td>{label}</td>
       {vals.map((v, i) => (
-        <td key={i} className={`r${className.includes('net') ? (v >= 0 ? ' pos' : ' neg') : ''}`}>
+        <td key={i} className="r">
           {v ? `${sign}${money(v, cur)}` : '—'}
         </td>
       ))}
@@ -180,7 +118,6 @@ function CategoryTable({ cur, st, showCur }) {
             <tr className="group"><td colSpan={cols.length + 2}>Pagó</td></tr>
             {byCat(st.outs).map((c) => row(c.name, values(c.txs), 'cat', `o-${c.name}`))}
             {row('Total pagado', values(st.outs), 'sub out', 'to', '−')}
-            {row('Neto en mano', [...cols.map((c) => of(st.ins, c) - of(st.outs, c)), st.profit], 'net')}
           </tbody>
         </table>
       </div>

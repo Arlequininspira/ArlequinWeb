@@ -40,7 +40,7 @@ export default function Gastos() {
     who === 'todos' || (who === 'nadie' ? !t.paid_by : t.paid_by === who));
 
   const tot = totals(rows);
-  // La cuenta de cada socio mira el período completo, sin los demás filtros.
+  // El control por socio mira el período completo, sin los demás filtros.
   const periodTxs = transactions.filter((t) => month === 'todos' || t.date.startsWith(month));
   const movementsRef = useRef(null);
   const showPartner = (id) => {
@@ -71,8 +71,8 @@ export default function Gastos() {
       <section className="adm-panel">
         <header className="adm-panel-head">
           <div>
-            <h2>Cuenta de cada socio · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
-            <small className="adm-muted">Quién cobró, quién pagó y cómo quedan repartiendo 50/50</small>
+            <h2>Quién cobró y quién pagó · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
+            <small className="adm-muted">Control de quién registró cada entrada y salida de la cuenta</small>
           </div>
         </header>
         <PartnerBalance txs={periodTxs} who={who} onSelect={showPartner} />
