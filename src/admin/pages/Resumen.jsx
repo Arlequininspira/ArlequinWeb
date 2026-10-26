@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase, q } from '../lib/supabase';
 import { useStore } from '../lib/store';
 import { money, dateAR, todayISO, monthISO, monthLabel, lastMonths, totals } from '../lib/format';
-import { Modal, Field, Form, Empty, num, str } from '../components/ui';
+import { Modal, Field, Form, Empty, PaidByField, num, str } from '../components/ui';
 import { RenewDomainModal } from '../components/DomainModals';
 import { DOMAIN_ALERT_DAYS, domainsDueSoon, domainStatus, dueLabel } from '../lib/domains';
 
@@ -168,10 +168,12 @@ export function ChargeModal({ project, period, onClose }) {
 }
 
 export function PayRecurringModal({ rec, onClose }) {
-  const { reload } = useStore();
+  const { reload, me } = useStore();
 
   const save = async (fd) => {
-    await q(supabase.rpc('pay_recurring', { p_id: rec.id, p_amount: num(fd, 'amount'), p_date: fd.get('date') }));
+    await q(supabase.rpc('pay_recurring', {
+      p_id: rec.id, p_amount: num(fd, 'amount'), p_date: fd.get('date'), p_paid_by: str(fd, 'paid_by'),
+    }));
     await reload();
     onClose();
   };
@@ -181,6 +183,7 @@ export function PayRecurringModal({ rec, onClose }) {
       <Form onSubmit={save} onCancel={onClose} submitLabel="Registrar pago">
         <Field label="Fecha de pago"><input type="date" name="date" defaultValue={todayISO()} required /></Field>
         <Field label={`Monto (${rec.currency})`}><input name="amount" inputMode="decimal" defaultValue={rec.amount} required autoFocus /></Field>
+        <PaidByField defaultValue={me} />
       </Form>
       <p className="adm-muted adm-note">Se registra como gasto y el vencimiento pasa al {rec.frequency === 'anual' ? 'año' : 'mes'} siguiente.</p>
     </Modal>

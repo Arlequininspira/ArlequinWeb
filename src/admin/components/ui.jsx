@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PARTNERS } from '../lib/format';
 
 export function Modal({ title, onClose, children, width = 520 }) {
   useEffect(() => {
@@ -65,8 +66,21 @@ export function friendlyError(msg = '') {
   if (msg.includes('transactions_project_period_uq')) return 'Ese mes ya está cobrado para este trabajo.';
   if (msg.includes('forbidden') || msg.includes('row-level security')) return 'Tu usuario no tiene permisos de administrador.';
   if (msg.includes('Failed to fetch')) return 'Sin conexión con el servidor.';
+  if (msg.includes('paid_by')) return 'Falta correr supabase/migrations/004_transaction_paid_by.sql en Supabase.';
   if (msg.includes('auth_method') || msg.includes('auth_app')) return 'Falta correr supabase/migrations/003_account_auth_method.sql en Supabase.';
   return msg;
+}
+
+// "¿Quién pagó?" selector bound to a form field (transactions.paid_by).
+export function PaidByField({ defaultValue, label = '¿Quién pagó?', name = 'paid_by' }) {
+  return (
+    <Field label={label}>
+      <select name={name} defaultValue={defaultValue ?? ''}>
+        <option value="">Sin asignar</option>
+        {PARTNERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+      </select>
+    </Field>
+  );
 }
 
 export function Empty({ children }) {
