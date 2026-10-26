@@ -169,38 +169,6 @@ html.adm-html #root {
 .adm-stat.out { border-top-color: var(--adm-red); }
 .adm-stat.on { box-shadow: inset 0 0 0 1px var(--adm-gold); }
 
-/* Quién cobró / pagó */
-.adm-ledger-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
-.adm-ledger { border: 1px solid var(--adm-border); border-radius: 12px; padding: 16px 18px; background: var(--adm-surface-2); transition: border-color 0.15s; }
-.adm-ledger.on { border-color: var(--adm-gold); box-shadow: 0 0 0 1px var(--adm-gold); }
-.adm-ledger header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.adm-ledger header h3 { margin: 0; font-size: 18px; flex: 1; }
-.adm-ledger-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #111; background: var(--adm-gold); }
-.adm-ledger-lines { margin: 0; display: grid; }
-.adm-ledger-lines + .adm-ledger-lines { margin-top: 14px; }
-.adm-ledger-cur { font-size: 11px; letter-spacing: 0.8px; color: var(--adm-muted); text-transform: uppercase; }
-.adm-ledger-lines > div:not(.adm-ledger-cur) { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; }
-.adm-ledger-lines > div + div { border-top: 1px dashed var(--adm-border); }
-.adm-ledger-lines dd { font-size: 17px; }
-.adm-ledger-lines dt { margin: 0; }
-.adm-ledger-lines dt small { display: block; color: var(--adm-muted); font-size: 11px; }
-.adm-ledger-lines dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-.adm-ledger-warn { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
-.adm-ledger-detail { margin-top: 14px; }
-.adm-ledger-detail summary { cursor: pointer; color: var(--adm-muted); font-size: 13px; padding: 6px 0; }
-.adm-ledger-detail summary:hover { color: var(--adm-gold); }
-.adm-filter-chip { margin-left: 10px; vertical-align: middle; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: #111; background: var(--adm-gold); border: 0; border-radius: 999px; padding: 3px 10px; cursor: pointer; }
-
-/* Detalle por categoría */
-.adm-balance + .adm-balance { margin-top: 18px; }
-.adm-balance-cur { font-size: 13px; color: var(--adm-muted); margin: 0 0 6px; letter-spacing: 0.8px; }
-.adm-balance-table td:first-child { white-space: nowrap; }
-.adm-balance-table tr.group td { color: var(--adm-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; padding-top: 14px; }
-.adm-balance-table tr.cat td:first-child { padding-left: 22px; color: var(--adm-muted); }
-.adm-balance-table tr.sub td { font-weight: 600; }
-.adm-balance-table tr.sub.in td.r { color: var(--adm-green); }
-.adm-balance-table tr.sub.out td.r { color: var(--adm-red); }
-
 /* ── Lists ─────────────────────────────────────────────────────────── */
 .adm-list { list-style: none; margin: 0; padding: 0; }
 .adm-list li {

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { supabase, q } from '../lib/supabase';
 import { useStore } from '../lib/store';
 import {
@@ -7,7 +7,6 @@ import {
 } from '../lib/format';
 import { Modal, Field, Form, Empty, ConfirmButton, PaidByField, num, str } from '../components/ui';
 import { PayRecurringModal } from './Resumen';
-import PartnerBalance from '../components/PartnerBalance';
 
 export default function Gastos() {
   const { transactions, recurring, clients, projects, reload } = useStore();
@@ -40,13 +39,6 @@ export default function Gastos() {
     who === 'todos' || (who === 'nadie' ? !t.paid_by : t.paid_by === who));
 
   const tot = totals(rows);
-  // El control por socio mira el período completo, sin los demás filtros.
-  const periodTxs = transactions.filter((t) => month === 'todos' || t.date.startsWith(month));
-  const movementsRef = useRef(null);
-  const showPartner = (id) => {
-    setWho(id);
-    if (id !== 'todos') movementsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
   const whoLabel = who === 'nadie' ? 'Sin asignar' : partnerLabel(who);
 
   const exportCSV = () => downloadCSV(`movimientos-${month}.csv`, [
@@ -70,24 +62,7 @@ export default function Gastos() {
 
       <section className="adm-panel">
         <header className="adm-panel-head">
-          <div>
-            <h2>Quién cobró y quién pagó · {month === 'todos' ? 'todos los meses' : monthLabel(month)}</h2>
-            <small className="adm-muted">Control de quién registró cada entrada y salida de la cuenta</small>
-          </div>
-        </header>
-        <PartnerBalance txs={periodTxs} who={who} onSelect={showPartner} />
-      </section>
-
-      <section className="adm-panel" ref={movementsRef}>
-        <header className="adm-panel-head">
-          <h2>
-            Movimientos
-            {who !== 'todos' && (
-              <button type="button" className="adm-filter-chip" onClick={() => setWho('todos')} title="Quitar filtro">
-                {who === 'nadie' ? 'Sin asignar' : `de ${whoLabel}`} ✕
-              </button>
-            )}
-          </h2>
+          <h2>Movimientos</h2>
           <div className="adm-actions">
             <button className="adm-btn ghost" onClick={exportCSV} disabled={!rows.length}>Exportar CSV</button>
             <button className="adm-btn primary" onClick={() => setEditTx({ kind: 'gasto' })}>+ Movimiento</button>
@@ -188,8 +163,8 @@ function TxModal({ tx, onClose, onSaved }) {
       description: str(fd, 'description'),
       client_id: clientId || null,
       project_id: str(fd, 'project_id'),
+      paid_by: str(fd, 'paid_by'),
     };
-    row.paid_by = str(fd, 'paid_by');
     if (row.amount <= 0) throw new Error('El monto debe ser mayor a 0');
     await q(isNew ? supabase.from('transactions').insert(row) : supabase.from('transactions').update(row).eq('id', tx.id));
     await onSaved();
