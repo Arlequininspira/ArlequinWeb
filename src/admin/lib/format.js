@@ -3,6 +3,17 @@ export const CURRENCIES = ['ARS', 'USD'];
 export const INCOME_CATEGORIES = ['Mantenimiento', 'Desarrollo web', 'Diseño', 'Otros'];
 export const EXPENSE_CATEGORIES = ['ARCA', 'Dominios', 'Hosting', 'Software', 'Publicidad', 'Equipamiento', 'Otros'];
 
+// Socios a los que se imputa cada gasto (transactions.paid_by). Para sumar uno,
+// agregarlo acá: la columna es texto libre.
+export const PARTNERS = [
+  { id: 'ariel', label: 'Ariel' },
+  { id: 'lucas', label: 'Lucas' },
+];
+export const partnerLabel = (id) => PARTNERS.find((p) => p.id === id)?.label ?? id ?? '';
+// Socio del usuario logueado, deducido del email ("gonzalez.r.ariel@…" → ariel).
+export const partnerFromEmail = (email = '') =>
+  PARTNERS.find((p) => email.toLowerCase().split('@')[0].includes(p.id))?.id ?? '';
+
 const fmt = {
   ARS: new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }),
   USD: new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }),

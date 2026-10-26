@@ -3,7 +3,7 @@ import { supabase, q } from '../lib/supabase';
 import { useStore } from '../lib/store';
 import { CURRENCIES, money, dateAR, todayISO } from '../lib/format';
 import { DOMAIN_PROVIDERS, addYears, nextAnniversary, hostFromUrl, dueLabel } from '../lib/domains';
-import { Modal, Field, Form, ConfirmButton, num, str } from './ui';
+import { Modal, Field, Form, ConfirmButton, PaidByField, num, str } from './ui';
 
 export function DomainModal({ domain, clientId, onClose }) {
   const { projects, reload } = useStore();
@@ -87,7 +87,7 @@ export function DomainModal({ domain, clientId, onClose }) {
 }
 
 export function RenewDomainModal({ domain, onClose }) {
-  const { reload } = useStore();
+  const { reload, me } = useStore();
   const [years, setYears] = useState(1);
   const agency = domain.paid_by === 'agencia';
 
@@ -97,6 +97,7 @@ export function RenewDomainModal({ domain, onClose }) {
       p_amount: agency ? num(fd, 'amount') : 0,
       p_date: fd.get('date'),
       p_years: years,
+      ...(agency && { p_paid_by: str(fd, 'paid_by') }),
     }));
     await reload();
     onClose();
@@ -119,6 +120,7 @@ export function RenewDomainModal({ domain, onClose }) {
             <input name="amount" inputMode="decimal" defaultValue={Number(domain.cost) * years || ''} required />
           </Field>
         )}
+        {agency && <PaidByField defaultValue={me} />}
       </Form>
       <p className="adm-muted adm-note">
         {agency

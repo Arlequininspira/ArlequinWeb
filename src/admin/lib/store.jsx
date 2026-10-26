@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { supabase, q } from './supabase';
+import { partnerFromEmail } from './format';
 
 /*
  * Single shared copy of the business data. Every screen reads from here and
@@ -15,6 +16,7 @@ export function StoreProvider({ children }) {
   const [data, setData] = useState(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [me, setMe] = useState('');   // partner id of the logged-in admin
 
   const reload = useCallback(async () => {
     try {
@@ -36,13 +38,14 @@ export function StoreProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setMe(partnerFromEmail(data.session?.user.email)));
     reload();
     const onFocus = () => document.visibilityState === 'visible' && reload();
     document.addEventListener('visibilitychange', onFocus);
     return () => document.removeEventListener('visibilitychange', onFocus);
   }, [reload]);
 
-  return <StoreCtx.Provider value={{ ...data, loading, error, reload }}>{children}</StoreCtx.Provider>;
+  return <StoreCtx.Provider value={{ ...data, me, loading, error, reload }}>{children}</StoreCtx.Provider>;
 }
 
 export const useStore = () => useContext(StoreCtx);

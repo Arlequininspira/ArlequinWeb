@@ -167,6 +167,7 @@ html.adm-html #root {
 .adm-stat em { font-style: normal; color: var(--adm-muted); font-size: 12px; }
 .adm-stat.in { border-top-color: var(--adm-green); }
 .adm-stat.out { border-top-color: var(--adm-red); }
+.adm-stat.on { box-shadow: inset 0 0 0 1px var(--adm-gold); }
 
 /* ── Lists ─────────────────────────────────────────────────────────── */
 .adm-list { list-style: none; margin: 0; padding: 0; }
