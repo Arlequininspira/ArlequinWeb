@@ -42,7 +42,7 @@ export default function Gastos() {
   const whoLabel = who === 'nadie' ? 'Sin asignar' : partnerLabel(who);
 
   const exportCSV = () => downloadCSV(`movimientos-${month}.csv`, [
-    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Pagó / cobró', 'Moneda', 'Monto'],
+    ['Fecha', 'Tipo', 'Categoría', 'Descripción', 'Cliente', 'Trabajo', 'Cobró / pagó', 'Moneda', 'Monto'],
     ...rows.map((t) => [dateAR(t.date), t.kind, t.category, t.description, clientName(t.client_id),
       projectName(t.project_id), partnerLabel(t.paid_by), t.currency, String(t.amount).replace('.', ',')]),
   ]);
@@ -93,7 +93,7 @@ export default function Gastos() {
         {rows.length === 0 ? <Empty>No hay movimientos para este filtro.</Empty> : (
           <div className="adm-table-wrap">
             <table className="adm-table">
-              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Socio</th><th className="r">Monto</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Cliente</th><th>Quién</th><th className="r">Monto</th></tr></thead>
               <tbody>
                 {rows.map((t) => (
                   <tr key={t.id} onClick={() => setEditTx(t)} className="clickable">
@@ -101,7 +101,11 @@ export default function Gastos() {
                     <td><span className={`adm-tag ${t.kind}`}>{t.category}</span></td>
                     <td>{t.description}</td>
                     <td>{clientName(t.client_id)}</td>
-                    <td>{t.paid_by && <span className="adm-tag">{partnerLabel(t.paid_by)}</span>}</td>
+                    <td>
+                      {t.paid_by
+                        ? <span className={`adm-tag ${t.kind}`}>{t.kind === 'ingreso' ? 'Cobró' : 'Pagó'} {partnerLabel(t.paid_by)}</span>
+                        : <span className="adm-muted">Sin asignar</span>}
+                    </td>
                     <td className={`r ${t.kind === 'ingreso' ? 'pos' : 'neg'}`}>
                       {t.kind === 'ingreso' ? '+' : '−'}{money(t.amount, t.currency)}
                     </td>
