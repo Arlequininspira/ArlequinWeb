@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import BackgroundAnimation from './components/BackgroundAnimation'
+import GalaxyBackground from './components/GalaxyBackground'
 import ThemeToggleStar from './components/ThemeToggleStar'
 import LogoAnimation from './components/LogoAnimation'
 import ArlequinMaskSystem from './components/ArlequinMaskSystem'
@@ -107,7 +107,7 @@ function App() {
 
   return (
     <div className="app">
-      <BackgroundAnimation isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} isPaused={ambientPaused} />
+      <GalaxyBackground isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} isPaused={ambientPaused} />
       <ThemeToggleStar isDarkMode={isDarkMode} onToggle={handleToggle} isLowEnd={isLowEnd} isPaused={ambientPaused} />
 
       <LogoAnimation

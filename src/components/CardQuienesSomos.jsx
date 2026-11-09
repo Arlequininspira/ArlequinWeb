@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './CardQueEsArlequin.css';
+import { drawFlip, playFlip, FLIP_DELAY_FROM_GRID, usePageTurn } from './cardFlip';
 import './CardQuienesSomos.css';
 
 // Dark mode: dorso_dark + frente_dark (todo dark)
@@ -122,7 +123,7 @@ const PAGES = [
   },
 ];
 
-function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false }) {
+function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false, preload = false, isLowEnd = false, prefersReducedMotion = false }) {
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
   const closeImagesRef = useRef([]);
@@ -130,6 +131,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
   const currentFrameRef = useRef(0);
   const lastFrameTimeRef = useRef(0);
   const isCompleteRef = useRef(false);
+  const flipAngleRef = useRef(0);
   const closeFrameRef = useRef(0);
   const lastCloseFrameTimeRef = useRef(0);
   const isLoadedRef = useRef(false);
@@ -149,13 +151,14 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
   const currentPage = PAGES[currentPageIndex];
   const isLastPage = currentPageIndex === PAGES.length - 1;
 
-  const handleNextPage = () => {
-    if (currentPageIndex < PAGES.length - 1) setCurrentPageIndex(prev => prev + 1);
-  };
+  // Pasar de página = girar la carta (botones, arrastre o revoleo).
+  const containerRef = useRef(null);
+  const page = usePageTurn({
+    elRef: containerRef, index: currentPageIndex, count: PAGES.length, setIndex: setCurrentPageIndex,
+    enabled: showContent && !isHidingUI, reduced: prefersReducedMotion,
+  });
 
-  const handlePrevPage = () => {
-    if (currentPageIndex > 0) setCurrentPageIndex(prev => prev - 1);
-  };
+
 
   const handleClose = () => {
     if (isClosing || isHidingUI) return;
@@ -274,57 +277,29 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
     canvas.style.height = `${CARD_HEIGHT}px`;
     ctx.scale(dpr, dpr);
 
-    const drawFrame = () => {
-      if (isCompleteRef.current) {
-        const finalFrame = imagesRef.current[totalFrames];
-        if (finalFrame) drawCardFrame(ctx, finalFrame, CARD_WIDTH, CARD_HEIGHT);
-        if (!isClosing) setShowContent(true);
-        return;
-      }
-      const frame = imagesRef.current[currentFrameRef.current];
-      if (frame) drawCardFrame(ctx, frame, CARD_WIDTH, CARD_HEIGHT);
+    // Giro 3D con resorte (ver cardFlip.js). imagesRef: [0]=dorso, [12]=frente,
+    // [totalFrames]=frente fijo (sin palos) donde va el texto.
+    const finish = () => {
+      isCompleteRef.current = true;
+      const finalFrame = imagesRef.current[totalFrames];
+      if (finalFrame) drawCardFrame(ctx, finalFrame, CARD_WIDTH, CARD_HEIGHT);
+      setShowContent(true);
     };
+    if (isCompleteRef.current || prefersReducedMotion) { finish(); return; }
 
-    drawFrame();
-
-    const handleVisibility = () => {
-      if (!document.hidden) lastFrameTimeRef.current = 0;
+    const draw = (a) => {
+      flipAngleRef.current = a;
+      const imgs = imagesRef.current;
+      drawFlip(ctx, imgs[0], imgs[totalFrames - 1], a, CARD_WIDTH, CARD_HEIGHT, isLowEnd ? 24 : 48);
     };
-    document.addEventListener('visibilitychange', handleVisibility);
+    draw(flipAngleRef.current);
 
-    const animate = (timestamp) => {
-      if (lastFrameTimeRef.current === 0) {
-        lastFrameTimeRef.current = timestamp;
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      const elapsed = timestamp - lastFrameTimeRef.current;
-
-      if (elapsed >= CARD_FRAME_DURATION) {
-        lastFrameTimeRef.current = timestamp;
-
-        if (!isCompleteRef.current) {
-          if (currentFrameRef.current < totalFrames - 1) {
-            currentFrameRef.current++;
-          } else {
-            isCompleteRef.current = true;
-          }
-          drawFrame();
-        } else {
-          drawFrame();
-          return;
-        }
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
+    let cancelFlip = null;
+    const startTimer = setTimeout(() => {
+      animationRef.current = null;
+      cancelFlip = playFlip({ from: flipAngleRef.current, to: 180, draw, onDone: finish });
+    }, flipAngleRef.current > 0 || !fromGrid ? 0 : FLIP_DELAY_FROM_GRID);
+    return () => { clearTimeout(startTimer); cancelFlip?.(); };
   }, [isLoaded, canStartAnimation, totalFrames, isClosing]);
 
   // Close animation loop
@@ -339,52 +314,31 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
     lastCloseFrameTimeRef.current = 0;
     canvas.style.transition = '';
     canvas.style.transform = '';
-    const frames = closeImagesRef.current;
-
-    const handleVisibility = () => {
-      if (!document.hidden) lastCloseFrameTimeRef.current = 0;
+    // Vuelta del giro con el mismo resorte: frente (180°) → dorso (0°), y
+    // recién ahí achica hacia la grilla.
+    const imgs = imagesRef.current;
+    const done = () => {
+      // card-exit-scale (380ms) shrinks to ~0.49 of canvas CSS size ≈ grid
+      // card size, then fades. CDA mounts at the same apparent size so the
+      // hand-off is seamless with no visible size jump.
+      setIsScalingDown(true);
+      setTimeout(() => onClose(), 400);
     };
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    const animate = (timestamp) => {
-      if (lastCloseFrameTimeRef.current === 0) {
-        lastCloseFrameTimeRef.current = timestamp;
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      const elapsed = timestamp - lastCloseFrameTimeRef.current;
-
-      if (elapsed >= CARD_FRAME_DURATION) {
-        lastCloseFrameTimeRef.current = timestamp;
-
-        const frame = frames[closeFrameRef.current];
-        if (frame) drawCardFrame(ctx, frame, CARD_WIDTH, CARD_HEIGHT);
-
-        if (closeFrameRef.current < frames.length - 1) {
-          closeFrameRef.current++;
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          setIsScalingDown(true);
-          setTimeout(() => onClose(), 400);
-        }
-      } else {
-        animationRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
+    if (prefersReducedMotion) {
+      drawCardFrame(ctx, imgs[0], CARD_WIDTH, CARD_HEIGHT);
+      done();
+      return;
+    }
+    const draw = (a) => drawFlip(ctx, imgs[0], imgs[totalFrames - 1], a, CARD_WIDTH, CARD_HEIGHT, isLowEnd ? 24 : 48);
+    const cancelFlip = playFlip({ from: 180, to: 0, draw, onDone: done });
+    return () => cancelFlip();
   }, [isClosing, isLoaded]);
 
   if (preload) return null;
   if (!isLoaded) return <div className="card-que-es-arlequin loading" />;
 
   return (
-    <div className="card-que-es-arlequin">
+    <div className="card-que-es-arlequin" ref={containerRef} {...page.bind}>
       <button className={`card-close-btn${isHidingUI ? ' card-close-btn--hiding' : ''}`} onClick={handleClose} title="Cerrar">
         <img
           src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`}
@@ -448,7 +402,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
 
           <button
             className="card-nav-button card-nav-prev"
-            onClick={handleNextPage}
+            onClick={() => page.turn(1)}
             title="Página siguiente"
             disabled={isLastPage}
             style={{ opacity: isLastPage ? 0.3 : 1, cursor: isLastPage ? 'default' : 'pointer' }}
@@ -458,7 +412,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
 
           <button
             className="card-nav-button card-nav-next"
-            onClick={handlePrevPage}
+            onClick={() => page.turn(-1)}
             title="Página anterior"
             disabled={currentPageIndex === 0}
             style={{ opacity: currentPageIndex === 0 ? 0.3 : 1, cursor: currentPageIndex === 0 ? 'default' : 'pointer' }}

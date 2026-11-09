@@ -3,6 +3,7 @@ import emailjs from '@emailjs/browser';
 import contactConfig from '../config/contact.json';
 import './CardQueEsArlequin.css';
 import './CardContacto.css';
+import { drawFlip, playFlip, FLIP_DELAY_FROM_GRID } from './cardFlip';
 
 // ── Frame builders ────────────────────────────────────────────────────────────
 const BASE = '/Cartas/Contacto/';
@@ -290,8 +291,37 @@ function CardContacto({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
     const canvas = canvasRef.current;
     const ctx    = canvas.getContext('2d');
 
+    // Abrir y cerrar: giro 3D con resorte (cardFlip.js) entre el dorso y la
+    // carta de contacto. El giro post-envío ("gracias") sigue con sus cuadros.
+    if (animPhase === 'opening' || animPhase === 'closing') {
+      const opening = animPhase === 'opening';
+      const imgs  = openImagesRef.current;
+      const back  = imgs[0];
+      const front = imgs[imgs.length - 1];
+      canvas.style.transition = '';
+      canvas.style.transform = '';
+      const end = () => {
+        if (opening) { setAnimPhase('fixedForm'); setShowContent(true); return; }
+        setIsScalingDown(true);
+        setTimeout(() => onClose(), 400);
+      };
+      if (prefersReducedMotion) {
+        drawCardFrame(ctx, opening ? front : back, CARD_WIDTH, CARD_HEIGHT);
+        end();
+        return;
+      }
+      const draw = (a) => drawFlip(ctx, back, front, a, CARD_WIDTH, CARD_HEIGHT, isLowEnd ? 24 : 48);
+      draw(opening ? 0 : 180);
+      let cancelFlip = null;
+      // Desde la grilla el canvas todavía está agrandando (0,3 s); si no,
+      // 'opening' ya arranca 600 ms después, con la carta grande.
+      const t = setTimeout(() => {
+        cancelFlip = playFlip({ from: opening ? 0 : 180, to: opening ? 180 : 0, draw, onDone: end });
+      }, opening && fromGrid ? FLIP_DELAY_FROM_GRID : 0);
+      return () => { clearTimeout(t); cancelFlip?.(); };
+    }
+
     let frames;
-    if (animPhase === 'opening')  frames = openImagesRef.current;
     if (animPhase === 'postSend') frames = postSendImagesRef.current;
     if (animPhase === 'closing')  frames = closeImagesRef.current;
 

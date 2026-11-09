@@ -1,0 +1,54 @@
+.fl-page {
+  --bg: #000; --fg: #f2f2f2; --muted: #9a9a9a; --line: #2a2a2a; --panel: #0d0d0d; --accent: #e8c547;
+  /* body tiene overflow:hidden (sitio a pantalla fija): el lab scrollea solo. */
+  position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden;
+  background: var(--bg); color: var(--fg);
+  font: 14px/1.45 system-ui, sans-serif; padding: 24px 16px 48px;
+}
+.fl-page.clear { --bg: #f4f1ea; --fg: #151515; --muted: #666; --line: #d8d2c4; --panel: #fff; --accent: #b3261e; }
+
+.fl-head { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: flex-end; max-width: 1200px; margin: 0 auto 8px; }
+.fl-head h1 { margin: 0 0 4px; font-size: 22px; }
+.fl-head p { margin: 0; color: var(--muted); max-width: 60ch; }
+.fl-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.fl-page button, .fl-page select {
+  font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; cursor: pointer;
+}
+.fl-page button.primary { background: var(--accent); color: #000; border-color: transparent; font-weight: 600; }
+
+.fl-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  max-width: 1200px; margin: 0 auto;
+}
+.fl-cell { margin: 0; display: flex; flex-direction: column; align-items: center; padding: 70px 0 16px; }
+.fl-cell figcaption { margin-top: 72px; text-align: center; display: flex; flex-direction: column; gap: 2px; max-width: 220px; }
+.fl-cell figcaption span { color: var(--muted); font-size: 12.5px; }
+
+/* Carta al tamaño de la grilla (slot 3:4). */
+.fl-card { width: 150px; aspect-ratio: 3 / 4; position: relative; cursor: pointer; touch-action: none; user-select: none; z-index: 1; }
+.fl-card:active { z-index: 5; }
+.fl-inner { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.fl-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8px; overflow: hidden; }
+.fl-back img { width: 100%; height: 100%; object-fit: fill; display: block; }
+.fl-front { transform: rotateY(180deg); }
+.fl-front.x { transform: rotateX(180deg); }
+/* El frente viene en un lienzo 1000×1400 con la carta visible en (166,234) 668×932:
+   lo recortamos para que ocupe exactamente la cara. */
+.fl-front img { position: absolute; width: 149.7%; height: 150.2%; left: -24.85%; top: -25.1%; max-width: none; }
+
+/* Giro actual: mismo recorte pero sin clip, porque los cuadros intermedios
+   dibujan la perspectiva fuera del rectángulo de la carta. */
+.fl-frames { position: absolute; inset: 0; transform-origin: center; }
+.fl-frames img { position: absolute; max-width: none; }
+.fl-frames img.frame { width: 149.7%; height: 150.2%; left: -24.85%; top: -25.1%; }
+.fl-frames img.dorso { width: 102.4%; height: 101.9%; left: -1.2%; top: -0.97%; }
+
+.fl-panel { max-width: 1200px; margin: 24px auto 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.fl-panel h2 { font-size: 15px; margin: 4px 0 12px; }
+.fl-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px 20px; margin-bottom: 16px; }
+.fl-slider { display: flex; flex-direction: column; gap: 4px; }
+.fl-slider b { color: var(--accent); font-variant-numeric: tabular-nums; }
+.fl-slider small { color: var(--muted); font-size: 11.5px; }
+.fl-slider input { width: 100%; accent-color: var(--accent); }
+.fl-code { margin: 0; padding: 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; white-space: pre-wrap; word-break: break-all; color: var(--muted); }
