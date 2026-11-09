@@ -33,10 +33,24 @@ function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedM
         transparent={false}
         lightMode={!isDarkMode}
         disableAnimation={isPaused || prefersReducedMotion}
-        // 3 capas en vez de 4: ~25 % menos estrellas y ~25 % menos trabajo de
-        // GPU por píxel (el costo depende de las capas, no de cuántas estrellas
-        // se ven; bajar `density` sacaría estrellas pero no aliviaría nada).
-        layers={3}
+        // Config elegida en reactbits.dev (Customize, preset Classic).
+        // lightMode no se fija: sigue al tema del sitio (claro = estrellas oscuras).
+        hueShift={0}
+        saturation={0}
+        density={0.5}
+        glowIntensity={0.63}
+        starSize={0.75}
+        flareIntensity={2.3}
+        twinkleIntensity={0.5}
+        starSpeed={1.5}
+        speed={0.1}
+        rotationSpeed={0.01}
+        layers={2}
+        direction="forward"
+        mouseInteraction
+        mouseRepulsion={false}
+        clickWarp={false}
+        intro
         // Pantalla completa: limitar la resolución alivia la GPU del celular.
         dpr={isMobile ? 1 : 1.5}
       />
