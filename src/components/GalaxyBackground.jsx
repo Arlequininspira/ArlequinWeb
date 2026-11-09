@@ -47,7 +47,7 @@ function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedM
         rotationSpeed={0.01}
         layers={2}
         direction="forward"
-        mouseInteraction
+        mouseInteraction={false}
         mouseRepulsion={false}
         clickWarp={false}
         intro
