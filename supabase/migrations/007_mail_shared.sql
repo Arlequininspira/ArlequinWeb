@@ -2,9 +2,10 @@
 --  007 — Casillas compartidas
 --  Pegar en Supabase → SQL Editor → Run. Idempotente. Requiere la 006.
 --
---  Una casilla puede tener varios usuarios (mailbox_members). Al correrla,
---  TODOS los dueños de casillas pasan a ver TODAS las casillas (Ariel y Lucas
---  ven agonzalez@ y lrementeria@). En /mails se elige la casilla en el menú.
+--  Una casilla puede tener más de un login (mailbox_members), p. ej. entrar a
+--  agonzalez@ con el usuario agonzalez@arlequin.com.ar o con un Gmail.
+--  Cada usuario ve sólo las casillas propias o donde es miembro; si tiene más
+--  de una, en /mails la elige en el menú "Casilla".
 -- ═══════════════════════════════════════════════════════════════════════════
 
 create table if not exists public.mailbox_members (
@@ -35,14 +36,14 @@ create policy mailbox_members_own_select on public.mailbox_members
 revoke all on public.mailbox_members from anon, authenticated;
 grant select on public.mailbox_members to authenticated;
 
--- Compartir: cada dueño de alguna casilla accede a todas.
-insert into public.mailbox_members (mailbox_id, user_id)
-select m.id, o.user_id
-from public.mailboxes m
-cross join (select distinct user_id from public.mailboxes) o
-on conflict do nothing;
+-- Cada uno ve SÓLO lo suyo: se quitan accesos compartidos previos y el dueño
+-- de cada casilla pasa a ser el login con el mismo email (si existe).
+delete from public.mailbox_members;
+update public.mailboxes m set user_id = u.id
+from auth.users u
+where lower(u.email) = m.address and m.user_id <> u.id;
 
--- Para sumar a alguien más a una casilla:
+-- Para que otro login (ej. un Gmail) también entre a una casilla:
 -- insert into public.mailbox_members (mailbox_id, user_id)
 -- select m.id, u.id from public.mailboxes m, auth.users u
 -- where m.address = 'agonzalez@arlequin.com.ar' and u.email = '<login>'

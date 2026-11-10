@@ -79,6 +79,7 @@ function Shell({ session }) {
             </button>
           ))}
         </nav>
+        <a className="adm-btn ghost block adm-switch" href="/mails">✉ Ir al correo</a>
         <div className="adm-user">
           <span title={session.user.email}>{session.user.email}</span>
           <button className="adm-btn ghost small" onClick={() => supabase.auth.signOut()}>Salir</button>

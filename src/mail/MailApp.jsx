@@ -33,6 +33,8 @@ function useSession() {
 
 function Mailbox({ session, boxes }) {
   const [box, setBox] = useState(boxes[0]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => { supabase.rpc('is_admin').then(({ data }) => setIsAdmin(Boolean(data))); }, []);
   const [folder, setFolder] = useState('inbox');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState(null);
@@ -128,6 +130,7 @@ function Mailbox({ session, boxes }) {
             </button>
           ))}
         </nav>
+        {isAdmin && <a className="adm-btn ghost block adm-switch" href="/login#cuentas">⚙ Administración</a>}
         <div className="adm-user">
           <span title={session.user.email}>{box.address}</span>
           <button className="adm-btn ghost small" onClick={() => supabase.auth.signOut()}>Salir</button>
