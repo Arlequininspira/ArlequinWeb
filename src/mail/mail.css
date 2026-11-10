@@ -3,7 +3,7 @@
 .ml-shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 .ml-side { height: 100%; }
 .ml-new { margin: 0 0 14px; }
-.ml-box-select { margin: 10px 0; }
+.ml-box-select { margin: 0 0 12px; }
 
 .ml-list-pane {
   width: 380px;

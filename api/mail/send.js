@@ -21,7 +21,11 @@ export async function POST(request) {
   let b;
   try { b = await request.json(); } catch { return json({ error: 'Pedido inválido' }, 400); }
 
-  const boxes = await db(`mailboxes?select=id,address,display_name&user_id=eq.${encodeURIComponent(user.id)}`);
+  // Own casillas + shared ones (mailbox_members, migración 007).
+  const uid = encodeURIComponent(user.id);
+  const shared = await db(`mailbox_members?select=mailbox_id&user_id=eq.${uid}`).catch(() => []);
+  const ids = shared.map((r) => r.mailbox_id).filter((x) => /^[0-9a-f-]{36}$/.test(x));
+  const boxes = await db(`mailboxes?select=id,address,display_name&or=(user_id.eq.${uid}${ids.length ? `,id.in.(${ids.join(',')})` : ''})&order=address`);
   const box = b.mailbox_id ? boxes.find((x) => x.id === b.mailbox_id) : boxes[0];
   if (!box) return json({ error: 'Tu usuario no tiene una casilla asignada.' }, 403);
 
