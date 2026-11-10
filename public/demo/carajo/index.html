@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <base href="/demo/carajo/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Carajo Stream — Demo de renovación</title>
+  <meta name="description" content="Propuesta de renovación visual y de suscripciones para carajostream.tv" />
+  <link rel="preload" href="assets/TuskerGrotesk-Semibold.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ribbon">Demo de propuesta · no es el sitio oficial</div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Carajo Stream, inicio"><img src="assets/carajo-logo.png" alt="" width="96" height="38" /></a>
+    <a class="live-pill" href="#vivo" hidden><span class="dot"></span><span class="live-pill-text">En vivo</span></a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#programacion">Programación</a>
+      <a href="#suscribite">Planes</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a class="btn btn-blue btn-sm" href="#suscribite">Suscribite</a>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <canvas class="halftone" aria-hidden="true"></canvas>
+      <div class="hero-copy">
+        <h1 id="hero-title"><span>Los primeros</span><span class="hl">en verla</span></h1>
+        <p class="hero-sub">¿Querés financiar a la derecha mundial? Hacelo y listo.</p>
+        <div class="hero-actions">
+          <a class="btn btn-blue" href="#suscribite">Suscribite YA, abrazo</a>
+          <a class="btn btn-ghost" href="#programacion">Ver programación</a>
+        </div>
+      </div>
+      <div class="hero-logo" id="hero-logo">
+        <button type="button" class="logo-3d" aria-label="Logo de Carajo. Tocalo para cambiar de canal">
+          <img src="assets/carajo-logo.png" alt="" width="664" height="262" />
+          <span class="g-layer g-r" aria-hidden="true"></span>
+          <span class="g-layer g-c" aria-hidden="true"></span>
+          <span class="glare" aria-hidden="true"></span>
+        </button>
+        <p class="hint" aria-hidden="true">Tocá el logo</p>
+      </div>
+    </section>
+
+    <!-- LIVE NOW -->
+    <section id="vivo" class="live" aria-live="polite">
+      <img class="live-thumb" alt="" />
+      <div class="live-info">
+        <p class="live-kicker"></p>
+        <h2 class="live-title"></h2>
+        <p class="live-when"></p>
+        <div class="live-bar" aria-hidden="true"><span></span></div>
+      </div>
+      <a class="btn btn-red live-cta" href="https://www.youtube.com/@CarajoStream/streams" target="_blank" rel="noopener">Mirar en YouTube</a>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section id="programacion" class="schedule" aria-labelledby="sched-title">
+      <div class="section-head">
+        <h2 id="sched-title">Programación</h2>
+        <p>De lunes a viernes, en vivo. Hora Argentina.</p>
+      </div>
+
+      <div class="rail" id="rail" aria-label="Programas"><!-- main.js --></div>
+
+      <div class="days" role="tablist" aria-label="Día"><!-- main.js --></div>
+      <div class="grid" id="grid"><!-- main.js --></div>
+    </section>
+
+    <!-- PLANS -->
+    <section id="suscribite" class="plans" aria-labelledby="plans-title">
+      <div class="section-head">
+        <h2 id="plans-title">Apoyá a Carajo<br />con tu aporte</h2>
+        <div class="toggle" role="tablist" aria-label="Frecuencia de pago">
+          <button role="tab" aria-selected="true" data-period="monthly">Mensual</button>
+          <button role="tab" aria-selected="false" data-period="yearly">Anual <em>2 meses gratis</em></button>
+          <span class="toggle-pill" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="tuner">
+        <div class="monitor" id="monitor">
+          <div class="screen" aria-live="polite">
+            <div class="osd" aria-hidden="true"><span class="osd-ch">CH 03</span><span class="osd-sig"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+            <p class="m-kicker">Estás viendo</p>
+            <h3 class="m-name">Abrazo de oso</h3>
+            <p class="m-price">$11.000<small>/mes</small></p>
+            <p class="m-sub"></p>
+            <ul class="m-perks"></ul>
+            <button type="button" class="btn btn-red m-cta" data-amount>Suscribirme</button>
+          </div>
+        </div>
+        <div class="remote">
+          <p class="remote-label" id="remote-label">Elegí tu canal</p>
+          <ol class="channels" id="channels" role="radiogroup" aria-labelledby="remote-label"><!-- main.js --></ol>
+          <div class="remote-pad">
+            <button type="button" data-step="-1" aria-label="Canal anterior">CH &minus;</button>
+            <button type="button" data-step="1" aria-label="Canal siguiente">CH +</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Montos tomados del sitio actual. Beneficios, nombres de planes y descuento anual son sugerencias para la propuesta.</p>
+
+      <div class="extra">
+        <div class="extra-card">
+          <h3>Aportá por única vez</h3>
+          <div class="chips" role="radiogroup" aria-label="Monto único">
+            <button role="radio" aria-checked="false">$5.000</button>
+            <button role="radio" aria-checked="true">$10.000</button>
+            <button role="radio" aria-checked="false">$20.000</button>
+            <button role="radio" aria-checked="false">$50.000</button>
+          </div>
+          <button class="btn btn-blue" type="button" data-once>Aportar</button>
+        </div>
+        <div class="extra-card">
+          <h3>¿Estás fuera de Argentina?</h3>
+          <p>Bancá desde cualquier país con PayPal, en dólares.</p>
+          <button class="btn btn-ghost" type="button" data-paypal>Aportar con PayPal</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contacto" class="site-footer">
+    <img src="assets/carajo-logo.png" alt="Carajo Stream" width="150" height="59" loading="lazy" />
+    <div>
+      <h3>Redes</h3>
+      <ul>
+        <li><a href="https://www.instagram.com/carajostream" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://www.youtube.com/@CarajoStream" target="_blank" rel="noopener">YouTube</a></li>
+        <li><a href="https://www.tiktok.com/@carajostream" target="_blank" rel="noopener">TikTok</a></li>
+        <li><a href="https://x.com/CarajoStream" target="_blank" rel="noopener">X</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Carajo</h3>
+      <ul>
+        <li><a href="#programacion">Programación</a></li>
+        <li><a href="#suscribite">Suscribite</a></li>
+        <li><a href="#">Sobre nosotros</a></li>
+      </ul>
+    </div>
+    <p class="copy">© 2026 Carajo Stream. Todos los derechos reservados.</p>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

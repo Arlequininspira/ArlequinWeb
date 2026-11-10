@@ -13,6 +13,13 @@
       },
       "continue": true
     },
+    {
+      "src": "^/demo(/.*)?$",
+      "headers": { "X-Robots-Tag": "noindex, nofollow" },
+      "continue": true
+    },
+    { "src": "^/demo/([a-z0-9-]+)$", "status": 308, "headers": { "Location": "/demo/$1/" } },
+    { "src": "^/demo/([a-z0-9-]+)/$", "dest": "/demo/$1/index.html" },
     { "src": "^/construccion$", "dest": "/SitioEnConstruccion/index.html" },
     { "src": "^/firma/?$", "dest": "/Firma/firma_arlequin_svg_interactiva.html" },
     { "handle": "filesystem" },

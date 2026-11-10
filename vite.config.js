@@ -6,12 +6,13 @@ import react from '@vitejs/plugin-react'
 const REWRITES = [
   [/^\/construccion\/?$/, '/SitioEnConstruccion/index.html'],
   [/^\/firma\/?$/, '/Firma/firma_arlequin_svg_interactiva.html'],
+  [/^\/demo\/([a-z0-9-]+)\/?$/, '/demo/$1/index.html'],
 ]
 
 const rewriteMiddleware = (req, _res, next) => {
   const [path, query] = req.url.split('?')
   const match = REWRITES.find(([re]) => re.test(path))
-  if (match) req.url = match[1] + (query ? `?${query}` : '')
+  if (match) req.url = path.replace(match[0], match[1]) + (query ? `?${query}` : '')
   next()
 }
 
