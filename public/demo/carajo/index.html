@@ -83,13 +83,27 @@
         </div>
       </div>
 
-      <ul class="perks" aria-label="Beneficios sugeridos">
-        <li><strong>Los primeros en verla</strong> Acceso anticipado a cortes y especiales.</li>
-        <li><strong>Chat de suscriptores</strong> Tu mensaje destacado en vivo.</li>
-        <li><strong>Sorteos y merch</strong> Entradas, encuentros y descuentos.</li>
-      </ul>
-
-      <div class="tiers" id="tiers"><!-- main.js --></div>
+      <div class="tuner">
+        <div class="monitor" id="monitor">
+          <div class="screen" aria-live="polite">
+            <div class="osd" aria-hidden="true"><span class="osd-ch">CH 03</span><span class="osd-sig"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+            <p class="m-kicker">Estás viendo</p>
+            <h3 class="m-name">Abrazo de oso</h3>
+            <p class="m-price">$11.000<small>/mes</small></p>
+            <p class="m-sub"></p>
+            <ul class="m-perks"></ul>
+            <button type="button" class="btn btn-red m-cta" data-amount>Suscribirme</button>
+          </div>
+        </div>
+        <div class="remote">
+          <p class="remote-label" id="remote-label">Elegí tu canal</p>
+          <ol class="channels" id="channels" role="radiogroup" aria-labelledby="remote-label"><!-- main.js --></ol>
+          <div class="remote-pad">
+            <button type="button" data-step="-1" aria-label="Canal anterior">CH &minus;</button>
+            <button type="button" data-step="1" aria-label="Canal siguiente">CH +</button>
+          </div>
+        </div>
+      </div>
       <p class="note">Montos tomados del sitio actual. Beneficios, nombres de planes y descuento anual son sugerencias para la propuesta.</p>
 
       <div class="extra">

@@ -10,6 +10,7 @@
  *   openCheckout({ brand: 'Gelatina', amount: 15000, period: 'monthly', onDone });
  * Theme through CSS custom properties on :root (see checkout.css):
  *   --ck-accent, --ck-accent-ink, --ck-surface, --ck-ink, --ck-muted, --ck-line, --ck-display
+ * `theme: 'x'` adds the class `ck--x` to the root so a page can restyle the layout.
  */
 
 const css = document.createElement('link');
@@ -279,8 +280,9 @@ function nextDate(period) {
 
 let lastFocus = null;
 
-export function openCheckout({ brand = 'nosotros', amount = 10000, period = 'monthly', onDone } = {}) {
+export function openCheckout({ brand = 'nosotros', amount = 10000, period = 'monthly', theme = '', kicker = 'Suscripción', onDone } = {}) {
   if (!root) build();
+  root.className = 'ck' + (theme ? ' ck--' + theme : '');
   lastFocus = document.activeElement;
   state = {
     brand,
@@ -293,7 +295,7 @@ export function openCheckout({ brand = 'nosotros', amount = 10000, period = 'mon
     step: 0,
     onDone
   };
-  root.querySelector('.ck-kicker').textContent = 'Suscripción';
+  root.querySelector('.ck-kicker').textContent = kicker;
   root.querySelector('.ck-title').textContent = `Apoyá a ${brand}`;
   root.hidden = false;
   document.documentElement.classList.add('ck-lock-scroll');

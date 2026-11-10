@@ -181,46 +181,92 @@ rail.addEventListener('click', e => {
 renderLive();
 setInterval(renderLive, 30_000);
 
-/* ---------------- plans + checkout ---------------- */
+/* ---------------- plans: channel tuner ---------------- */
+// Amounts from the current site. Names and perks are proposal placeholders.
 const TIERS = [
-  { name: 'Abrazo', price: 5000 },
-  { name: 'Abrazo fuerte', price: 7000 },
-  { name: 'Abrazo de oso', price: 11000, featured: true },
-  { name: 'Abrazo grupal', price: 17000 },
-  { name: 'Abrazo eterno', price: 23000 },
-  { name: 'Abrazo Carajo', price: 29000 }
+  { name: 'Abrazo', price: 5000, perk: 'Tu nombre en los créditos del mes' },
+  { name: 'Abrazo fuerte', price: 7000, perk: 'Mensaje destacado en el chat en vivo' },
+  { name: 'Abrazo de oso', price: 11000, perk: 'Cortes y especiales antes que nadie', featured: true },
+  { name: 'Abrazo grupal', price: 17000, perk: 'Sorteos de entradas y merch' },
+  { name: 'Abrazo eterno', price: 23000, perk: 'Encuentro trimestral con el equipo' },
+  { name: 'Abrazo Carajo', price: 29000, perk: 'Saludo al aire en el programa que elijas' }
 ];
 const fmt = n => '$' + Math.round(n).toLocaleString('es-AR');
-const tiersEl = document.getElementById('tiers');
+const pad = n => String(n).padStart(2, '0');
+const channelsEl = document.getElementById('channels');
+const monitor = document.getElementById('monitor');
+const screen = monitor.querySelector('.screen');
 const toggle = document.querySelector('.toggle');
 let period = 'monthly';
+let current = TIERS.findIndex(t => t.featured);
 
 const tierPrice = t => (period === 'yearly' ? t.price * 10 : t.price);
-tiersEl.innerHTML = TIERS.map(
-  (t, i) => `<article class="tier${t.featured ? ' is-featured' : ''}" data-i="${i}">
-      <span class="badge"${t.featured ? '' : ' hidden'}>El más elegido</span>
-      <span class="tier-name">${t.name}</span>
-      <span class="tier-price">${fmt(t.price)}<small>/mes</small></span>
-      <span class="tier-sub"></span>
-      <button type="button" class="btn ${t.featured ? '' : 'btn-ghost'}" data-amount="${t.price}">Suscribirme</button>
-    </article>`
+const unit = () => (period === 'yearly' ? '/año' : '/mes');
+
+channelsEl.innerHTML = TIERS.map(
+  (t, i) => `<li><button type="button" role="radio" data-i="${i}">
+      <span class="ch-n">${pad(i + 1)}</span>
+      <span class="ch-name">${t.name}${t.featured ? ' <em>El más elegido</em>' : ''}</span>
+      <span class="ch-price">${fmt(t.price)}</span>
+    </button></li>`
 ).join('');
-const updateTiers = () => {
-  const yearly = period === 'yearly';
-  tiersEl.querySelectorAll('.tier').forEach(card => {
-    const t = TIERS[card.dataset.i];
-    const price = tierPrice(t);
-    const priceEl = card.querySelector('.tier-price');
-    countUp(priceEl, price);
-    priceEl.querySelector('small').textContent = yearly ? '/año' : '/mes';
-    card.querySelector('.tier-sub').textContent = yearly ? `Equivale a ${fmt(price / 12)}/mes` : '';
-    const badge = card.querySelector('.badge');
-    badge.hidden = !(yearly || t.featured);
-    badge.textContent = yearly ? '2 meses gratis' : 'El más elegido';
-    card.querySelector('[data-amount]').dataset.amount = price;
-  });
+const chButtons = [...channelsEl.querySelectorAll('button')];
+
+const zap = () => {
+  screen.classList.remove('is-zap');
+  void screen.offsetWidth;
+  screen.classList.add('is-zap');
 };
-updateTiers();
+
+const renderMonitor = (animate = true) => {
+  const t = TIERS[current];
+  const price = tierPrice(t);
+  monitor.querySelector('.osd-ch').textContent = 'CH ' + pad(current + 1);
+  monitor.querySelectorAll('.osd-sig i').forEach((bar, i) => bar.classList.toggle('on', i <= current));
+  monitor.querySelector('.m-name').textContent = t.name;
+  const priceEl = monitor.querySelector('.m-price');
+  countUp(priceEl, price);
+  priceEl.querySelector('small').textContent = unit();
+  monitor.querySelector('.m-sub').textContent =
+    period === 'yearly' ? `Equivale a ${fmt(price / 12)}/mes · 2 meses gratis` : 'Débito automático · cancelás cuando quieras';
+  monitor.querySelector('.m-perks').innerHTML = TIERS.slice(0, current + 1)
+    .map((x, i) => `<li${i === current ? ' class="is-new"' : ''}>${x.perk}</li>`)
+    .join('');
+  const cta = monitor.querySelector('.m-cta');
+  cta.dataset.amount = price;
+  cta.textContent = `Suscribirme · ${fmt(price)}${unit()}`;
+  chButtons.forEach((b, i) => {
+    const on = i === current;
+    b.setAttribute('aria-checked', String(on));
+    b.tabIndex = on ? 0 : -1;
+    b.querySelector('.ch-price').textContent = fmt(tierPrice(TIERS[i]));
+  });
+  if (animate) zap();
+};
+renderMonitor(false);
+
+const tune = (i, focus) => {
+  current = (i + TIERS.length) % TIERS.length;
+  renderMonitor();
+  if (focus) chButtons[current].focus();
+};
+channelsEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-i]');
+  if (b && Number(b.dataset.i) !== current) tune(Number(b.dataset.i));
+});
+document.querySelector('.remote-pad').addEventListener('click', e => {
+  const b = e.target.closest('[data-step]');
+  if (b) tune(current + Number(b.dataset.step));
+});
+channelsEl.addEventListener('keydown', e => {
+  const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+  if (d) {
+    e.preventDefault();
+    tune(current + d, true);
+  } else if (/^[1-6]$/.test(e.key)) {
+    tune(Number(e.key) - 1, true);
+  }
+});
 
 toggle.addEventListener('click', e => {
   const b = e.target.closest('[data-period]');
@@ -228,7 +274,7 @@ toggle.addEventListener('click', e => {
   period = b.dataset.period;
   toggle.dataset.period = period;
   toggle.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
-  updateTiers();
+  renderMonitor();
 });
 
 const celebrate = () => {
@@ -243,12 +289,9 @@ const celebrate = () => {
   });
   once.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 };
-const checkout = (amount, p) => openCheckout({ brand: 'Carajo', amount, period: p, onDone: celebrate });
+const checkout = (amount, p) => openCheckout({ brand: 'Carajo', amount, period: p, theme: 'tv', kicker: 'Señal de apoyo', onDone: celebrate });
 
-tiersEl.addEventListener('click', e => {
-  const b = e.target.closest('[data-amount]');
-  if (b) checkout(Number(b.dataset.amount), period);
-});
+monitor.querySelector('.m-cta').addEventListener('click', e => checkout(Number(e.currentTarget.dataset.amount), period));
 
 const chips = document.querySelector('.chips');
 chips.addEventListener('click', e => {
