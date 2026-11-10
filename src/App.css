@@ -35,3 +35,22 @@
   pointer-events: none;
 }
 
+
+/* Capas que traga el agujero negro del cambio de tema (src/effects/blackHole.js).
+   Normalmente no existen para el layout; durante el efecto ocupan la pantalla
+   y giran / se escalan alrededor del botón de tema. */
+.bh-layer {
+  display: contents;
+}
+
+.bh-layer.bh-active {
+  display: block;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+html.bh-running .theme-toggle {
+  pointer-events: none;
+}

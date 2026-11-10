@@ -47,6 +47,12 @@ uniform float uReveal;
 uniform float uMode;
 uniform vec3 uBackground;
 uniform float uOpacity;
+// (Arlequín) Agujero negro / blanco para el cambio de tema.
+uniform vec2 uHole;
+uniform float uHoleAmount;
+uniform float uHoleSpin;
+uniform float uHoleReach;
+uniform float uHoleRadius;
 out vec4 outColor;
 
 #define STAR_COLOR_CUTOFF 0.2
@@ -151,6 +157,34 @@ vec3 StarLayer(vec2 uv, vec2 radial, vec2 repelAt, float pushCells, float spread
 void main() {
   vec2 focalPx = uFocal * uResolution;
   vec2 uv = (gl_FragCoord.xy - focalPx) / uResolution.y;
+
+  // (Arlequín) Agujero: el pixel a distancia r del centro muestra lo que antes
+  // estaba a r*k, girado en espiral (más giro cerca del centro). Lo que viene
+  // de fuera de la pantalla original queda vacío, así que todo el cielo se
+  // comprime hacia el agujero y detrás deja fondo liso.
+  float holeMask = 1.0;
+  float holeRing = 0.0;
+  if (uHoleAmount > 0.0) {
+    vec2 hc = (uHole - focalPx) / uResolution.y;
+    vec2 hd = uv - hc;
+    float hr = length(hd);
+    float hs = uHoleAmount;
+    float k = 1.0 / max(1.0 - hs, 0.02);
+    float th = uHoleSpin * pow(hs, 1.4) * 0.45 / (hr + 0.12);
+    float ct = cos(th), st = sin(th);
+    uv = hc + mat2(ct, -st, st, ct) * hd * k;
+    float far = hr * k;
+    holeMask = mix(1.0, smoothstep(uHoleReach * 1.02, uHoleReach * 0.9, far), smoothstep(0.0, 0.06, hs));
+    float rad = uHoleRadius;
+    if (rad > 0.0) {
+      holeMask *= smoothstep(rad * 0.8, rad * 1.05, hr);
+      float band = (hr - rad * 1.06) / (rad * 0.12);
+      float halo = exp(-max(hr - rad, 0.0) / (rad * 0.9)) * step(rad * 0.95, hr);
+      holeRing = exp(-band * band) * 0.8 + halo * 0.22;
+      holeRing *= smoothstep(0.0, 0.25, hs);
+    }
+  }
+
   vec2 mouseNorm = uMouse - vec2(0.5);
 
   vec2 repelAt = vec2(0.0);
@@ -189,6 +223,7 @@ void main() {
     col += StarLayer(uv * scale + offset, radial, repelAt * scale + offset, push * scale, 1.0 / (scale * radius)) * fade;
   }
   col *= uReveal;
+  col = col * holeMask + vec3(holeRing);
 
   if (uMode > 1.5) {
     vec3 lit = col * smoothstep(0.0, 0.3, length(col));
@@ -267,6 +302,7 @@ const Galaxy = ({
   backgroundColor,
   opacity = 1,
   dpr,
+  holeRef,
   className = '',
   style,
   ...rest
@@ -389,6 +425,8 @@ const Galaxy = ({
     let raf = 0;
     let last = 0;
     let visible = true;
+    // (Arlequín) Estado del agujero, en px CSS desde arriba a la izquierda.
+    const hole = { x: 0, y: 0, amount: 0, spin: 1, radius: 0 };
 
     const render = () => {
       const s = settingsRef.current;
@@ -436,6 +474,22 @@ const Galaxy = ({
       gl.uniform1f(u.uMode, mode);
       gl.uniform3fv(u.uBackground, background);
       gl.uniform1f(u.uOpacity, s.opacity);
+      {
+        const ratio = canvas.width / Math.max(1, container.clientWidth);
+        const hx = hole.x * ratio;
+        const hy = canvas.height - hole.y * ratio;
+        const reach = Math.max(
+          Math.hypot(hx, hy),
+          Math.hypot(hx - canvas.width, hy),
+          Math.hypot(hx, hy - canvas.height),
+          Math.hypot(hx - canvas.width, hy - canvas.height)
+        ) / canvas.height;
+        gl.uniform2f(u.uHole, hx, hy);
+        gl.uniform1f(u.uHoleAmount, hole.amount);
+        gl.uniform1f(u.uHoleSpin, hole.spin);
+        gl.uniform1f(u.uHoleReach, reach);
+        gl.uniform1f(u.uHoleRadius, (hole.radius * ratio) / canvas.height);
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -550,6 +604,15 @@ const Galaxy = ({
     if (repelling) entry(tinted, true, false);
     if (repelling && initial.clickWarp) entry(tinted, true, true);
 
+    if (holeRef) {
+      holeRef.current = {
+        set(next) {
+          Object.assign(hole, next);
+          if (!raf) render();
+        }
+      };
+    }
+
     let lastDpr = settingsRef.current.dpr;
     wakeRef.current = () => {
       const s = settingsRef.current;
@@ -565,6 +628,7 @@ const Galaxy = ({
     return () => {
       cancelAnimationFrame(raf);
       wakeRef.current = null;
+      if (holeRef) holeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
       window.removeEventListener('pointermove', onPointerMove);

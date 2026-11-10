@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { runBlackHole } from './effects/blackHole'
 import GalaxyBackground from './components/GalaxyBackground'
 import ThemeToggleStar from './components/ThemeToggleStar'
 import LogoAnimation from './components/LogoAnimation'
@@ -42,8 +43,22 @@ function App() {
   }, [isDarkMode]);
 
 
-  const handleToggle = () => {
-    setIsDarkMode(prev => !prev);
+  // Cambio de tema con agujero negro: solo con el fondo Galaxy (WebGL2) y sin
+  // "reducir movimiento"; si no, cambio directo como siempre.
+  const holeRef = useRef(null);
+  const togglingRef = useRef(false);
+  const handleToggle = (event) => {
+    if (togglingRef.current) return;
+    const hole = holeRef.current;
+    const button = event?.currentTarget;
+    if (!hole || !button || prefersReducedMotion || !Element.prototype.animate) {
+      setIsDarkMode(prev => !prev);
+      return;
+    }
+    togglingRef.current = true;
+    runBlackHole({ hole, button, onPeak: () => setIsDarkMode(prev => !prev) })
+      .catch((err) => console.error(err))
+      .finally(() => { togglingRef.current = false; });
   };
 
   const handleLogoClick = () => {
@@ -107,9 +122,10 @@ function App() {
 
   return (
     <div className="app">
-      <GalaxyBackground isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} isPaused={ambientPaused} />
+      <GalaxyBackground isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} isPaused={ambientPaused} holeRef={holeRef} />
       <ThemeToggleStar isDarkMode={isDarkMode} onToggle={handleToggle} isLowEnd={isLowEnd} isPaused={ambientPaused} />
 
+      <div className="bh-layer" data-z="100">
       <LogoAnimation
         isDarkMode={isDarkMode}
         onClick={handleLogoClick}
@@ -118,7 +134,9 @@ function App() {
         isHidden={false}
         onRestoreComplete={handleLogoGrowComplete}
       />
+      </div>
 
+      <div className="bh-layer" data-z="1000">
       <ArlequinMaskSystem
         isDarkMode={isDarkMode}
         phase={phase}
@@ -128,9 +146,10 @@ function App() {
         isLowEnd={isLowEnd}
         prefersReducedMotion={prefersReducedMotion}
       />
+      </div>
 
-      <FooterBanner isDarkMode={isDarkMode} />
-      <WhatsAppButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} />
+      <div className="bh-layer" data-z="50"><FooterBanner isDarkMode={isDarkMode} /></div>
+      <div className="bh-layer" data-z="1500"><WhatsAppButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} /></div>
       <RotateHint isDarkMode={isDarkMode} />
 
       <main className="content" />

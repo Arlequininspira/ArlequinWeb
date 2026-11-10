@@ -14,7 +14,7 @@ const hasWebGL2 = () => {
   }
 };
 
-function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedMotion = false, isPaused = false }) {
+function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedMotion = false, isPaused = false, holeRef }) {
   const [useGalaxy] = useState(() =>
     hasWebGL2() && !isLowEnd && new URLSearchParams(window.location.search).get('fondo') !== 'estrellas');
 
@@ -51,6 +51,7 @@ function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedM
         mouseRepulsion={false}
         clickWarp={false}
         intro
+        holeRef={holeRef}
         // Pantalla completa: limitar la resolución alivia la GPU del celular.
         dpr={isMobile ? 1 : 1.5}
       />
