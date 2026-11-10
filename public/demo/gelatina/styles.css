@@ -159,7 +159,7 @@ h1, h2, h3, .btn, .nav a, .toggle button, .flavors, .footer-word, .n {
   display: flex; flex-wrap: wrap; gap: 28px 48px; align-items: end; justify-content: space-between;
   border-top: 1px solid var(--line); padding-top: clamp(24px, 4vw, 44px);
 }
-.hero-copy h1 { margin: 0; font-size: clamp(40px, 6.4vw, 92px); line-height: 0.92; }
+.hero-copy h1 { margin: 0; font-size: clamp(34px, 5vw, 76px); line-height: 0.95; }
 .u-blue { color: var(--lilac); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
