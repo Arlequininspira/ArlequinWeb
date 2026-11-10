@@ -54,6 +54,32 @@ para instalaciones desde cero.
 - `003_account_auth_method.sql` — cuentas con Authenticator (sin contraseña) o contraseña + 2FA.
 - `004_transaction_paid_by.sql` — quién pagó cada gasto (Ariel / Lucas).
 - `005_charge_paid_by.sql` — quién cobró cada ingreso (al usar Cobrar).
+- `006_mail.sql` — correo @arlequin.com.ar en `/mails` (ver abajo).
+
+## Correo `/mails`
+Webmail propio: cada usuario de Supabase con una casilla asignada entra en
+`https://arlequin.com.ar/mails` con su mismo login y ve sólo sus mails.
+
+| Pieza | Qué hace |
+|---|---|
+| Resend (MX del dominio) | Recibe los mails y avisa por webhook; también envía (SPF/DKIM). |
+| `/api/mail/inbound` | Webhook firmado (Svix). Baja el mail completo y los adjuntos, los guarda en `mail_messages` / bucket `mail`. |
+| `/api/mail/send` | Verifica la sesión, envía desde la casilla del usuario y guarda copia en Enviados. |
+| RLS | Cada uno ve sólo sus casillas; el navegador sólo puede marcar leído, mover y borrar de la papelera. |
+| HTML recibido | Se muestra en un iframe aislado (sin scripts); imágenes externas bloqueadas hasta tocar "Mostrar imágenes". |
+
+Puesta en marcha:
+1. **Resend** → Domains → agregar `arlequin.com.ar` → cargar en **Vercel → Domains → DNS** los
+   registros que muestra (DKIM `resend._domainkey`, SPF/MX de `send`), y activar **Receiving**
+   (MX de la raíz, prioridad la más baja). Esperar a que figure *Verified*.
+2. Resend → **API Keys** → crear key → Vercel env `RESEND_API_KEY`.
+3. Resend → **Webhooks** → Add → URL `https://arlequin.com.ar/api/mail/inbound`, evento
+   `email.received` → copiar *Signing secret* → Vercel env `RESEND_WEBHOOK_SECRET`.
+4. Supabase → API Keys → secret → Vercel env `SUPABASE_SERVICE_ROLE_KEY`. Redeploy.
+5. SQL Editor → correr `006_mail.sql` y después dar de alta las casillas (al final del archivo).
+6. Probar: mandar un mail desde Gmail a la casilla y responderlo desde `/mails`.
+
+Límites del plan gratis de Resend: 3.000 mails/mes y 100/día (envío y recepción).
 
 ## Cómo se conectan los datos
 - **Clientes** → cada cliente tiene N **trabajos** (webs), mensuales o de pago único.
