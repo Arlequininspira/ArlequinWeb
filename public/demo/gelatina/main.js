@@ -1,4 +1,5 @@
-import { createElasticMesh } from './elastic-mesh.js';
+import { createElasticMesh } from '../_lib/elastic-mesh.js';
+import { openCheckout } from '../_lib/checkout.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -120,7 +121,7 @@ const renderTiers = (period, bump = false) => {
         <span class="tier-name">${t.name}</span>
         <span class="tier-price${bump ? ' price-bump' : ''}">${fmt(perMonth)}<small>/mes</small></span>
         <span class="tier-sub">${sub}</span>
-        <a class="btn ${t.featured ? '' : 'btn-ghost'} jelly-hover" href="#">Asociarme</a>
+        <button type="button" class="btn ${t.featured ? '' : 'btn-ghost'} jelly-hover" data-amount="${yearly ? Math.round(perMonth * 12) : t.price}" data-period="${period}">Asociarme</button>
       </article>`;
   }).join('');
 };
@@ -133,6 +134,22 @@ toggle.querySelectorAll('button').forEach(btn => {
     toggle.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', String(b === btn)));
     renderTiers(period, true);
   });
+});
+
+/* checkout (demo) — the jelly celebrates every new member */
+const celebrate = () => {
+  if (!jelly) return;
+  [0, 250, 500].forEach(t => setTimeout(() => jelly.nudge(1), t));
+};
+tiersEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-amount]');
+  if (b) openCheckout({ brand: 'Gelatina', amount: Number(b.dataset.amount), period: b.dataset.period, onDone: celebrate });
+});
+document.querySelector('[data-once]').addEventListener('click', e => {
+  e.preventDefault();
+  const sel = document.querySelector('.once-amounts [aria-checked="true"]');
+  const amount = Number((sel?.textContent || '15000').replace(/\D/g, ''));
+  openCheckout({ brand: 'Gelatina', amount, period: 'once', onDone: celebrate });
 });
 
 /* one-time amounts */
