@@ -13,6 +13,9 @@ const SUCK_MS = 1600;
 const HOLD_MS = 240;
 const EMERGE_MS = 1400;
 const HORIZON_PX = 36;
+// Último tramo de la salida: la foto se funde con la página real (en vez de
+// cambiarla de golpe) mientras termina de desenrollarse.
+const REVEAL_FROM = 0.7;
 
 const easeInCubic = (t) => t * t * t;
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
@@ -72,7 +75,7 @@ function fitRect(fit, iw, ih, r) {
   return [r.left + (r.width - w) / 2, r.top + (r.height - h) / 2, w, h];
 }
 
-async function paintBackground(ctx, cs, r) {
+async function paintBackground(ctx, cs, r, scale = 1) {
   const url = urlOf(cs.backgroundImage);
   const img = url && (await loadBg(url));
   if (!img) return;
@@ -87,7 +90,10 @@ async function paintBackground(ctx, cs, r) {
     const px = (v, full) => (v?.endsWith('%') ? (parseFloat(v) / 100) * full : parseFloat(v));
     tw = sw && sw !== 'auto' ? px(sw, r.width) : NaN;
     th = sh && sh !== 'auto' ? px(sh, r.height) : NaN;
-    if (isNaN(tw) && isNaN(th)) { tw = img.width; th = img.height; }
+    // backgroundSize está en px sin transformar; el rect ya viene escalado.
+    tw *= scale;
+    th *= scale;
+    if (isNaN(tw) && isNaN(th)) { tw = img.width * scale; th = img.height * scale; }
     else if (isNaN(tw)) tw = (img.width * th) / img.height;
     else if (isNaN(th)) th = (img.height * tw) / img.width;
   }
@@ -147,7 +153,7 @@ async function paintTree(ctx, el, alpha) {
         else ctx.rect(r.left, r.top, r.width, r.height);
         ctx.fill();
       }
-      if (cs.backgroundImage !== 'none') await paintBackground(ctx, cs, r);
+      if (cs.backgroundImage !== 'none') await paintBackground(ctx, cs, r, child.offsetWidth ? r.width / child.offsetWidth : 1);
       const tag = child.tagName;
       if (tag === 'IMG') {
         if (child.complete && child.naturalWidth) {
@@ -184,6 +190,25 @@ async function capture(layers, w, h, ratio) {
 
 // ----------------------------------------------------------------- efecto --
 
+// La capa (normalmente `display: contents`) pasa a ser una caja fija a pantalla
+// completa, así se le puede animar la opacidad sin tocar la de sus hijos.
+function startReveal(layers) {
+  const ms = EMERGE_MS * (1 - REVEAL_FROM) * (import.meta.env.DEV && window.__bhSlow ? window.__bhSlow : 1);
+  for (const el of layers) {
+    el.style.zIndex = el.dataset.z || '2';
+    el.classList.add('bh-reveal');
+    el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms, easing: 'ease-in-out', fill: 'backwards' });
+  }
+}
+
+function endReveal(layers) {
+  for (const el of layers) {
+    el.getAnimations().forEach((a) => a.cancel());
+    el.classList.remove('bh-reveal');
+    el.style.zIndex = '';
+  }
+}
+
 /**
  * @param {object}   opts
  * @param {object}   opts.hole      Controlador del agujero de Galaxy ({ size(), set(next) }).
@@ -199,13 +224,13 @@ export async function runBlackHole({ hole, button, sky, onPeak }) {
     .sort((p, q) => (Number(p.dataset.z) || 0) - (Number(q.dataset.z) || 0));
   const [w, h, ratio] = hole.size();
 
+  document.documentElement.classList.add('bh-running');
   const before = await capture(layers, w, h, ratio);
   hole.set({ snap: before, snapOn: 1, x: cx, y: cy, amount: 0, radius: 0, spin: 1 });
   await nextFrame();
   // Galaxy (opaco, ya con la foto) tapa la página; el botón queda encima.
   const prevZ = sky.style.zIndex;
   sky.style.zIndex = '1900';
-  document.documentElement.classList.add('bh-running');
 
   let buttonAnim = null;
   try {
@@ -230,12 +255,26 @@ export async function runBlackHole({ hole, button, sky, onPeak }) {
     const after = await capture(layers, w, h, ratio);
     hole.set({ snap: after, spin: -1 });
 
-    // 3 · Agujero blanco: todo sale girando al revés.
+    // 3 · Agujero blanco: todo sale girando al revés. Hacia el final la página
+    // real aparece encima con fundido (capas transparentes → opacas) y la foto
+    // de abajo se desvanece: sin salto al cambiar foto por página.
+    let revealing = false;
     await animateValue(EMERGE_MS, (t) => {
       const e = 1 - easeOutCubic(t);
-      hole.set({ amount: 0.985 * e, radius: HORIZON_PX * clamp01(e / 0.5) });
+      const fade = clamp01((t - REVEAL_FROM) / (1 - REVEAL_FROM));
+      if (!revealing && t >= REVEAL_FROM) {
+        revealing = true;
+        startReveal(layers);
+        sky.style.zIndex = prevZ;
+      }
+      hole.set({
+        amount: 0.985 * e,
+        radius: HORIZON_PX * clamp01(e / 0.5),
+        snapOn: 1 - fade * fade * (3 - 2 * fade),
+      });
     });
   } finally {
+    endReveal(layers);
     hole.set({ amount: 0, radius: 0 });
     sky.style.zIndex = prevZ;
     await nextFrame();

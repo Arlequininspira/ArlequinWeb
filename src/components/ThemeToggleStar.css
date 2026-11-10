@@ -50,7 +50,7 @@
   background-color: #000000;
   border: 1.5px solid #ffffff;
   box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
-  animation: toggle-pulse-light 3s ease-in-out infinite;
+  animation: pulse-light 3s ease-in-out infinite;
 }
 
 .theme-toggle.dark-mode:hover {
@@ -74,7 +74,7 @@
   background-color: #ffffff;
   border: 1.5px solid #000000;
   box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.3);
-  animation: toggle-pulse-dark 3s ease-in-out infinite;
+  animation: pulse-dark 3s ease-in-out infinite;
 }
 
 .theme-toggle.light-mode:hover {
@@ -93,39 +93,15 @@
   transform: scale(0.95);
 }
 
-/* Toggle: resplandor más suave (los keyframes pulse-dark / pulse-light siguen
-   igual porque los usa también el botón de WhatsApp). */
-@keyframes toggle-pulse-dark {
+/* Breathing pulse, resplandor suave. Lo usan también el botón de WhatsApp. */
+@keyframes pulse-dark {
   0%, 100% { box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.28); transform: scale(1); }
   50% { box-shadow: 0 0 22px 7px rgba(255, 255, 255, 0.45); transform: scale(1.05); }
 }
 
-@keyframes toggle-pulse-light {
+@keyframes pulse-light {
   0%, 100% { box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.28); transform: scale(1); }
   50% { box-shadow: 0 0 22px 7px rgba(0, 0, 0, 0.45); transform: scale(1.05); }
-}
-
-/* Subtle breathing/pulse animation with scale */
-@keyframes pulse-dark {
-  0%, 100% {
-    box-shadow: 0 0 18px 6px rgba(255, 255, 255, 0.4);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 42px 14px rgba(255, 255, 255, 0.7);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes pulse-light {
-  0%, 100% {
-    box-shadow: 0 0 18px 6px rgba(0, 0, 0, 0.4);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 42px 14px rgba(0, 0, 0, 0.7);
-    transform: scale(1.05);
-  }
 }
 
 .theme-toggle-canvas {

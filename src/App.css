@@ -43,6 +43,18 @@
   display: contents;
 }
 
+.bh-layer.bh-reveal {
+  display: block;
+  position: fixed;
+  inset: 0;
+}
+
 html.bh-running .app {
   pointer-events: none;
+}
+
+/* El footer se congela durante el efecto: así la foto y la página real
+   coinciden cuando se funden al final. */
+html.bh-running .footer-banner-scroll {
+  animation-play-state: paused;
 }
