@@ -51,12 +51,12 @@ function App() {
     if (togglingRef.current) return;
     const hole = holeRef.current;
     const button = event?.currentTarget;
-    if (!hole || !button || prefersReducedMotion || !Element.prototype.animate) {
+    if (!hole || !button || prefersReducedMotion || !Element.prototype.animate || !document.querySelector('.galaxy-background')) {
       setIsDarkMode(prev => !prev);
       return;
     }
     togglingRef.current = true;
-    runBlackHole({ hole, button, onPeak: () => setIsDarkMode(prev => !prev) })
+    runBlackHole({ hole, button, sky: document.querySelector('.galaxy-background'), onPeak: () => setIsDarkMode(prev => !prev) })
       .catch((err) => console.error(err))
       .finally(() => { togglingRef.current = false; });
   };
