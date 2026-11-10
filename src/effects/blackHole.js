@@ -114,9 +114,22 @@ async function paintBackground(ctx, cs, r, scale = 1) {
   ctx.restore();
 }
 
+// Primera sombra de `text-shadow` ("rgb(…) 0px 2px 0px") o null.
+function parseShadow(value) {
+  if (!value || value === 'none') return null;
+  const m = /(rgba?\([^)]*\)|#[0-9a-f]+|[a-z]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+([\d.]+)px)?/i.exec(value);
+  return m ? { color: m[1], x: parseFloat(m[2]), y: parseFloat(m[3]), blur: parseFloat(m[4] || '0') } : null;
+}
+
 function paintText(ctx, node, cs) {
   ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-  ctx.fillStyle = cs.color;
+  // Contorno (-webkit-text-stroke) y sombra (text-shadow), como los títulos de
+  // las cartas. paint-order: stroke fill → el trazo va debajo del relleno.
+  const strokeW = parseFloat(cs.webkitTextStrokeWidth || '0') || 0;
+  const strokeC = cs.webkitTextStrokeColor;
+  const shadow = parseShadow(cs.textShadow);
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = strokeW;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
   if ('letterSpacing' in ctx) ctx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
@@ -130,7 +143,24 @@ function paintText(ctx, node, cs) {
     let word = m[0];
     if (cs.textTransform === 'uppercase') word = word.toUpperCase();
     else if (cs.textTransform === 'lowercase') word = word.toLowerCase();
-    ctx.fillText(word, rect.left, rect.top + rect.height / 2, rect.width + 2);
+    const x = rect.left;
+    const y = rect.top + rect.height / 2;
+    const maxW = rect.width + 2;
+    if (shadow) {
+      ctx.save();
+      ctx.fillStyle = shadow.color;
+      ctx.strokeStyle = shadow.color;
+      if (shadow.blur) ctx.filter = `blur(${shadow.blur / 2}px)`;
+      if (strokeW) ctx.strokeText(word, x + shadow.x, y + shadow.y, maxW);
+      ctx.fillText(word, x + shadow.x, y + shadow.y, maxW);
+      ctx.restore();
+    }
+    if (strokeW) {
+      ctx.strokeStyle = strokeC;
+      ctx.strokeText(word, x, y, maxW);
+    }
+    ctx.fillStyle = cs.color;
+    ctx.fillText(word, x, y, maxW);
   }
 }
 
