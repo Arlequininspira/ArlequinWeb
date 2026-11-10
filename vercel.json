@@ -13,6 +13,13 @@
       },
       "continue": true
     },
+    {
+      "src": "^/demo(/.*)?$",
+      "headers": { "X-Robots-Tag": "noindex, nofollow" },
+      "continue": true
+    },
+    { "src": "^/demo/gelatina$", "status": 308, "headers": { "Location": "/demo/gelatina/" } },
+    { "src": "^/demo/gelatina/$", "dest": "/demo/gelatina/index.html" },
     { "src": "^/construccion$", "dest": "/SitioEnConstruccion/index.html" },
     { "src": "^/firma/?$", "dest": "/Firma/firma_arlequin_svg_interactiva.html" },
     { "handle": "filesystem" },

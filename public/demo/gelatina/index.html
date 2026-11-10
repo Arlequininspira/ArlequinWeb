@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <base href="/demo/gelatina/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Gelatina — Demo de renovación</title>
+  <meta name="description" content="Propuesta de renovación visual para gelatina.com.ar" />
+  <link rel="icon" href="assets/LOGOS-WEB-74PXx74PX-GELATINA.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ribbon">Demo de propuesta · no es el sitio oficial</div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Gelatina, inicio">
+      <img src="assets/LOGOS-WEB-74PXx74PX-GELATINA.png" alt="" width="44" height="44" />
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#top" class="is-current">Inicio</a>
+      <a href="#programas">Contenidos</a>
+      <a href="#socios">Socios</a>
+      <a href="#">Cursos</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a class="btn btn-blue btn-sm jelly-hover" href="#socios">Asociate</a>
+  </header>
+
+  <main id="top">
+    <!-- HERO ------------------------------------------------------------ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-stage">
+        <div id="jelly" class="jelly" role="img" aria-label="Logo de Gelatina, interactivo: se puede apretar y estirar"></div>
+        <img class="jelly-fallback" src="assets/cropped-Gelatina-2025.png" alt="Gelatina" hidden />
+
+        <p class="hint" aria-hidden="true">
+          <span class="hint-dot"></span> Apretala · estirala · tocala
+        </p>
+
+        <div class="flavors" role="radiogroup" aria-label="Sabor de la gelatina">
+          <span class="flavors-label">Sabor</span>
+          <button role="radio" aria-checked="true"  data-color="#2929CE" style="--c:#2929CE">Azul</button>
+          <button role="radio" aria-checked="false" data-color="#D7263D" style="--c:#D7263D">Frutilla</button>
+          <button role="radio" aria-checked="false" data-color="#EFE3D1" style="--c:#EFE3D1">Flan</button>
+          <button role="radio" aria-checked="false" data-color="#9898ED" style="--c:#9898ED">Uva</button>
+          <button role="radio" aria-checked="false" data-color="#3FB950" style="--c:#3FB950">Lima</button>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <h1 id="hero-title">Un medio independiente.<br /><span class="u-blue">Sostenido por vos.</span></h1>
+        <div class="hero-actions">
+          <a class="btn btn-blue jelly-hover" href="#socios">Asociate a Gelatina</a>
+          <a class="btn btn-ghost jelly-hover" href="#programas">Ver contenidos</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- POR QUÉ ------------------------------------------------------------ -->
+    <section class="why" aria-labelledby="why-title">
+      <h2 id="why-title" class="reveal">¿Por qué asociarse<br />a Gelatina?</h2>
+      <ol class="why-list">
+        <li class="reveal"><span class="n">01</span><h3>Cambiamos de ritmo</h3><p>Este año vamos más a fondo en lo que importa: más investigación, más calle, menos ruido.</p></li>
+        <li class="reveal"><span class="n">02</span><h3>Lo sostiene la gente</h3><p>Gelatina existe porque hay personas que eligen ser parte. Sin pauta que condicione lo que decimos.</p></li>
+        <li class="reveal"><span class="n">03</span><h3>Cada socio suma</h3><p>Cada nueva asociación hace más grande el proyecto: más programas, más equipo, más voces.</p></li>
+      </ol>
+    </section>
+
+    <!-- PLANES ------------------------------------------------------------ -->
+    <section id="socios" class="plans" aria-labelledby="plans-title">
+      <div class="plans-head">
+        <h2 id="plans-title" class="reveal">¡Asociate a Gelatina!</h2>
+        <div class="toggle" role="tablist" aria-label="Frecuencia de pago">
+          <button role="tab" aria-selected="true" data-period="monthly">Mensual</button>
+          <button role="tab" aria-selected="false" data-period="yearly">Anual <em>hasta -30%</em></button>
+          <span class="toggle-pill" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="tiers" id="tiers"><!-- rendered by main.js --></div>
+      <p class="note">Valores tomados del sitio actual; descuentos anuales ilustrativos para la demo.</p>
+
+      <div class="once reveal">
+        <div>
+          <h3>Si querés aportar por única vez</h3>
+          <p>Elegí un monto y listo. Sin suscripción.</p>
+        </div>
+        <div class="once-amounts" role="radiogroup" aria-label="Monto único">
+          <button role="radio" aria-checked="false">$10.000</button>
+          <button role="radio" aria-checked="true">$15.000</button>
+          <button role="radio" aria-checked="false">$20.000</button>
+          <button role="radio" aria-checked="false">$25.000</button>
+          <button role="radio" aria-checked="false">$35.000</button>
+        </div>
+        <a class="btn btn-cream jelly-hover" href="#">Hacé click acá</a>
+        <p class="once-alt">¿Sin Mercado Pago? <a href="#">Podés hacerlo aquí</a> · ¿Desde el exterior? <a href="#">PayPal</a></p>
+      </div>
+    </section>
+
+    <!-- PROGRAMAS ------------------------------------------------------------ -->
+    <section id="programas" class="shows" aria-labelledby="shows-title">
+      <h2 id="shows-title" class="reveal">Programas</h2>
+      <div class="marquee" aria-label="Programas de Gelatina">
+        <div class="marquee-track">
+          <!-- duplicated by main.js for an endless loop -->
+          <a href="#" class="show jelly-hover"><img src="assets/circo-freak.png" alt="Circo Freak" loading="lazy" /></a>
+          <a href="#" class="show jelly-hover"><img src="assets/el-puente.png" alt="El Puente" loading="lazy" /></a>
+          <a href="#" class="show jelly-hover"><img src="assets/industria-nac.png" alt="Industria Nacional" loading="lazy" /></a>
+          <a href="#" class="show jelly-hover"><img src="assets/que-olor.png" alt="Qué Olor" loading="lazy" /></a>
+          <a href="#" class="show jelly-hover"><img src="assets/demasiada-presion.png" alt="Demasiada Presión" loading="lazy" /></a>
+          <a href="#" class="show jelly-hover"><img src="assets/tugo.png" alt="Tugo" loading="lazy" /></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contacto" class="site-footer">
+    <div class="footer-cta">
+      <a class="btn btn-cream jelly-hover" href="#">Ir a la tienda</a>
+      <a class="btn btn-ghost jelly-hover" href="#">Contacto</a>
+    </div>
+    <ul class="socials">
+      <li><a href="#">X</a></li><li><a href="#">Instagram</a></li><li><a href="#">YouTube</a></li>
+      <li><a href="#">Twitch</a></li><li><a href="#">Spotify</a></li><li><a href="#">Facebook</a></li>
+    </ul>
+    <div class="footer-jelly" id="jelly-footer" role="img" aria-label="Gelatina"><p class="footer-word" aria-hidden="true">Gelatina</p></div>
+    <p class="copy">Gelatina 2026. ® Todos los derechos reservados.</p>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

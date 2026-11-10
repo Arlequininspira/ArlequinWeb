@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react'
 const REWRITES = [
   [/^\/construccion\/?$/, '/SitioEnConstruccion/index.html'],
   [/^\/firma\/?$/, '/Firma/firma_arlequin_svg_interactiva.html'],
+  [/^\/demo\/gelatina\/?$/, '/demo/gelatina/index.html'],
 ]
 
 const rewriteMiddleware = (req, _res, next) => {
