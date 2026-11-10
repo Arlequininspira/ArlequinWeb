@@ -4,18 +4,22 @@
   left: 0;
   width: 100%;
   height: 80px;
-  overflow: hidden;
+  overflow: visible;
   z-index: 50;
   pointer-events: none;
 }
 
 /* LogoLoop ocupa todo el zócalo, centrado verticalmente. En desktop recibe
    el mouse (pausa / agranda al pasar, arrastrar); en táctil queda decorativo. */
+/* LogoLoop suma padding arriba/abajo (--logoloop-pad) para el zoom al pasar
+   el mouse: su caja es más alta que el zócalo. Se centra y el zócalo no recorta
+   (overflow visible), si no se cortaban las piezas por abajo. */
 .footer-banner-loop {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 @media (hover: hover) and (pointer: fine) {
