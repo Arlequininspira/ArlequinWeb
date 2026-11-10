@@ -1,0 +1,93 @@
+/* ═══ Arlequín correo (/mails) — builds on admin.css tokens ═══ */
+
+.ml-shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+.ml-side { height: 100%; }
+.ml-new { margin: 0 0 14px; }
+.ml-box-select { margin: 10px 0; }
+
+.ml-list-pane {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--adm-border);
+  min-height: 0;
+}
+.ml-list-head { display: flex; align-items: center; gap: 10px; padding: 18px 16px 10px; }
+.ml-list-head h1 { font-size: 20px; flex: 1; }
+.ml-search { margin: 0 16px 10px; width: auto !important; }
+.ml-empty { padding: 24px 16px; text-align: center; }
+
+.ml-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+.ml-item {
+  display: flex; flex-direction: column; gap: 2px; width: 100%;
+  text-align: left; background: none; border: 0; border-bottom: 1px solid var(--adm-border);
+  border-left: 3px solid transparent; color: var(--adm-muted); padding: 10px 16px; cursor: pointer; font: inherit;
+}
+.ml-item:hover { background: var(--adm-surface); }
+.ml-item.active { background: var(--adm-brand-soft); border-left-color: var(--adm-accent); }
+.ml-item.unread { color: var(--adm-text); border-left-color: var(--adm-accent); }
+.ml-item.unread .ml-item-from, .ml-item.unread .ml-item-subj { font-weight: 700; }
+.ml-item-top { display: flex; gap: 8px; align-items: baseline; }
+.ml-item-from { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--adm-text); }
+.ml-item-date { font-size: 12px; white-space: nowrap; }
+.ml-item-subj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--adm-text); }
+.ml-item-snip { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ml-read-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.ml-placeholder { margin: auto; }
+
+.ml-view { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 16px 24px 20px; gap: 12px; }
+.ml-view-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ml-back { display: none; }
+.ml-view-head h2 { font-family: system-ui, sans-serif; font-size: 20px; letter-spacing: 0; margin-bottom: 8px; word-break: break-word; }
+.ml-meta { display: flex; flex-direction: column; gap: 2px; font-size: 13px; word-break: break-word; }
+.ml-meta b { color: var(--adm-muted); font-weight: 600; }
+
+.ml-atts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ml-att {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  background: var(--adm-surface-2); border: 1px solid var(--adm-border); border-radius: 8px;
+  padding: 5px 10px; color: var(--adm-text); font: inherit; font-size: 13px; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ml-att small { color: var(--adm-muted); }
+.ml-att .adm-icon-btn { padding: 0 2px; }
+
+.ml-remote {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: var(--adm-muted);
+  background: var(--adm-accent-soft); border-radius: 8px; padding: 8px 12px;
+}
+
+.ml-body { flex: 1; min-height: 240px; display: flex; border-radius: var(--adm-radius); overflow: hidden; background: #fff; }
+.ml-body iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.ml-text {
+  flex: 1; margin: 0; padding: 14px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  color: #222; background: #fff; font: 14px/1.5 Arial, Helvetica, sans-serif;
+}
+
+.ml-compose { display: flex; flex-direction: column; gap: 12px; }
+.ml-compose textarea { resize: vertical; min-height: 220px; font: 14px/1.5 system-ui, sans-serif; }
+.ml-compose-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ml-from { font-size: 13px; }
+
+.ml-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 80;
+  background: var(--adm-surface-2); border: 1px solid var(--adm-accent); color: var(--adm-text);
+  padding: 9px 18px; border-radius: 999px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1100px) {
+  .ml-list-pane { width: 320px; }
+}
+
+/* Phone/tablet: one pane at a time (list ↔ message). */
+@media (max-width: 760px) {
+  .ml-list-pane { width: 100%; border-right: 0; }
+  .ml-read-pane { display: none; }
+  .ml-shell.reading .ml-list-pane { display: none; }
+  .ml-shell.reading .ml-read-pane { display: flex; }
+  .ml-back { display: inline-block; }
+  .ml-view { padding: 12px 16px 16px; }
+  .ml-list-head { padding: 12px 16px 8px; }
+}

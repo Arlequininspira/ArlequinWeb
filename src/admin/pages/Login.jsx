@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { ADMIN_ICON } from '../lib/format';
 
-export default function Login({ denied }) {
+export default function Login({ denied, subtitle = 'Acceso administración', deniedMessage = 'Ese usuario no tiene acceso de administrador.' }) {
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState(denied ? 'Ese usuario no tiene acceso de administrador.' : null);
+  const [err, setErr] = useState(denied ? deniedMessage : null);
   const [show, setShow] = useState(false);
 
   const submit = async (e) => {
@@ -33,7 +33,7 @@ export default function Login({ denied }) {
       <form className="adm-card adm-login" onSubmit={submit}>
         <img src={ADMIN_ICON} alt="" className="adm-login-logo" />
         <h2>Arlequín</h2>
-        <p className="adm-muted">Acceso administración</p>
+        <p className="adm-muted">{subtitle}</p>
         <label className="adm-field">
           <span>Email</span>
           <input name="email" type="email" autoComplete="username" required autoFocus />
