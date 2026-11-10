@@ -14,6 +14,21 @@ const hasWebGL2 = () => {
   }
 };
 
+// Configs elegidas en reactbits.dev (Customize). lightMode no se fija: sigue al
+// tema del sitio (claro = estrellas oscuras).
+// Oscuro: preset Sparkle, menos luminoso que Classic sobre fondo negro.
+const DARK_SKY = {
+  hueShift: 0, saturation: 0, density: 0.8, glowIntensity: 0.2, starSize: 1,
+  flareIntensity: 4, twinkleIntensity: 0.04, starSpeed: 0.5, speed: 0.5,
+  rotationSpeed: 0.03, layers: 2, direction: 'forward',
+};
+// Claro: preset Classic (la config anterior).
+const LIGHT_SKY = {
+  hueShift: 0, saturation: 0, density: 0.5, glowIntensity: 0.63, starSize: 0.75,
+  flareIntensity: 2.3, twinkleIntensity: 0.5, starSpeed: 1.5, speed: 0.1,
+  rotationSpeed: 0.01, layers: 2, direction: 'forward',
+};
+
 function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedMotion = false, isPaused = false, holeRef }) {
   const [useGalaxy] = useState(() =>
     hasWebGL2() && !isLowEnd && new URLSearchParams(window.location.search).get('fondo') !== 'estrellas');
@@ -33,20 +48,7 @@ function GalaxyBackground({ isDarkMode = true, isLowEnd = false, prefersReducedM
         transparent={false}
         lightMode={!isDarkMode}
         disableAnimation={isPaused || prefersReducedMotion}
-        // Config elegida en reactbits.dev (Customize, preset Classic).
-        // lightMode no se fija: sigue al tema del sitio (claro = estrellas oscuras).
-        hueShift={0}
-        saturation={0}
-        density={0.5}
-        glowIntensity={0.63}
-        starSize={0.75}
-        flareIntensity={2.3}
-        twinkleIntensity={0.5}
-        starSpeed={1.5}
-        speed={0.1}
-        rotationSpeed={0.01}
-        layers={2}
-        direction="forward"
+        {...(isDarkMode ? DARK_SKY : LIGHT_SKY)}
         mouseInteraction={false}
         mouseRepulsion={false}
         clickWarp={false}
