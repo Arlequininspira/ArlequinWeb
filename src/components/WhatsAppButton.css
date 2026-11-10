@@ -22,24 +22,24 @@
 
 /* Clear app mode: grey/black glow */
 .whatsapp-button.dark-mode {
-  box-shadow: 0 0 18px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
   animation: pulse-light 3s ease-in-out infinite;
 }
 
 .whatsapp-button.dark-mode:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 36px 10px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 0 20px 6px rgba(0, 0, 0, 0.45);
 }
 
 /* Dark app mode: white glow */
 .whatsapp-button.light-mode {
-  box-shadow: 0 0 18px 6px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.3);
   animation: pulse-dark 3s ease-in-out infinite;
 }
 
 .whatsapp-button.light-mode:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 36px 10px rgba(255, 255, 255, 0.65);
+  box-shadow: 0 0 20px 6px rgba(255, 255, 255, 0.45);
 }
 
 .whatsapp-button:active {

@@ -47,6 +47,14 @@ uniform float uReveal;
 uniform float uMode;
 uniform vec3 uBackground;
 uniform float uOpacity;
+// (Arlequín) Agujero negro / blanco para el cambio de tema.
+uniform vec2 uHole;
+uniform float uHoleAmount;
+uniform float uHoleSpin;
+uniform float uHoleReach;
+uniform float uHoleRadius;
+uniform sampler2D uSnap;
+uniform float uSnapOn;
 out vec4 outColor;
 
 #define STAR_COLOR_CUTOFF 0.2
@@ -151,6 +159,44 @@ vec3 StarLayer(vec2 uv, vec2 radial, vec2 repelAt, float pushCells, float spread
 void main() {
   vec2 focalPx = uFocal * uResolution;
   vec2 uv = (gl_FragCoord.xy - focalPx) / uResolution.y;
+
+  // (Arlequín) Agujero: el pixel a distancia r del centro muestra lo que antes
+  // estaba a r*k, girado en espiral (más giro cerca del centro). Lo que viene
+  // de fuera de la pantalla original queda vacío, así que todo el cielo se
+  // comprime hacia el agujero y detrás deja fondo liso.
+  float holeMask = 1.0;
+  float horizonMask = 1.0;
+  float holeRing = 0.0;
+  if (uHoleAmount > 0.0) {
+    vec2 hc = (uHole - focalPx) / uResolution.y;
+    vec2 hd = uv - hc;
+    float hr = length(hd);
+    float hs = uHoleAmount;
+    float k = 1.0 / max(1.0 - hs, 0.02);
+    float th = uHoleSpin * pow(hs, 1.3) * 0.7 / (hr + 0.12);
+    float ct = cos(th), st = sin(th);
+    uv = hc + mat2(ct, -st, st, ct) * hd * k;
+    float far = hr * k;
+    holeMask = mix(1.0, smoothstep(uHoleReach * 1.02, uHoleReach * 0.9, far), smoothstep(0.0, 0.06, hs));
+    float rad = uHoleRadius;
+    if (rad > 0.0) {
+      horizonMask = smoothstep(rad * 0.8, rad * 1.05, hr);
+      holeMask *= horizonMask;
+      float band = (hr - rad * 1.06) / (rad * 0.12);
+      float halo = exp(-max(hr - rad, 0.0) / (rad * 0.9)) * step(rad * 0.95, hr);
+      holeRing = exp(-band * band) * 0.8 + halo * 0.22;
+      holeRing *= smoothstep(0.0, 0.25, hs);
+    }
+  }
+
+  // Captura de la página (logo, cartas, footer) deformada con el mismo mapeo.
+  vec4 snap = vec4(0.0);
+  if (uSnapOn > 0.0) {
+    vec2 st = (uv * uResolution.y + focalPx) / uResolution;
+    vec2 inside = step(vec2(0.0), st) * step(st, vec2(1.0));
+    snap = texture(uSnap, st) * (inside.x * inside.y * horizonMask * uSnapOn);
+  }
+
   vec2 mouseNorm = uMouse - vec2(0.5);
 
   vec2 repelAt = vec2(0.0);
@@ -189,6 +235,7 @@ void main() {
     col += StarLayer(uv * scale + offset, radial, repelAt * scale + offset, push * scale, 1.0 / (scale * radius)) * fade;
   }
   col *= uReveal;
+  col *= holeMask;
 
   if (uMode > 1.5) {
     vec3 lit = col * smoothstep(0.0, 0.3, length(col));
@@ -203,6 +250,13 @@ void main() {
   } else {
     outColor = vec4(mix(uBackground, col, uOpacity), 1.0);
   }
+
+  // (Arlequín) Captura encima de las estrellas y el anillo del horizonte encima
+  // de todo: blanco en modo oscuro, tinta oscura en modo claro.
+  outColor = vec4(snap.rgb + outColor.rgb * (1.0 - snap.a), max(outColor.a, snap.a));
+  float ringA = clamp(holeRing, 0.0, 1.0);
+  vec3 ringCol = uMode > 1.5 ? vec3(0.06) : vec3(1.0);
+  outColor = vec4(mix(outColor.rgb, ringCol * max(outColor.a, ringA), ringA), max(outColor.a, ringA));
 }`;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -267,6 +321,7 @@ const Galaxy = ({
   backgroundColor,
   opacity = 1,
   dpr,
+  holeRef,
   className = '',
   style,
   ...rest
@@ -389,6 +444,15 @@ const Galaxy = ({
     let raf = 0;
     let last = 0;
     let visible = true;
+    // (Arlequín) Estado del agujero, en px CSS desde arriba a la izquierda.
+    const hole = { x: 0, y: 0, amount: 0, spin: 1, radius: 0, snapOn: 0 };
+    const snapTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, snapTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     const render = () => {
       const s = settingsRef.current;
@@ -436,6 +500,26 @@ const Galaxy = ({
       gl.uniform1f(u.uMode, mode);
       gl.uniform3fv(u.uBackground, background);
       gl.uniform1f(u.uOpacity, s.opacity);
+      {
+        const ratio = canvas.width / Math.max(1, container.clientWidth);
+        const hx = hole.x * ratio;
+        const hy = canvas.height - hole.y * ratio;
+        const reach = Math.max(
+          Math.hypot(hx, hy),
+          Math.hypot(hx - canvas.width, hy),
+          Math.hypot(hx, hy - canvas.height),
+          Math.hypot(hx - canvas.width, hy - canvas.height)
+        ) / canvas.height;
+        gl.uniform2f(u.uHole, hx, hy);
+        gl.uniform1f(u.uHoleAmount, hole.amount);
+        gl.uniform1f(u.uHoleSpin, hole.spin);
+        gl.uniform1f(u.uHoleReach, reach);
+        gl.uniform1f(u.uHoleRadius, (hole.radius * ratio) / canvas.height);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, snapTex);
+        gl.uniform1i(u.uSnap, 0);
+        gl.uniform1f(u.uSnapOn, hole.snapOn);
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -550,6 +634,26 @@ const Galaxy = ({
     if (repelling) entry(tinted, true, false);
     if (repelling && initial.clickWarp) entry(tinted, true, true);
 
+    if (holeRef) {
+      holeRef.current = {
+        // Tamaño en px de la captura que espera el shader (= el canvas).
+        size: () => [canvas.width, canvas.height, canvas.width / Math.max(1, container.clientWidth)],
+        set(next) {
+          const { snap, ...rest } = next;
+          if (snap) {
+            gl.bindTexture(gl.TEXTURE_2D, snapTex);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, snap);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+            gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+          }
+          Object.assign(hole, rest);
+          if (!raf) render();
+        }
+      };
+    }
+
     let lastDpr = settingsRef.current.dpr;
     wakeRef.current = () => {
       const s = settingsRef.current;
@@ -565,6 +669,7 @@ const Galaxy = ({
     return () => {
       cancelAnimationFrame(raf);
       wakeRef.current = null;
+      if (holeRef) holeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
@@ -575,6 +680,7 @@ const Galaxy = ({
       document.removeEventListener('visibilitychange', onVisibility);
       programs.forEach(found => found.program && gl.deleteProgram(found.program));
       gl.deleteBuffer(buffer);
+      gl.deleteTexture(snapTex);
       gl.deleteVertexArray(vao);
       // (Arlequín) No llamamos loseContext(): con React StrictMode el efecto se
       // monta dos veces sobre el MISMO canvas y el segundo montaje quedaba con

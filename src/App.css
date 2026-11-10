@@ -35,3 +35,20 @@
   pointer-events: none;
 }
 
+
+/* Capas que traga el agujero negro del cambio de tema (src/effects/blackHole.js):
+   se fotografían en orden de data-z. `display: contents` = no existen para el
+   layout. Durante el efecto Galaxy tapa la página y nada recibe clics. */
+.bh-layer {
+  display: contents;
+}
+
+.bh-layer.bh-reveal {
+  display: block;
+  position: fixed;
+  inset: 0;
+}
+
+html.bh-running .app {
+  pointer-events: none;
+}
