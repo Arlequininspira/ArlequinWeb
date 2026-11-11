@@ -4,6 +4,7 @@ import { ADMIN_ICON } from '../admin/lib/format';
 import Login from '../admin/pages/Login';
 import MessageView from './MessageView';
 import Compose from './Compose';
+import { SignatureSettings } from './Signature';
 import {
   myMailboxes, listMessages, unreadCount, getMessage, markRead, moveTo, deleteForever, fmtDate, bodyText,
 } from './lib/mailApi';
@@ -18,7 +19,6 @@ const FOLDERS = [
 const POLL_MS = 60_000;
 
 const prefixed = (p, s = '') => (new RegExp(`^${p}:`, 'i').test(s.trim()) ? s.trim() : `${p}: ${s.trim()}`);
-const quote = (t) => t.split('\n').map((l) => `> ${l}`).join('\n');
 
 function useSession() {
   const [session, setSession] = useState(undefined);
@@ -31,8 +31,10 @@ function useSession() {
   return session;
 }
 
-function Mailbox({ session, boxes }) {
-  const [box, setBox] = useState(boxes[0]);
+function Mailbox({ session, boxes: initialBoxes }) {
+  const [boxes, setBoxes] = useState(initialBoxes);
+  const [box, setBox] = useState(initialBoxes[0]);
+  const [sigOpen, setSigOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => { supabase.rpc('is_admin').then(({ data }) => setIsAdmin(Boolean(data))); }, []);
   const [folder, setFolder] = useState('inbox');
@@ -94,7 +96,8 @@ function Mailbox({ session, boxes }) {
     const cc = all ? [...m.to_addrs, ...m.cc_addrs].filter((a) => a !== self && !to.includes(a)) : [];
     setDraft({
       to: to.join(', '), cc: cc.join(', '), subject: prefixed('Re', m.subject), reply_to_message_id: m.id,
-      text: `\n\n\nEl ${fmtDate(m.sent_at, true)}, ${m.from_name || m.from_addr} escribió:\n${quote(bodyText(m))}`,
+      quoted_header: `El ${fmtDate(m.sent_at, true)}, ${m.from_name || m.from_addr} escribió:`,
+      quoted_body: bodyText(m),
     });
   };
 
@@ -102,7 +105,8 @@ function Mailbox({ session, boxes }) {
     const m = open;
     setDraft({
       to: '', subject: prefixed('Fwd', m.subject), attachments: m.attachments,
-      text: `\n\n\n---------- Mensaje reenviado ----------\nDe: ${m.from_name ? `${m.from_name} <${m.from_addr}>` : m.from_addr}\nFecha: ${fmtDate(m.sent_at, true)}\nAsunto: ${m.subject}\nPara: ${m.to_addrs.join(', ')}\n\n${bodyText(m)}`,
+      quoted_header: `---------- Mensaje reenviado ----------\nDe: ${m.from_name ? `${m.from_name} <${m.from_addr}>` : m.from_addr}\nFecha: ${fmtDate(m.sent_at, true)}\nAsunto: ${m.subject}\nPara: ${m.to_addrs.join(', ')}`,
+      quoted_body: bodyText(m),
     });
   };
 
@@ -130,6 +134,7 @@ function Mailbox({ session, boxes }) {
             </button>
           ))}
         </nav>
+        <button className="adm-btn ghost block adm-switch" onClick={() => { setSigOpen(true); setMenuOpen(false); }}>✎ Firma</button>
         {isAdmin && <a className="adm-btn ghost block adm-switch" href="/login#cuentas">⚙ Administración</a>}
         <div className="adm-user">
           <span title={session.user.email}>{box.address}</span>
@@ -187,6 +192,15 @@ function Mailbox({ session, boxes }) {
       {draft && (
         <Compose mailbox={box} draft={draft} onClose={() => setDraft(null)}
           onSent={() => { setDraft(null); flash('Mensaje enviado'); if (folder === 'sent') refresh(); }} />
+      )}
+      {sigOpen && (
+        <SignatureSettings mailbox={box} onClose={() => setSigOpen(false)}
+          onSaved={(row) => {
+            setBoxes((l) => l.map((b) => (b.id === row.id ? row : b)));
+            setBox(row);
+            setSigOpen(false);
+            flash('Firma guardada');
+          }} />
       )}
       {toast && <div className="ml-toast" role="status">{toast}</div>}
     </div>

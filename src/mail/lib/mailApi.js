@@ -2,8 +2,12 @@ import { supabase, q } from '../../admin/lib/supabase';
 
 const LIST_COLS = 'id,folder,from_addr,from_name,to_addrs,cc_addrs,subject,snippet,is_read,has_attachments,sent_at';
 
+// select * so it keeps working before migration 008 adds the signature columns.
 export const myMailboxes = () =>
-  q(supabase.from('mailboxes').select('id,address,display_name').order('address'));
+  q(supabase.from('mailboxes').select('*').order('address'));
+
+export const saveSignature = (mailboxId, signature_text, signature_enabled) =>
+  q(supabase.from('mailboxes').update({ signature_text, signature_enabled }).eq('id', mailboxId).select('*'));
 
 export function listMessages(mailboxId, folder, search = '') {
   let query = supabase.from('mail_messages').select(LIST_COLS)

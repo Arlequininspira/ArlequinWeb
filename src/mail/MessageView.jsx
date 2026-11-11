@@ -15,10 +15,22 @@ function frameDoc(html, allowRemote) {
 
 const hasRemote = (html = '') => /<img[^>]+src=["']?https?:/i.test(html) || /url\(\s*["']?https?:/i.test(html);
 
+// Remote images load automatically for our own domains and for senders the
+// user chose "always show" for (stored per browser).
+const TRUSTED_DOMAINS = ['arlequin.com.ar', 'arlequininspira.com'];
+const LS_KEY = 'ml-trusted-senders';
+function trustedSenders() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
+}
+function trustSender(addr) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify([...new Set([...trustedSenders(), addr])].slice(-500))); } catch { /* private mode */ }
+}
+const isTrusted = (addr = '') => TRUSTED_DOMAINS.includes(addr.split('@')[1]) || trustedSenders().includes(addr);
+
 export default function MessageView({ msg, onReply, onReplyAll, onForward, onTrash, onRestore, onDelete, onToggleRead, onBack }) {
-  const [remote, setRemote] = useState(false);
+  const [remote, setRemote] = useState(() => isTrusted(msg.from_addr));
   const [err, setErr] = useState(null);
-  useEffect(() => { setRemote(false); setErr(null); }, [msg.id]);
+  useEffect(() => { setRemote(isTrusted(msg.from_addr)); setErr(null); }, [msg.id, msg.from_addr]);
 
   const doc = useMemo(() => (msg.html_body ? frameDoc(msg.html_body, remote) : null), [msg.html_body, remote]);
   const who = msg.from_name ? `${msg.from_name} <${msg.from_addr}>` : msg.from_addr;
@@ -76,6 +88,9 @@ export default function MessageView({ msg, onReply, onReplyAll, onForward, onTra
         <div className="ml-remote">
           Las imágenes externas están bloqueadas para proteger tu privacidad.
           <button className="adm-btn ghost small" onClick={() => setRemote(true)}>Mostrar imágenes</button>
+          <button className="adm-btn ghost small" onClick={() => { trustSender(msg.from_addr); setRemote(true); }}>
+            Mostrar siempre de {msg.from_addr}
+          </button>
         </div>
       )}
 

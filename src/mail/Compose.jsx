@@ -1,12 +1,16 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Modal } from '../admin/components/ui';
+import { signatureHtml } from '../../api/_lib/signature.js';
+import { SignatureFrame } from './Signature';
 import { uploadAttachment, sendMail, fmtSize } from './lib/mailApi';
 
 const MAX_TOTAL = 30 * 1024 * 1024;
 
-// draft: { to, cc, subject, text, reply_to_message_id?, attachments? (forwarded) }
+// draft: { to, cc, subject, text, quoted_header?, quoted_body?, reply_to_message_id?, attachments? (forwarded) }
 export default function Compose({ mailbox, draft, onClose, onSent }) {
   const [showCc, setShowCc] = useState(Boolean(draft.cc));
+  const [withSig, setWithSig] = useState(mailbox.signature_enabled !== false);
+  const sigPreview = useMemo(() => signatureHtml(mailbox.signature_text || ''), [mailbox.signature_text]);
   const [atts, setAtts] = useState(draft.attachments || []);
   const [uploading, setUploading] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -45,6 +49,9 @@ export default function Compose({ mailbox, draft, onClose, onSent }) {
         cc: String(fd.get('cc') || ''),
         subject: String(fd.get('subject') || ''),
         text: String(fd.get('text') || ''),
+        signature: withSig,
+        quoted_header: draft.quoted_header || '',
+        quoted_body: draft.quoted_body || '',
         reply_to_message_id: draft.reply_to_message_id || null,
         attachments: atts,
       });
@@ -74,9 +81,21 @@ export default function Compose({ mailbox, draft, onClose, onSent }) {
         <label className="adm-field"><span>Asunto</span><input name="subject" type="text" defaultValue={draft.subject || ''} /></label>
         <label className="adm-field">
           <span>Mensaje</span>
-          <textarea name="text" rows={12} defaultValue={draft.text || ''} autoFocus={Boolean(draft.to)}
-            onFocus={(e) => draft.reply_to_message_id && e.target.setSelectionRange(0, 0)} />
+          <textarea name="text" rows={10} defaultValue={draft.text || ''} autoFocus={Boolean(draft.to)} />
         </label>
+
+        <label className="ml-sig-toggle">
+          <input type="checkbox" checked={withSig} onChange={(e) => setWithSig(e.target.checked)} />
+          Agregar firma
+        </label>
+        {withSig && <SignatureFrame html={sigPreview} />}
+
+        {(draft.quoted_header || draft.quoted_body) && (
+          <details className="ml-quoted">
+            <summary>{draft.reply_to_message_id ? 'Mensaje original (se incluye abajo)' : 'Mensaje reenviado (se incluye abajo)'}</summary>
+            <pre>{draft.quoted_header}{'\n'}{draft.quoted_body}</pre>
+          </details>
+        )}
 
         <div className="ml-atts">
           {atts.map((a) => (
