@@ -468,3 +468,7 @@ html.adm-html #root {
 @media (prefers-reduced-motion: reduce) {
   .adm-root *, .adm-modal-backdrop, .adm-modal { animation: none !important; transition: none !important; }
 }
+
+/* Botón para cambiar entre panel de administración y correo */
+.adm-switch { display: block; margin: 12px 0; text-align: center; color: var(--adm-text) !important; text-decoration: none !important; }
+

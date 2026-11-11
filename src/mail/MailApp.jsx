@@ -33,6 +33,8 @@ function useSession() {
 
 function Mailbox({ session, boxes }) {
   const [box, setBox] = useState(boxes[0]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => { supabase.rpc('is_admin').then(({ data }) => setIsAdmin(Boolean(data))); }, []);
   const [folder, setFolder] = useState('inbox');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState(null);
@@ -111,6 +113,14 @@ function Mailbox({ session, boxes }) {
           <img src={ADMIN_ICON} alt="" />
           <span>Arlequín<small>Correo</small></span>
         </div>
+        {boxes.length > 1 && (
+          <label className="adm-field ml-box-select">
+            <span>Casilla</span>
+            <select value={box.id} onChange={(e) => { setBox(boxes.find((b) => b.id === e.target.value)); setMenuOpen(false); }}>
+              {boxes.map((b) => <option key={b.id} value={b.id}>{b.address}</option>)}
+            </select>
+          </label>
+        )}
         <button className="adm-btn primary block ml-new" onClick={() => { setDraft({}); setMenuOpen(false); }}>✉ Redactar</button>
         <nav>
           {FOLDERS.map((f) => (
@@ -120,11 +130,7 @@ function Mailbox({ session, boxes }) {
             </button>
           ))}
         </nav>
-        {boxes.length > 1 && (
-          <select className="ml-box-select" value={box.id} onChange={(e) => setBox(boxes.find((b) => b.id === e.target.value))}>
-            {boxes.map((b) => <option key={b.id} value={b.id}>{b.address}</option>)}
-          </select>
-        )}
+        {isAdmin && <a className="adm-btn ghost block adm-switch" href="/login#cuentas">⚙ Administración</a>}
         <div className="adm-user">
           <span title={session.user.email}>{box.address}</span>
           <button className="adm-btn ghost small" onClick={() => supabase.auth.signOut()}>Salir</button>

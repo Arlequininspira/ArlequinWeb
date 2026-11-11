@@ -55,6 +55,7 @@ para instalaciones desde cero.
 - `004_transaction_paid_by.sql` — quién pagó cada gasto (Ariel / Lucas).
 - `005_charge_paid_by.sql` — quién cobró cada ingreso (al usar Cobrar).
 - `006_mail.sql` — correo @arlequin.com.ar en `/mails` (ver abajo).
+- `007_mail_shared.sql` — logins extra por casilla (`mailbox_members`); cada uno ve sólo lo suyo.
 
 ## Correo `/mails`
 Webmail propio: cada usuario de Supabase con una casilla asignada entra en
