@@ -1,11 +1,13 @@
 // Sends a mail from the caller's casilla through Resend and stores a copy in "sent".
-// Body: { mailbox_id?, to, cc?, subject, text, reply_to_message_id?, attachments?: [{ storage_path, filename, content_type, size }] }
+// Body: { mailbox_id?, to, cc?, subject, text, signature?: bool, quoted_header?, quoted_body?,
+//         reply_to_message_id?, attachments?: [{ storage_path, filename, content_type, size }] }
 // Attachments are uploaded by the browser to Storage (<mailbox>/out/...) first;
 // here they're passed to Resend as short-lived signed URLs.
 import { randomUUID } from 'node:crypto';
 import {
   env, db, resend, storageSignedUrl, userFromRequest, addressList, isEmail, snippetOf, json,
 } from '../_lib/mail.js';
+import { signatureHtml, signatureText } from '../_lib/signature.js';
 
 export const maxDuration = 30;
 const MAX_RCPT = 50;
@@ -25,7 +27,7 @@ export async function POST(request) {
   const uid = encodeURIComponent(user.id);
   const shared = await db(`mailbox_members?select=mailbox_id&user_id=eq.${uid}`).catch(() => []);
   const ids = shared.map((r) => r.mailbox_id).filter((x) => /^[0-9a-f-]{36}$/.test(x));
-  const boxes = await db(`mailboxes?select=id,address,display_name&or=(user_id.eq.${uid}${ids.length ? `,id.in.(${ids.join(',')})` : ''})&order=address`);
+  const boxes = await db(`mailboxes?select=*&or=(user_id.eq.${uid}${ids.length ? `,id.in.(${ids.join(',')})` : ''})&order=address`);
   const box = b.mailbox_id ? boxes.find((x) => x.id === b.mailbox_id) : boxes[0];
   if (!box) return json({ error: 'Tu usuario no tiene una casilla asignada.' }, 403);
 
@@ -37,8 +39,24 @@ export async function POST(request) {
   if (to.length + cc.length > MAX_RCPT) return json({ error: `Máximo ${MAX_RCPT} destinatarios.` }, 400);
 
   const subject = String(b.subject || '').slice(0, 500);
-  const text = String(b.text || '');
-  const html = textToHtml(text);
+  // Order: message → signature → quoted original (reply/forward).
+  const body = String(b.text || '');
+  const qHeader = String(b.quoted_header || '').slice(0, 2000);
+  const qBody = String(b.quoted_body || '').slice(0, 300000);
+  const withSig = b.signature === true;
+  const sigExtra = box.signature_text || '';
+  const text = [
+    body,
+    withSig ? `\n${signatureText(sigExtra)}` : '',
+    qHeader || qBody ? `\n${qHeader}\n${qBody.split('\n').map((l) => `> ${l}`).join('\n')}` : '',
+  ].filter(Boolean).join('\n');
+  const html = wrapHtml([
+    linesToHtml(body),
+    withSig ? signatureHtml(sigExtra) : '',
+    qHeader || qBody
+      ? `<br><div style="color:#555">${linesToHtml(qHeader)}</div><blockquote style="margin:4px 0 0 .8ex;border-left:2px solid #ccc;padding-left:1ex;color:#555">${linesToHtml(qBody)}</blockquote>`
+      : '',
+  ].join(''));
 
   // Threading headers when replying.
   let original = null;
@@ -103,11 +121,11 @@ export async function POST(request) {
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Plain text → simple HTML: escaped, links clickable, quoted lines (">") greyed.
-function textToHtml(text) {
-  const lines = esc(text).split(/\r?\n/).map((l) => {
-    const linked = l.replace(/https?:\/\/[^\s<]+/g, (u) => `<a href="${u}">${u}</a>`);
-    return /^&gt;/.test(l) ? `<span style="color:#777">${linked}</span>` : linked;
-  });
-  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#222">${lines.join('<br>')}</div>`;
+// Plain text → HTML lines: escaped, links clickable.
+function linesToHtml(text) {
+  return esc(text).split(/\r?\n/)
+    .map((l) => l.replace(/https?:\/\/[^\s<]+/g, (u) => `<a href="${u}">${u}</a>`))
+    .join('<br>');
 }
+
+const wrapHtml = (inner) => `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#222">${inner}</div>`;
