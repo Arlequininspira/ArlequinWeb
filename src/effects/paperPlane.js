@@ -103,10 +103,11 @@ function grow(tri, px) {
   });
 }
 
-// Dorso de la carta (mismas imágenes que la grilla) + recorte de la carta dentro.
+// Dorso de la carta (mismas imágenes que la grilla). El recorte toma sólo los
+// rombos, sin el marco: al plegar, el marco quedaría como líneas sobre el avión.
 const DORSO = {
-  dark:  { src: '/Cartas/00000_arlequin_dorso_dark.avif',  iw: 684, ih: 950, bx: 7, by: 8, bw: 669, bh: 936 },
-  clear: { src: '/Cartas/00000_arlequin_dorso_clear.avif', iw: 684, ih: 950, bx: 8, by: 8, bw: 668, bh: 933 },
+  dark:  { src: '/Cartas/00000_arlequin_dorso_dark.avif',  iw: 684, ih: 950, bx: 23, by: 23, bw: 637, bh: 902 },
+  clear: { src: '/Cartas/00000_arlequin_dorso_clear.avif', iw: 684, ih: 950, bx: 23, by: 23, bw: 637, bh: 902 },
 };
 const dorsoReady = {};
 function loadDorso(theme) {
@@ -144,7 +145,6 @@ export async function runPaperPlane({ cardEl, targetEl, isDarkMode }) {
   const end = tr ? [tr.left + tr.width / 2, tr.top + tr.height / 2] : [50, 50];
 
   const paper = isDarkMode ? '#000000' : '#ffffff';
-  const line = isDarkMode ? 'rgba(255,255,255,0.9)' : '#000000';
   const dorso = await loadDorso(isDarkMode ? 'dark' : 'clear');
 
   const svg = el('svg', { class: 'paper-plane-layer', 'aria-hidden': 'true' });
@@ -200,42 +200,23 @@ export async function runPaperPlane({ cardEl, targetEl, isDarkMode }) {
     back.appendChild(wrap);
     return { piece, idx, clipPoly, tex, src: idx.map((j) => flat[piece][j]) };
   });
-  // Sombra + líneas de pliegue por pieza (encima de la textura).
-  const order = ['bodyL', 'bodyR', 'flapL', 'flapR'];
-  const polys = Object.fromEntries(order.map((n) => {
-    const p = el('polygon', { stroke: line, 'stroke-linejoin': 'round', fill: 'none' });
-    back.appendChild(p);
-    return [n, p];
-  }));
-  const keel = el('line', { stroke: line, 'stroke-linecap': 'round' });
-  back.appendChild(keel);
 
   document.body.appendChild(svg);
   cardEl.style.visibility = 'hidden';
 
-  const setShape = (shape, strokeW) => {
+  const setShape = (shape) => {
     for (const tri of tris) {
       const dst = tri.idx.map((j) => shape[tri.piece][j]);
       tri.clipPoly.setAttribute('points', pts(grow(dst, 0.9)));
       const m = affine(tri.src, dst);
       if (m) tri.tex.setAttribute('transform', `matrix(${m.map((v) => v.toFixed(4)).join(' ')})`);
     }
-    for (const n of order) {
-      polys[n].setAttribute('points', pts(shape[n]));
-      polys[n].setAttribute('stroke-width', strokeW.toFixed(2));
-    }
-    const nose = shape.bodyL[0];
-    const tail = shape.bodyL[3];
-    keel.setAttribute('x1', nose[0]); keel.setAttribute('y1', nose[1]);
-    keel.setAttribute('x2', tail[0]); keel.setAttribute('y2', tail[1]);
-    keel.setAttribute('stroke-width', strokeW.toFixed(2));
   };
   const place = ([x, y], deg, s, sx = 1) => g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${deg.toFixed(1)}) scale(${(s * sx).toFixed(3)} ${s.toFixed(3)})`);
 
   try {
     // 0) La carta se da vuelta: frente liso → dorso de rombos.
-    setShape(flat, 2);
-    keel.setAttribute('opacity', '0');
+    setShape(flat);
     back.style.display = 'none';
     await animate(FLIP_MS, (t) => {
       const a = easeInOut(t) * Math.PI;
@@ -248,8 +229,7 @@ export async function runPaperPlane({ cardEl, targetEl, isDarkMode }) {
 
     // 1) Plegado en el lugar, con un pequeño "tomar aire" hacia arriba.
     await animate(FOLD_MS, (t) => {
-      setShape(shapeAt(kfs, t), 2);
-      keel.setAttribute('opacity', clamp01((t - 0.4) * 3).toFixed(2));
+      setShape(shapeAt(kfs, t));
       place([start[0], start[1] - 18 * Math.sin(t * Math.PI)], 0, 1);
     });
 
