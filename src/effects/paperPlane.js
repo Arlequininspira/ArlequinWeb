@@ -103,11 +103,10 @@ function grow(tri, px) {
   });
 }
 
-// Dorso de la carta (mismas imágenes que la grilla). El recorte toma sólo los
-// rombos, sin el marco: al plegar, el marco quedaría como líneas sobre el avión.
+// Dorso de la carta (mismas imágenes que la grilla) + recorte de la carta dentro.
 const DORSO = {
-  dark:  { src: '/Cartas/00000_arlequin_dorso_dark.avif',  iw: 684, ih: 950, bx: 23, by: 23, bw: 637, bh: 902 },
-  clear: { src: '/Cartas/00000_arlequin_dorso_clear.avif', iw: 684, ih: 950, bx: 23, by: 23, bw: 637, bh: 902 },
+  dark:  { src: '/Cartas/00000_arlequin_dorso_dark.avif',  iw: 684, ih: 950, bx: 7, by: 8, bw: 669, bh: 936 },
+  clear: { src: '/Cartas/00000_arlequin_dorso_clear.avif', iw: 684, ih: 950, bx: 8, by: 8, bw: 668, bh: 933 },
 };
 const dorsoReady = {};
 function loadDorso(theme) {
