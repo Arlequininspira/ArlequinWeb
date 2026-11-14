@@ -9,7 +9,7 @@ import CardCollectAnimation from './CardCollectAnimation';
 import CardQueEsArlequin from './CardQueEsArlequin';
 import CardQuienesSomos from './CardQuienesSomos';
 import CardServicios from './CardServicios';
-import CardContacto from './CardContacto';
+import CardTrabajos from './CardTrabajos';
 import './ArlequinMaskSystem.css';
 
 // Animation stages
@@ -29,7 +29,7 @@ const CARD_COMPONENTS = {
   1: CardQueEsArlequin,
   2: CardQuienesSomos,
   3: CardServicios,
-  4: CardContacto
+  4: CardTrabajos
 };
 
 function ArlequinMaskSystem({

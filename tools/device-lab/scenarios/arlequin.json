@@ -34,9 +34,9 @@
     "botón tema pisa la carta"
    ],
    [
-    ".whatsapp-button",
+    ".contact-fab-main",
     ".card-canvas",
-    "WhatsApp pisa la carta"
+    "Botón contacto pisa la carta"
    ],
    [
     ".footer-banner",
@@ -55,9 +55,9 @@
     "escudo pisa la pregunta"
    ],
    [
-    ".whatsapp-button",
+    ".contact-fab-main",
     ".cards-grid",
-    "WhatsApp pisa la grilla"
+    "Botón contacto pisa la grilla"
    ],
    [
     ".theme-toggle",
@@ -65,14 +65,14 @@
     "botón tema pisa la grilla"
    ],
    [
-    ".whatsapp-button",
+    ".contact-fab-main",
     ".card-close-btn-img",
-    "WhatsApp pisa botón cerrar"
+    "Botón contacto pisa botón cerrar"
    ],
    [
-    ".whatsapp-button",
+    ".contact-fab-main",
     ".logo-canvas",
-    "WhatsApp pisa el logo"
+    "Botón contacto pisa el logo"
    ]
   ],
   "inside_viewport": [
@@ -184,7 +184,7 @@
    "wait": 1200
   },
   {
-   "shot": "6-contacto"
+   "shot": "6-trabajos"
   }
  ]
 }

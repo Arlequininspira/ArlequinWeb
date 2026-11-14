@@ -164,10 +164,10 @@ const page6Lines = [
 
 const page7Lines = [
   { text: '' },
-  { text: 'Completá el formulario de' },
-  { text: 'contacto y contanos qué' },
-  { text: 'servicio necesitás para' },
-  { text: 'tu proyecto.' },
+  { text: 'Tocá el botón de contacto' },
+  { text: '(abajo a la derecha) y' },
+  { text: 'contanos qué servicio' },
+  { text: 'necesitás para tu proyecto.' },
 ];
 
 const cardTexts = [page1Lines, page2Lines, page3Lines, page4Lines, page5Lines, page6Lines, page7Lines];

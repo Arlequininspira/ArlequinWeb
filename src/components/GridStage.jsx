@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import './GridStage.css';
 
-const CARD_LABELS = ['¿Qué es Arlequín?', '¿Quiénes somos?', 'Servicios', 'Contacto'];
+const CARD_LABELS = ['¿Qué es Arlequín?', '¿Quiénes somos?', 'Servicios', 'Nuestros trabajos'];
 
 // Module-level cache: true once dorso image has been loaded per theme.
 // Allows synchronous isLoaded=true on re-mount (no flash).
@@ -318,7 +318,7 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
                 {index === 0 && <><div>¿Qué es</div><div>Arlequín?</div></>}
                 {index === 1 && <><div>¿Quiénes</div><div>somos?</div></>}
                 {index === 2 && <div>Servicios</div>}
-                {index === 3 && <div>Contacto</div>}
+                {index === 3 && <><div>Nuestros</div><div>trabajos</div></>}
               </div>
             </div>
           </button>
