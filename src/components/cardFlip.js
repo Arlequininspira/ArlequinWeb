@@ -82,8 +82,9 @@ const EDGE_MAX = 35;
 // el mismo rebote proporcional.
 const PAGE_SPRING = { stiffness: 52, damping: 6.8 };
 
-// Tilt de la carta abierta, igual que en la grilla: mouse en escritorio,
-// giroscopio en mobile. Se suma al giro de página.
+// Tilt de la carta abierta, igual que en la grilla: mouse en escritorio;
+// en celular, dedo apoyado (hasta que arranca a arrastrar para pasar de
+// página) + giroscopio. Se suma al giro de página.
 const TILT_MAX = 8;        // grados, mouse
 const GYRO_MAX = 7;        // grados, giroscopio
 const GYRO_GAIN = 0.35;
@@ -189,7 +190,7 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
   // página, el objetivo es 0 para que el giro se vea limpio.
   const tiltTick = () => {
     const t = view.current;
-    const busy = st.current.cancel || st.current.drag;
+    const busy = st.current.cancel || st.current.drag?.moved;
     const gx = busy ? 0 : t.tx;
     const gy = busy ? 0 : t.ty;
     t.x += (gx - t.x) * 0.15;
@@ -264,6 +265,15 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
   }, [enabled, apply]);
   useEffect(() => () => st.current.cancel?.(), []);
 
+  const tiltToward = (e) => {
+    const el = elRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    setTilt(clampDeg(-py * 2 * TILT_MAX, TILT_MAX), clampDeg(px * 2 * TILT_MAX, TILT_MAX));
+  };
+
   const onPointerDown = (e) => {
     const s = st.current;
     if (!cfg.current.enabled || cfg.current.reduced || e.button > 0) return;
@@ -271,20 +281,18 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     if (e.pointerType === 'mouse') e.preventDefault(); // sin selección de texto
     s.cancel?.(); s.cancel = null;
     s.drag = { x: e.clientX, a0: s.a, moved: false, last: e.clientX, t: performance.now(), v: 0, id: e.pointerId };
+    if (e.pointerType !== 'mouse') tiltToward(e);
   };
   const onPointerMove = (e) => {
     const d = st.current.drag;
     if (!d && e.pointerType === 'mouse' && cfg.current.enabled && !cfg.current.reduced) {
-      const r = e.currentTarget.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      setTilt(clampDeg(-py * 2 * TILT_MAX, TILT_MAX), clampDeg(px * 2 * TILT_MAX, TILT_MAX));
+      tiltToward(e);
       return;
     }
     if (!d || e.pointerId !== d.id) return;
     const dx = e.clientX - d.x;
     if (!d.moved) {
-      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dx) < 6) { if (e.pointerType !== 'mouse') tiltToward(e); return; }
       d.moved = true;
       e.currentTarget.setPointerCapture?.(e.pointerId);
     }
@@ -300,6 +308,7 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     const d = s.drag;
     if (!d || e.pointerId !== d.id) return;
     s.drag = null;
+    if (e.pointerType !== 'mouse') setTilt(0, 0);
     if (!d.moved) { if (s.a !== 0) animate(0); return; }
     const projected = s.a + d.v * 0.2;
     const dir = Math.sign(projected);

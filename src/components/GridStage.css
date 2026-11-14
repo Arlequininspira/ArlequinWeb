@@ -75,6 +75,21 @@
   transform: perspective(700px) rotateX(var(--grx, 0deg)) rotateY(var(--gry, 0deg));
 }
 
+/* Tilt con el dedo (celular): mientras el dedo está apoyado, la carta sigue
+   al dedo igual que al mouse en escritorio. touch-action: none para que el
+   arrastre corto no se lo lleve el scroll (la grilla entra en pantalla). */
+@media (hover: none) {
+  .grid-card {
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+.cards-grid .grid-card.grid-card--pressed:not(.grid-card--locked) {
+  transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+  transition: transform 0.12s ease-out;
+  z-index: 2;
+}
+
 .grid-card .card-back {
   width: 100%;
   aspect-ratio: 3/4;

@@ -4,8 +4,8 @@ import './GridStage.css';
 const CARD_LABELS = ['¿Qué es Arlequín?', '¿Quiénes somos?', 'Servicios', 'Nuestros trabajos'];
 
 // Tilt de las cartas en reposo. Escritorio: sigue al mouse sobre la carta.
-// Mobile: sigue la inclinación del teléfono (giroscopio) — se nota al
-// sostenerlo en la mano. No se pide permiso: en iOS (que lo exige) simplemente
+// Celular: sigue al dedo apoyado sobre la carta y, además, la inclinación del
+// teléfono (giroscopio) — se nota al sostenerlo en la mano. No se pide permiso: en iOS (que lo exige) simplemente
 // no llegan eventos y las cartas quedan quietas, sin cartel en la portada.
 const TILT_MAX = 14;       // grados, mouse
 const GYRO_MAX = 10;       // grados, giroscopio
@@ -197,22 +197,50 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
   }, [isLoaded, isLowEnd, prefersReducedMotion]);
 
   // Mouse (escritorio): cada carta se inclina hacia donde está el puntero.
+  // Dedo (celular): mientras está apoyado, la carta se inclina hacia el dedo
+  // y lo sigue. Si el dedo se movió, al soltar no se abre la carta.
   const tiltOn = !prefersReducedMotion && !isLowEnd;
-  const onTiltMove = (e) => {
-    if (!tiltOn || e.pointerType !== 'mouse') return;
-    const el = e.currentTarget;
+  const pressRef = useRef(null);
+  const suppressClickRef = useRef(false);
+  const setTiltVars = (el, e) => {
     const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
+    const px = clamp((e.clientX - r.left) / r.width - 0.5, 0.5);
+    const py = clamp((e.clientY - r.top) / r.height - 0.5, 0.5);
     el.style.setProperty('--rx', `${(-py * 2 * TILT_MAX).toFixed(2)}deg`);
     el.style.setProperty('--ry', `${(px * 2 * TILT_MAX).toFixed(2)}deg`);
   };
-  const onTiltLeave = (e) => {
-    e.currentTarget.style.setProperty('--rx', '0deg');
-    e.currentTarget.style.setProperty('--ry', '0deg');
+  const resetTilt = (el) => {
+    el.style.setProperty('--rx', '0deg');
+    el.style.setProperty('--ry', '0deg');
+    el.classList.remove('grid-card--pressed');
+  };
+  const onTiltDown = (e) => {
+    if (!tiltOn || e.pointerType === 'mouse') return;
+    const el = e.currentTarget;
+    pressRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+    suppressClickRef.current = false;
+    el.classList.add('grid-card--pressed');
+    setTiltVars(el, e);
+  };
+  const onTiltMove = (e) => {
+    if (!tiltOn) return;
+    if (e.pointerType === 'mouse') { setTiltVars(e.currentTarget, e); return; }
+    const p = pressRef.current;
+    if (!p || p.id !== e.pointerId) return;
+    if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) p.moved = true;
+    setTiltVars(e.currentTarget, e);
+  };
+  const onTiltUp = (e) => {
+    const p = pressRef.current;
+    if (e.pointerType === 'mouse') { resetTilt(e.currentTarget); return; }
+    if (!p || p.id !== e.pointerId) return;
+    suppressClickRef.current = p.moved;
+    pressRef.current = null;
+    resetTilt(e.currentTarget);
   };
 
   const handleCardClick = (index) => {
+    if (suppressClickRef.current) { suppressClickRef.current = false; return; }
     if (clickPhase !== 'idle' || dealPhase !== 'idle') return;
     // ArlequinMaskSystem now runs CardCollectAnimation when a card is clicked,
     // so GridStage no longer needs its own stack+expand timeline (that was
@@ -357,8 +385,11 @@ function GridStage({ onCardClick, onCardPreClick, onExpandStart, onDealComplete,
             className={`grid-card${(clickPhase !== 'idle' || dealPhase !== 'idle') ? ' grid-card--locked' : ''}`}
             style={getCardStyle(index)}
             onClick={() => handleCardClick(index)}
+            onPointerDown={onTiltDown}
             onPointerMove={onTiltMove}
-            onPointerLeave={onTiltLeave}
+            onPointerUp={onTiltUp}
+            onPointerCancel={onTiltUp}
+            onPointerLeave={onTiltUp}
             onMouseEnter={() => {
               if (clickPhase === 'idle' && dealPhase === 'idle' && onCardPreClick) onCardPreClick(index + 1);
             }}
