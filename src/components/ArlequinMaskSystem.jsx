@@ -296,6 +296,8 @@ function ArlequinMaskSystem({
               onDealComplete={handleDealComplete}
               isDarkMode={isDarkMode}
               dealKey={dealKey}
+              isLowEnd={isLowEnd}
+              prefersReducedMotion={prefersReducedMotion}
             />
           )}
           {stage === STAGES.COLLECTING && (

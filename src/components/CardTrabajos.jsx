@@ -134,7 +134,7 @@ function CardTrabajos({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
   const containerRef = useRef(null);
   const page = usePageTurn({
     elRef: containerRef, index: currentCardIndex, count: cardTexts.length, setIndex: setCurrentCardIndex,
-    enabled: showNavIcons && !isHidingUI, reduced: prefersReducedMotion,
+    enabled: showNavIcons && !isHidingUI, reduced: prefersReducedMotion, isDarkMode,
   });
 
   const handleClose = () => {

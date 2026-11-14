@@ -61,10 +61,18 @@
   .grid-card {
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
   }
+  /* Tilt: --rx/--ry los pone GridStage según dónde está el mouse. */
   .grid-card:hover {
-    transform: scale(1.05);
+    transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+    transition: transform 0.12s ease-out, opacity 0.5s ease-out;
     z-index: 2;
   }
+}
+
+/* Tilt por giroscopio (mobile, ver GridStage): sólo con las cartas quietas;
+   durante el reparto/selección manda el transform inline. */
+.cards-grid--gyro .grid-card:not(.grid-card--locked) {
+  transform: perspective(700px) rotateX(var(--grx, 0deg)) rotateY(var(--gry, 0deg));
 }
 
 .grid-card .card-back {

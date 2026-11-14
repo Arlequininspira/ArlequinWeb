@@ -310,3 +310,24 @@
     animation: none !important;
   }
 }
+
+/* ── Giro de página: tramo del dorso ─────────────────────────────
+   La capa la crea usePageTurn (cardFlip.js). Mientras se ve el dorso
+   se ocultan el canvas, el texto y los botones de la carta. */
+.page-turn-dorso {
+  position: absolute;
+  overflow: hidden;
+  display: none;
+  pointer-events: none;
+  z-index: 20;
+}
+.page-turn-dorso img {
+  position: absolute;
+  max-width: none;
+}
+.page-turn--back > .page-turn-dorso {
+  display: block;
+}
+.page-turn--back > :not(.page-turn-dorso) {
+  visibility: hidden;
+}
