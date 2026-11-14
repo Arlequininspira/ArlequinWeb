@@ -109,8 +109,8 @@ function ContactFormCard({ isDarkMode, prefersReducedMotion, onClose, onSent }) 
   };
 
   const field = (name, props) => (
-    <label className={`cf-field${touched[name] && errores[name] ? ' cf-field--error' : ''}`}>
-      <span className="cf-label">{props.label}</span>
+    <label className={`cform-field${touched[name] && errores[name] ? ' cform-field--error' : ''}`}>
+      <span className="cform-label">{props.label}</span>
       {props.textarea ? (
         <textarea
           rows={3}
@@ -134,34 +134,34 @@ function ContactFormCard({ isDarkMode, prefersReducedMotion, onClose, onSent }) 
           disabled={busy}
         />
       )}
-      <span className="cf-error" aria-live="polite">{touched[name] && errores[name] ? errores[name] : ''}</span>
+      <span className="cform-error" aria-live="polite">{touched[name] && errores[name] ? errores[name] : ''}</span>
     </label>
   );
 
   return createPortal(
-    <div className={`cf-root${isDarkMode ? ' cf-dark' : ' cf-clear'}${closing ? ' cf-closing' : ''}${estado === 'volando' ? ' cf-flying' : ''}`}>
-      <div className="cf-backdrop" onClick={close} />
+    <div className={`cform-root${isDarkMode ? ' cform-dark' : ' cform-clear'}${closing ? ' cform-closing' : ''}${estado === 'volando' ? ' cform-flying' : ''}`}>
+      <div className="cform-backdrop" onClick={close} />
       <form
         ref={cardRef}
-        className={`cf-card${estado === 'volando' ? ' cf-card--folding' : ''}`}
+        className={`cform-card${estado === 'volando' ? ' cform-card--folding' : ''}`}
         onSubmit={enviar}
         noValidate
         role="dialog"
         aria-label="Formulario de contacto"
       >
-        <button type="button" className="cf-close" onClick={close} aria-label="Cerrar" disabled={busy}>
+        <button type="button" className="cform-close" onClick={close} aria-label="Cerrar" disabled={busy}>
           <img src={`/Cartas/arlequin_elemento_web_X_${isDarkMode ? 'dark' : 'clare'}.avif`} alt="" />
         </button>
-        <div className="cf-content">
-          <h2 className="cf-title">Contacto</h2>
-          <p className="cf-sub"><span className="cf-diamond">♦</span>Contanos tu proyecto</p>
+        <div className="cform-content">
+          <h2 className="cform-title">Contacto</h2>
+          <p className="cform-sub"><span className="cform-diamond">♦</span>Contanos tu proyecto</p>
           {field('nombre', { label: 'Nombre', value: nombre, set: setNombre, autoComplete: 'name', inputRef: firstRef })}
           {field('mail', { label: 'Mail', value: mail, set: setMail, type: 'email', inputMode: 'email', autoComplete: 'email', placeholder: '@' })}
           {field('telefono', { label: 'Teléfono', value: telefono, set: setTelefono, type: 'tel', inputMode: 'tel', autoComplete: 'tel' })}
           {field('descripcion', { label: 'Servicio de interés', value: descripcion, set: setDescripcion, textarea: true })}
-          <div className="cf-actions">
-            {estado === 'error' && <span className="cf-send-error">No se pudo enviar. Probá de nuevo.</span>}
-            <button type="submit" className="cf-send" disabled={busy}>
+          <div className="cform-actions">
+            {estado === 'error' && <span className="cform-send-error">No se pudo enviar. Probá de nuevo.</span>}
+            <button type="submit" className="cform-send" disabled={busy}>
               {estado === 'enviando' ? 'Enviando…' : <>Enviar <span aria-hidden="true">✈</span></>}
             </button>
           </div>
@@ -256,7 +256,7 @@ function ContactButton({ isDarkMode, isLowEnd = false, prefersReducedMotion = fa
       )}
 
       {toast && createPortal(
-        <div className={`cf-toast${isDarkMode ? ' cf-dark' : ' cf-clear'}`} role="status" onClick={() => setToast(false)}>
+        <div className={`cform-toast${isDarkMode ? ' cform-dark' : ' cform-clear'}`} role="status" onClick={() => setToast(false)}>
           <span>Gracias por tu Msj ⭐</span>
           <span>Nos comunicaremos a la Brevedad 🎭</span>
         </div>,

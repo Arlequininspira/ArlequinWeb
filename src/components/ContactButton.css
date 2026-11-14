@@ -161,7 +161,7 @@
    Réplica en CSS de la carta "frente fija": fondo negro/blanco, borde
    amarillo redondeado. Desktop: carta chica abajo a la derecha, al lado del
    botón. Mobile: carta grande centrada con fondo oscurecido. */
-.cf-root {
+.cform-root {
   --gold: #FFD622;
   position: fixed;
   inset: 0;
@@ -169,17 +169,17 @@
   pointer-events: none;
 }
 
-.cf-dark  { --paper: #000; --ink: #fff; --muted: rgba(255, 255, 255, 0.55); --line: rgba(255, 255, 255, 0.35); --label: var(--gold); }
-.cf-clear { --paper: #fff; --ink: #111; --muted: rgba(0, 0, 0, 0.5);       --line: rgba(0, 0, 0, 0.3);       --label: #9a7400; }
+.cform-dark  { --paper: #000; --ink: #fff; --muted: rgba(255, 255, 255, 0.55); --line: rgba(255, 255, 255, 0.35); --label: var(--gold); }
+.cform-clear { --paper: #fff; --ink: #111; --muted: rgba(0, 0, 0, 0.5);       --line: rgba(0, 0, 0, 0.3);       --label: #9a7400; }
 
-.cf-backdrop {
+.cform-backdrop {
   position: absolute;
   inset: 0;
   pointer-events: auto;
   background: transparent;
 }
 
-.cf-card {
+.cform-card {
   --w: min(300px, calc((100dvh - 150px) * 0.72));
   position: absolute;
   right: 96px;
@@ -194,25 +194,25 @@
   pointer-events: auto;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.2);
   transform-origin: 100% 100%;
-  animation: cf-deal 0.42s cubic-bezier(.25, 1.3, .5, 1) both;
+  animation: cform-deal 0.42s cubic-bezier(.25, 1.3, .5, 1) both;
   container-type: inline-size;
 }
 
-@keyframes cf-deal {
+@keyframes cform-deal {
   from { opacity: 0; transform: translate(60px, 30px) rotate(10deg) scale(0.35); }
   to   { opacity: 1; transform: none; }
 }
 
-.cf-flying .cf-backdrop { animation: cf-fade-out 0.4s ease both !important; }
-@keyframes cf-fade-out { from { opacity: 1; } to { opacity: 0; } }
+.cform-flying .cform-backdrop { animation: cform-fade-out 0.4s ease both !important; }
+@keyframes cform-fade-out { from { opacity: 1; } to { opacity: 0; } }
 
-.cf-closing .cf-card { animation: cf-undeal 0.26s ease-in both; }
+.cform-closing .cform-card { animation: cform-undeal 0.26s ease-in both; }
 
-@keyframes cf-undeal {
+@keyframes cform-undeal {
   to { opacity: 0; transform: translate(60px, 30px) rotate(10deg) scale(0.35); }
 }
 
-.cf-close {
+.cform-close {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -226,10 +226,10 @@
   transition: transform 0.2s ease;
 }
 
-.cf-close:hover { transform: scale(1.12) rotate(90deg); }
-.cf-close img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.cform-close:hover { transform: scale(1.12) rotate(90deg); }
+.cform-close img { width: 100%; height: 100%; display: block; object-fit: contain; }
 
-.cf-content {
+.cform-content {
   height: 100%;
   box-sizing: border-box;
   padding: 7cqw 8cqw 6cqw;
@@ -239,10 +239,10 @@
 }
 
 /* Antes de plegarse, la carta se "vacía" */
-.cf-card--folding .cf-content { opacity: 0; filter: blur(3px); }
-.cf-card--folding .cf-close { opacity: 0; }
+.cform-card--folding .cform-content { opacity: 0; filter: blur(3px); }
+.cform-card--folding .cform-close { opacity: 0; }
 
-.cf-title {
+.cform-title {
   margin: 0;
   font-family: 'CinzelDecorative-Bold', serif;
   font-size: 7.6cqw;
@@ -252,7 +252,7 @@
   color: var(--ink);
 }
 
-.cf-sub {
+.cform-sub {
   margin: 1cqw 0 3cqw;
   text-align: center;
   font-family: 'NewRocker-Regular', serif;
@@ -260,15 +260,15 @@
   color: var(--muted);
 }
 
-.cf-diamond { color: rgba(220, 50, 50, 0.75); margin-right: 1.5cqw; }
+.cform-diamond { color: rgba(220, 50, 50, 0.75); margin-right: 1.5cqw; }
 
-.cf-field {
+.cform-field {
   display: flex;
   flex-direction: column;
   margin-bottom: 1cqw;
 }
 
-.cf-label {
+.cform-label {
   font-family: 'CinzelDecorative-Bold', serif;
   font-size: 3.7cqw;
   letter-spacing: 0.4cqw;
@@ -276,8 +276,8 @@
   color: var(--label);
 }
 
-.cf-field input,
-.cf-field textarea {
+.cform-field input,
+.cform-field textarea {
   font-family: 'NewRocker-Regular', serif;
   font-size: max(16px, 5.6cqw); /* ≥16px: iOS no hace zoom al enfocar */
   color: var(--ink);
@@ -292,23 +292,23 @@
   transition: border-color 0.2s ease;
 }
 
-.cf-field textarea { resize: none; line-height: 1.25; }
-.cf-field input::placeholder,
-.cf-field textarea::placeholder { color: var(--muted); }
-.cf-field input:focus,
-.cf-field textarea:focus { border-bottom-color: var(--gold); }
+.cform-field textarea { resize: none; line-height: 1.25; }
+.cform-field input::placeholder,
+.cform-field textarea::placeholder { color: var(--muted); }
+.cform-field input:focus,
+.cform-field textarea:focus { border-bottom-color: var(--gold); }
 
-.cf-error {
+.cform-error {
   min-height: 1.2em;
   font-family: 'NewRocker-Regular', serif;
   font-size: 3.6cqw;
   color: #e0463f;
 }
 
-.cf-field--error input,
-.cf-field--error textarea { border-bottom-color: #e0463f; }
+.cform-field--error input,
+.cform-field--error textarea { border-bottom-color: #e0463f; }
 
-.cf-actions {
+.cform-actions {
   margin-top: auto;
   display: flex;
   flex-direction: column;
@@ -316,7 +316,7 @@
   gap: 1.5cqw;
 }
 
-.cf-send {
+.cform-send {
   font-family: 'CinzelDecorative-Bold', serif;
   font-size: 5cqw;
   letter-spacing: 0.5cqw;
@@ -329,8 +329,8 @@
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.cf-send:hover:not(:disabled),
-.cf-send:focus-visible {
+.cform-send:hover:not(:disabled),
+.cform-send:focus-visible {
   background: var(--gold);
   color: #000;
   box-shadow: 0 0 18px rgba(255, 214, 34, 0.45);
@@ -338,9 +338,9 @@
   outline: none;
 }
 
-.cf-send:disabled { opacity: 0.6; cursor: default; }
+.cform-send:disabled { opacity: 0.6; cursor: default; }
 
-.cf-send-error {
+.cform-send-error {
   font-family: 'NewRocker-Regular', serif;
   font-size: 3.8cqw;
   color: #e0463f;
@@ -348,12 +348,12 @@
 
 /* Mobile: carta grande centrada */
 @media (max-width: 600px) {
-  .cf-backdrop {
+  .cform-backdrop {
     background: rgba(0, 0, 0, 0.55);
-    animation: cf-fade 0.3s ease both;
+    animation: cform-fade 0.3s ease both;
   }
-  .cf-closing .cf-backdrop { animation: cf-fade 0.26s ease reverse both; }
-  .cf-card {
+  .cform-closing .cform-backdrop { animation: cform-fade 0.26s ease reverse both; }
+  .cform-card {
     --w: min(92vw, calc(84dvh * 0.72));
     right: auto;
     bottom: auto;
@@ -362,13 +362,13 @@
     translate: -50% -50%;
     transform-origin: 50% 100%;
   }
-  .cf-close { width: 40px; height: 40px; }
+  .cform-close { width: 40px; height: 40px; }
 }
 
-@keyframes cf-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cform-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── Mensaje de enviado ─────────────────────────────────────────────────── */
-.cf-toast {
+.cform-toast {
   --gold: #FFD622;
   position: fixed;
   left: 50%;
@@ -389,19 +389,19 @@
   text-align: center;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  animation: cf-toast-in 0.5s cubic-bezier(.25, 1.4, .5, 1) both, cf-toast-out 0.4s ease-in 4.6s both;
+  animation: cform-toast-in 0.5s cubic-bezier(.25, 1.4, .5, 1) both, cform-toast-out 0.4s ease-in 4.6s both;
 }
 
-@keyframes cf-toast-in  { from { opacity: 0; transform: translateY(30px) scale(0.8); } }
-@keyframes cf-toast-out { to   { opacity: 0; transform: translateY(20px); } }
+@keyframes cform-toast-in  { from { opacity: 0; transform: translateY(30px) scale(0.8); } }
+@keyframes cform-toast-out { to   { opacity: 0; transform: translateY(20px); } }
 
 @media (max-width: 500px) {
-  .cf-toast { width: calc(100vw - 48px); box-sizing: border-box; font-size: 15px; bottom: 110px; }
+  .cform-toast { width: calc(100vw - 48px); box-sizing: border-box; font-size: 15px; bottom: 110px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .contact-fab-main,
   .contact-fab-item,
-  .cf-card,
-  .cf-toast { animation: none !important; transition: none !important; }
+  .cform-card,
+  .cform-toast { animation: none !important; transition: none !important; }
 }
