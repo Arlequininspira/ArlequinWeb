@@ -56,6 +56,8 @@ para instalaciones desde cero.
 - `005_charge_paid_by.sql` — quién cobró cada ingreso (al usar Cobrar).
 - `006_mail.sql` — correo @arlequin.com.ar en `/mails` (ver abajo).
 - `007_mail_shared.sql` — logins extra por casilla (`mailbox_members`); cada uno ve sólo lo suyo.
+- `009_mail_aliases.sql` — alias sin bandeja propia (`mail_aliases`): `comercial@` se reparte a las
+  casillas de Ariel y Lucas y se reenvía a sus Gmail (cada reenvío cuenta para el límite de Resend).
 
 ## Correo `/mails`
 Webmail propio: cada usuario de Supabase con una casilla asignada entra en

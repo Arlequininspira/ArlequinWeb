@@ -34,9 +34,22 @@ async function store(emailId) {
   // received_for covers BCC deliveries, which don't appear in to/cc.
   const rcpts = addressList([...(mail.to || []), ...(mail.cc || []), ...(mail.received_for || [])]);
   if (!rcpts.length) return { ok: true, stored: 0 };
-  const list = rcpts.map((a) => `"${a.replace(/"/g, '')}"`).join(',');
-  const boxes = await db(`mailboxes?select=id,address&address=in.(${encodeURIComponent(list)})`);
-  if (!boxes.length) return { ok: true, stored: 0, reason: 'sin casilla' };
+  // Aliases (migración 009): comercial@ → casillas internas + reenvío externo.
+  const aliases = await db(`mail_aliases?select=address,target&address=in.(${inList(rcpts)})`).catch((e) => {
+    console.warn('[mail/inbound] mail_aliases:', e.message); // tabla aún no creada → sin alias
+    return [];
+  });
+  const wanted = [...new Set([...rcpts, ...aliases.map((a) => a.target)])];
+  const boxes = await db(`mailboxes?select=id,address&address=in.(${inList(wanted)})`);
+  const boxAddrs = new Set(boxes.map((b) => b.address));
+
+  // External targets: not a casilla, not already a recipient, not our own domain (loops).
+  const forwards = new Map(); // target → alias it came through
+  for (const { address, target } of aliases) {
+    const ownDomain = target.split('@')[1] === address.split('@')[1];
+    if (!boxAddrs.has(target) && !rcpts.includes(target) && !ownDomain && !forwards.has(target)) forwards.set(target, address);
+  }
+  if (!boxes.length && !forwards.size) return { ok: true, stored: 0, reason: 'sin casilla' };
 
   const from = parseAddress(mail.headers?.from || mail.from);
   const h = lowerKeys(mail.headers);
@@ -90,7 +103,43 @@ async function store(emailId) {
     }
     if (atts.length) await db('mail_attachments', { method: 'POST', body: atts, prefer: 'return=minimal' });
   }
-  return { ok: true, stored };
+  const forwarded = await forward(mail, from, forwards, files);
+  return { ok: true, stored, forwarded };
 }
+
+// Re-sends the mail to external targets from the alias (our domain, so SPF/DKIM
+// pass), with Reply-To = original sender. Idempotency key → webhook retries
+// don't duplicate copies. Throws on failure so Resend retries the webhook
+// (storing above is idempotent too).
+async function forward(mail, from, forwards, files) {
+  const byAlias = new Map();
+  for (const [target, alias] of forwards) byAlias.set(alias, [...(byAlias.get(alias) || []), target]);
+
+  let sent = 0;
+  for (const [alias, to] of byAlias) {
+    if (from.address === alias) continue; // never bounce our own forward back
+    const who = (from.name || from.address).replace(/[<>"]/g, '');
+    const replyTo = addressList(mail.reply_to);
+    const note = `Recibido en ${alias} · De: ${from.name ? `${from.name} <${from.address}>` : from.address}`;
+    await resend('/emails', {
+      method: 'POST',
+      idempotencyKey: `fwd-${mail.id}-${alias}`.slice(0, 256),
+      body: {
+        from: `${who} vía Arlequín <${alias}>`,
+        to,
+        reply_to: replyTo.length ? replyTo : [from.address],
+        subject: mail.subject || '(sin asunto)',
+        text: `${note}\n\n${mail.text || ''}`,
+        html: `<div style="font:12px Arial,sans-serif;color:#666;border-bottom:1px solid #ddd;padding:0 0 6px;margin:0 0 12px">${esc(note)}</div>${mail.html || `<pre style="white-space:pre-wrap;font:14px Arial,sans-serif">${esc(mail.text || '')}</pre>`}`,
+        ...(files.length ? { attachments: files.map((f) => ({ filename: safeName(f.filename), path: f.download_url })) } : {}),
+      },
+    });
+    sent += to.length;
+  }
+  return sent;
+}
+
+const inList = (addrs) => encodeURIComponent(addrs.map((a) => `"${a.replace(/"/g, '')}"`).join(','));
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const lowerKeys = (o) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [k.toLowerCase(), Array.isArray(v) ? v.join(' ') : v]));
