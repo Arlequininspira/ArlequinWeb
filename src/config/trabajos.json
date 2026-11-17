@@ -1,16 +1,16 @@
 [
   {
-    "nombre": "Gelatina",
-    "tipo": "Renovación visual",
-    "descripcion": ["Propuesta de rediseño", "para gelatina.com.ar:", "más movimiento, más marca."],
-    "url": "/demo/gelatina/",
-    "etiqueta": "Ver trabajo"
+    "nombre": "GO Propiedades",
+    "tipo": "Sitio web",
+    "descripcion": ["Sitio de la inmobiliaria", "gopropiedades.com.ar"],
+    "url": "https://www.gopropiedades.com.ar",
+    "etiqueta": "Ver sitio"
   },
   {
-    "nombre": "Carajo Stream",
-    "tipo": "Renovación + suscripciones",
-    "descripcion": ["Propuesta visual y de", "suscripciones para", "carajostream.tv."],
-    "url": "/demo/carajo/",
-    "etiqueta": "Ver trabajo"
+    "nombre": "Parkour Integral",
+    "tipo": "Sitio web",
+    "descripcion": ["Sitio de la escuela", "parkourintegral.com"],
+    "url": "https://parkourintegral.com/",
+    "etiqueta": "Ver sitio"
   }
 ]
