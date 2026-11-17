@@ -155,7 +155,7 @@ function CardQuienesSomos({ isDarkMode, onClose, onCloseStart, fromGrid = false,
   const containerRef = useRef(null);
   const page = usePageTurn({
     elRef: containerRef, index: currentPageIndex, count: PAGES.length, setIndex: setCurrentPageIndex,
-    enabled: showContent && !isHidingUI, reduced: prefersReducedMotion,
+    enabled: showContent && !isHidingUI, reduced: prefersReducedMotion, isDarkMode,
   });
 
 

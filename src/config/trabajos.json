@@ -1,0 +1,16 @@
+[
+  {
+    "nombre": "GO Propiedades",
+    "tipo": "Sitio web",
+    "descripcion": ["Sitio de la inmobiliaria", "gopropiedades.com.ar"],
+    "url": "https://www.gopropiedades.com.ar",
+    "etiqueta": "Ver sitio"
+  },
+  {
+    "nombre": "Parkour Integral",
+    "tipo": "Sitio web",
+    "descripcion": ["Sitio de la escuela", "parkourintegral.com"],
+    "url": "https://parkourintegral.com/",
+    "etiqueta": "Ver sitio"
+  }
+]

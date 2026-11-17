@@ -61,10 +61,33 @@
   .grid-card {
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
   }
+  /* Tilt: --rx/--ry los pone GridStage según dónde está el mouse. */
   .grid-card:hover {
-    transform: scale(1.05);
+    transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+    transition: transform 0.12s ease-out, opacity 0.5s ease-out;
     z-index: 2;
   }
+}
+
+/* Tilt por giroscopio (mobile, ver GridStage): sólo con las cartas quietas;
+   durante el reparto/selección manda el transform inline. */
+.cards-grid--gyro .grid-card:not(.grid-card--locked) {
+  transform: perspective(700px) rotateX(var(--grx, 0deg)) rotateY(var(--gry, 0deg));
+}
+
+/* Tilt con el dedo (celular): mientras el dedo está apoyado, la carta sigue
+   al dedo igual que al mouse en escritorio. touch-action: none para que el
+   arrastre corto no se lo lleve el scroll (la grilla entra en pantalla). */
+@media (hover: none) {
+  .grid-card {
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+.cards-grid .grid-card.grid-card--pressed:not(.grid-card--locked) {
+  transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+  transition: transform 0.12s ease-out;
+  z-index: 2;
 }
 
 .grid-card .card-back {
@@ -123,26 +146,29 @@
   line-height: calc(1.1em + 1px);
 }
 
-/* Modo dark: texto negro, borde blanco fino uniforme + sombra abajo.
+/* Modo dark: texto negro, borde blanco grueso + sombra abajo.
    Usamos text-shadow en los hijos en lugar de filter: drop-shadow() en el
    contenedor — filter crea un stacking context que mobile Safari repinta
    cuando cambian propiedades del padre, causando el flash visible al
    terminar el deal. text-shadow se renderiza inline con el texto. */
 .grid-stage.dark .card-text-overlay {
   color: #000000;
-  -webkit-text-stroke: 1.5px #ffffff;
+  /* Borde grueso tipo sticker (diseño original): con paint-order el trazo
+     va debajo del relleno, así que se ve la mitad (~0,13em por lado) y los
+     contornos de letras vecinas se unen. En em para que escale con la fuente. */
+  -webkit-text-stroke: 0.26em #ffffff;
 }
 .grid-stage.dark .card-text-overlay div {
-  text-shadow: 0 2px 0 #ffffff;
+  text-shadow: 0 0.16em 0 #ffffff, 0 0.24em 0.08em rgba(0, 0, 0, 0.55);
 }
 
-/* Modo clear: texto blanco, borde negro fino uniforme + sombra abajo */
+/* Modo clear: texto blanco, borde negro grueso + sombra abajo */
 .grid-stage:not(.dark) .card-text-overlay {
   color: #ffffff;
-  -webkit-text-stroke: 1.5px #000000;
+  -webkit-text-stroke: 0.26em #000000;
 }
 .grid-stage:not(.dark) .card-text-overlay div {
-  text-shadow: 0 2px 0 #000000;
+  text-shadow: 0 0.16em 0 #000000, 0 0.24em 0.08em rgba(0, 0, 0, 0.35);
 }
 
 .grid-card .card-label {

@@ -67,20 +67,85 @@ export function playFlip({ from, to, draw, onDone }) {
 
 // ── Pasar de página girando la carta ─────────────────────────────────────────
 // Gira el contenedor entero de la carta (fondo + título + texto + botones) con
-// el mismo resorte. A los 90° (de canto) cambia la página y sigue girando, así
-// se ve "frente → frente". También se puede arrastrar o revolear de costado:
+// un resorte propio, algo más lento que el de abrir. La vuelta es completa: frente → dorso → frente nuevo, así
+// en la mitad del giro se ve el dorso de rombos y no se pierde que es una carta.
+// El resorte corre de 0 a ±180; warp() lo
+// estira a 0..±360 acelerando el centro del giro, no las puntas.
+// También se puede arrastrar o revolear de costado:
 //   hacia la izquierda = siguiente, hacia la derecha = anterior.
 // Devuelve { turn(dir), bind } — bind va como props del contenedor.
 const PAGE_PERSPECTIVE = 1600;     // px, en el espacio sin escalar de la carta
 const DRAG_DEG_PER_PX = 0.55;
 const EDGE_RESIST = 0.3;           // sin página para ir: tironea y vuelve
 const EDGE_MAX = 35;
+// Más blando que FLIP_SPRING (90/9): el giro de página tarda ~1,3× más, con
+// el mismo rebote proporcional.
+const PAGE_SPRING = { stiffness: 52, damping: 6.8 };
 
-export function usePageTurn({ elRef, index, count, setIndex, enabled = true, reduced = false }) {
+// Tilt de la carta abierta, igual que en la grilla: mouse en escritorio;
+// en celular, dedo apoyado (hasta que arranca a arrastrar para pasar de
+// página) + giroscopio. Se suma al giro de página.
+const TILT_MAX = 8;        // grados, mouse
+const GYRO_MAX = 7;        // grados, giroscopio
+const GYRO_GAIN = 0.35;
+const clampDeg = (v, m) => Math.max(-m, Math.min(m, v));
+
+// Progreso del resorte (0..±180) → ángulo visible (0..±360). Pendiente 1 en
+// las puntas (el rebote final se ve igual que antes) y 2,5 en el medio.
+const warp = (a) => {
+  const t = Math.min(Math.abs(a), 180) / 180;
+  return a + Math.sign(a) * 180 * t * t * (3 - 2 * t);
+};
+
+// Capa con el dorso (misma imagen que la grilla) sobre el rectángulo de la
+// carta dentro del canvas. Se crea a mano para no tocar cada componente.
+// Cuadro del dorso: 684×950 con la carta en 8,9 668×932; en el canvas la
+// carta ocupa 166,234 668×932 de un lienzo 1000×1400.
+function ensureDorso(el, theme) {
+  let layer = el.querySelector(':scope > .page-turn-dorso');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.className = 'page-turn-dorso';
+    layer.setAttribute('aria-hidden', 'true');
+    const img = document.createElement('img');
+    img.alt = '';
+    img.decoding = 'async';
+    layer.appendChild(img);
+    el.appendChild(layer);
+  }
+  const img = layer.firstChild;
+  const src = `/Cartas/00000_arlequin_dorso_${theme}.avif`;
+  if (img.getAttribute('src') !== src) img.setAttribute('src', src);
+  const canvas = el.querySelector('canvas');
+  if (canvas) {
+    const cw = canvas.offsetWidth;
+    const ch = canvas.offsetHeight;
+    const w = (668 / 1000) * cw;
+    const h = (932 / 1400) * ch;
+    Object.assign(layer.style, {
+      left: `${canvas.offsetLeft + (166 / 1000) * cw}px`,
+      top: `${canvas.offsetTop + (234 / 1400) * ch}px`,
+      width: `${w}px`,
+      height: `${h}px`,
+    });
+    Object.assign(img.style, {
+      width: `${(684 / 668) * w}px`,
+      height: `${(950 / 932) * h}px`,
+      left: `${(-8 / 668) * w}px`,
+      top: `${(-9 / 932) * h}px`,
+    });
+  }
+  return layer;
+}
+
+export function usePageTurn({ elRef, index, count, setIndex, enabled = true, reduced = false, isDarkMode = true }) {
   const st = useRef({ a: 0, base: index, cancel: null, drag: null });
   const shownRef = useRef(index);
-  const cfg = useRef({ count, setIndex, enabled, reduced });
-  cfg.current = { count, setIndex, enabled, reduced };
+  const backRef = useRef(false);
+  // phi = ángulo del giro de página; tilt = inclinación actual/objetivo.
+  const view = useRef({ phi: 0, x: 0, y: 0, tx: 0, ty: 0, raf: 0 });
+  const cfg = useRef({ count, setIndex, enabled, reduced, isDarkMode });
+  cfg.current = { count, setIndex, enabled, reduced, isDarkMode };
 
   // Si la página cambia por fuera (p. ej. reset), seguirla cuando está quieta.
   useEffect(() => {
@@ -92,19 +157,77 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     const s = st.current;
     s.a = a;
     const dir = Math.sign(a);
-    const crossed = Math.abs(a) > 90;
+    const v = warp(a);
+    const av = Math.abs(v);
+    // 0..90 página actual · 90..270 dorso · 270..360 página nueva
+    const back = av > 90 && av < 270;
+    const crossed = av >= 270;
     const shown = s.base + (crossed ? dir : 0);
     if (shown !== shownRef.current) { shownRef.current = shown; cfg.current.setIndex(shown); }
-    const phi = crossed ? a - dir * 180 : a;
+    const phi = crossed ? v - dir * 360 : back ? v - dir * 180 : v;
+    view.current.phi = phi;
     const el = elRef.current;
-    if (el) el.style.transform = Math.abs(phi) > 0.01 ? `perspective(${PAGE_PERSPECTIVE}px) rotateY(${phi}deg)` : '';
-  }, [elRef]);
+    if (!el) return;
+    if (back !== backRef.current) {
+      backRef.current = back;
+      if (back) ensureDorso(el, cfg.current.isDarkMode ? 'dark' : 'clear');
+      el.classList.toggle('page-turn--back', back);
+    }
+    paint();
+  }, [elRef]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Arma el transform con el giro de página + el tilt.
+  const paint = () => {
+    const el = elRef.current;
+    if (!el) return;
+    const { phi, x, y } = view.current;
+    const ry = phi + y;
+    el.style.transform = Math.abs(ry) > 0.01 || Math.abs(x) > 0.01
+      ? `perspective(${PAGE_PERSPECTIVE}px) rotateX(${x.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`
+      : '';
+  };
+  // El tilt va suavizado hacia el objetivo; mientras gira o se arrastra la
+  // página, el objetivo es 0 para que el giro se vea limpio.
+  const tiltTick = () => {
+    const t = view.current;
+    const busy = st.current.cancel || st.current.drag?.moved;
+    const gx = busy ? 0 : t.tx;
+    const gy = busy ? 0 : t.ty;
+    t.x += (gx - t.x) * 0.15;
+    t.y += (gy - t.y) * 0.15;
+    if (Math.abs(gx - t.x) + Math.abs(gy - t.y) < 0.02) { t.x = gx; t.y = gy; t.raf = 0; }
+    else t.raf = requestAnimationFrame(tiltTick);
+    paint();
+  };
+  const setTilt = (x, y) => {
+    const t = view.current;
+    t.tx = x; t.ty = y;
+    if (!t.raf) t.raf = requestAnimationFrame(tiltTick);
+  };
+
+  // Giroscopio (mobile), con la misma "posición neutra" que se acomoda sola.
+  useEffect(() => {
+    if (!enabled || reduced) return;
+    if (window.matchMedia('(hover: hover)').matches) return;
+    if (typeof DeviceOrientationEvent === 'undefined') return;
+    let base = null;
+    const onOrient = (e) => {
+      if (e.beta == null || e.gamma == null) return;
+      if (!base) base = { b: e.beta, g: e.gamma };
+      base.b += (e.beta - base.b) * 0.01;
+      base.g += (e.gamma - base.g) * 0.01;
+      setTilt(clampDeg(-(e.beta - base.b) * GYRO_GAIN, GYRO_MAX), clampDeg((e.gamma - base.g) * GYRO_GAIN, GYRO_MAX));
+    };
+    window.addEventListener('deviceorientation', onOrient);
+    return () => { window.removeEventListener('deviceorientation', onOrient); setTilt(0, 0); };
+  }, [enabled, reduced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => cancelAnimationFrame(view.current.raf), []);
 
   const animate = useCallback((to, velocity = 0) => {
     const s = st.current;
     s.cancel?.();
     s.cancel = animateSpring({
-      from: s.a, to, velocity, ...FLIP_SPRING, restDelta: 1.5, restSpeed: 30,
+      from: s.a, to, velocity, ...PAGE_SPRING, restDelta: 1.5, restSpeed: 30,
       onUpdate: apply,
       onDone: () => {
         s.cancel = null;
@@ -134,9 +257,22 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     if (enabled) return;
     const s = st.current;
     s.cancel?.(); s.cancel = null; s.drag = null;
-    if (s.a !== 0) { s.base = shownRef.current; apply(0); }
+    const t = view.current;
+    cancelAnimationFrame(t.raf);
+    Object.assign(t, { x: 0, y: 0, tx: 0, ty: 0, raf: 0 });
+    if (s.a !== 0) s.base = shownRef.current;
+    apply(0);
   }, [enabled, apply]);
   useEffect(() => () => st.current.cancel?.(), []);
+
+  const tiltToward = (e) => {
+    const el = elRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    setTilt(clampDeg(-py * 2 * TILT_MAX, TILT_MAX), clampDeg(px * 2 * TILT_MAX, TILT_MAX));
+  };
 
   const onPointerDown = (e) => {
     const s = st.current;
@@ -145,13 +281,18 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     if (e.pointerType === 'mouse') e.preventDefault(); // sin selección de texto
     s.cancel?.(); s.cancel = null;
     s.drag = { x: e.clientX, a0: s.a, moved: false, last: e.clientX, t: performance.now(), v: 0, id: e.pointerId };
+    if (e.pointerType !== 'mouse') tiltToward(e);
   };
   const onPointerMove = (e) => {
     const d = st.current.drag;
+    if (!d && e.pointerType === 'mouse' && cfg.current.enabled && !cfg.current.reduced) {
+      tiltToward(e);
+      return;
+    }
     if (!d || e.pointerId !== d.id) return;
     const dx = e.clientX - d.x;
     if (!d.moved) {
-      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dx) < 6) { if (e.pointerType !== 'mouse') tiltToward(e); return; }
       d.moved = true;
       e.currentTarget.setPointerCapture?.(e.pointerId);
     }
@@ -167,6 +308,7 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     const d = s.drag;
     if (!d || e.pointerId !== d.id) return;
     s.drag = null;
+    if (e.pointerType !== 'mouse') setTilt(0, 0);
     if (!d.moved) { if (s.a !== 0) animate(0); return; }
     const projected = s.a + d.v * 0.2;
     const dir = Math.sign(projected);
@@ -178,6 +320,7 @@ export function usePageTurn({ elRef, index, count, setIndex, enabled = true, red
     turn,
     bind: {
       onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp,
+      onPointerLeave: (e) => { if (e.pointerType === 'mouse') setTilt(0, 0); },
       style: enabled && !reduced ? { touchAction: 'pan-y', cursor: 'grab' } : undefined,
     },
   };

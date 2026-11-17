@@ -5,7 +5,7 @@ import ThemeToggleStar from './components/ThemeToggleStar'
 import LogoAnimation from './components/LogoAnimation'
 import ArlequinMaskSystem from './components/ArlequinMaskSystem'
 import FooterBanner from './components/FooterBanner'
-import WhatsAppButton from './components/WhatsAppButton'
+import ContactButton from './components/ContactButton'
 import RotateHint from './components/RotateHint'
 import { useLowEndDevice } from './hooks/useLowEndDevice'
 import './App.css'
@@ -149,7 +149,7 @@ function App() {
       </div>
 
       <div className="bh-layer" data-z="50"><FooterBanner isDarkMode={isDarkMode} /></div>
-      <div className="bh-layer" data-z="1500"><WhatsAppButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} /></div>
+      <div className="bh-layer" data-z="1500"><ContactButton isDarkMode={isDarkMode} isLowEnd={isLowEnd} prefersReducedMotion={prefersReducedMotion} /></div>
       <RotateHint isDarkMode={isDarkMode} />
 
       <main className="content" />

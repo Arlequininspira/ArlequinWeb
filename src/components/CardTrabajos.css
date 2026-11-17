@@ -1,0 +1,82 @@
+/* Carta "Nuestros trabajos": misma maqueta que Servicios, una página por trabajo. */
+.trabajos-text {
+  pointer-events: none;
+}
+
+.trabajos-text .card-text {
+  animation: trabajos-page-in 0.35s ease-out both;
+}
+
+.trabajos-text .card-text-line {
+  font-size: 18px;
+}
+
+.trabajos-text .trabajos-nombre {
+  font-size: 25px;
+}
+
+.trabajos-diamond {
+  display: inline-block;
+  width: 22px;
+  color: rgba(220, 50, 50, 0.68);
+}
+
+.trabajos-text .trabajos-tipo {
+  padding-left: 22px;
+  margin-bottom: 4px;
+  font-size: 15px;
+  opacity: 0.75;
+}
+
+/* Link "enmascarado": se ve la etiqueta, no la URL. */
+.trabajos-link {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 4px 14px 5px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  font-family: 'CinzelDecorative-Bold', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-decoration: none;
+  text-shadow: none;
+  background: rgba(220, 50, 50, 0.18);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.trabajos-link:hover,
+.trabajos-link:focus-visible {
+  transform: scale(1.06);
+  background: rgba(220, 50, 50, 0.4);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+  outline: none;
+}
+
+.trabajos-link--clear {
+  color: #1a1a1a;
+  border-color: rgba(26, 26, 26, 0.7);
+}
+
+.trabajos-link--clear:hover,
+.trabajos-link--clear:focus-visible {
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.25);
+}
+
+.trabajos-counter {
+  margin-top: 14px;
+  font-size: 13px;
+  opacity: 0.55;
+}
+
+@keyframes trabajos-page-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trabajos-text .card-text { animation: none; }
+}
