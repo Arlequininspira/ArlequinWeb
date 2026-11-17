@@ -4,8 +4,8 @@ import { drawFlip, playFlip, FLIP_DELAY_FROM_GRID, usePageTurn } from './cardFli
 import './CardTrabajos.css';
 import trabajos from '../config/trabajos.json';
 
-// Una página por trabajo (src/config/trabajos.json). El link se muestra con
-// una etiqueta ("Ver trabajo"), nunca la URL cruda.
+// Una página por trabajo (src/config/trabajos.json). El logo del trabajo
+// (sin fondo, en public/Trabajos) es el link al sitio.
 const cardTexts = trabajos;
 
 // Open animation frames
@@ -335,19 +335,22 @@ function CardTrabajos({ isDarkMode, onClose, onCloseStart, fromGrid = false, pre
               </div>
               <div className="card-text-line trabajos-tipo">{t.tipo}</div>
               <div className="card-text-line" style={{ height: '14px' }} />
+              {t.logo && (
+                <a
+                  className="trabajos-logo"
+                  href={t.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Ir al sitio de ${t.nombre}`}
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <img src={t.logo} alt={`Logo de ${t.nombre} — ir al sitio`} loading="lazy" draggable="false" />
+                </a>
+              )}
               {(t.descripcion || []).map((line, i) => (
-                <div key={i} className="card-text-line">{line}</div>
+                <div key={i} className="card-text-line trabajos-desc">{line}</div>
               ))}
-              <a
-                className={`trabajos-link${!isDarkMode ? ' trabajos-link--clear' : ''}`}
-                href={t.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-              >
-                {t.etiqueta || 'Ver trabajo'} <span aria-hidden="true">↗</span>
-              </a>
               <div className="trabajos-counter">{currentCardIndex + 1} / {cardTexts.length}</div>
             </div>
           </div>

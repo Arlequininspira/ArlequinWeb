@@ -4,13 +4,13 @@
     "tipo": "Sitio web",
     "descripcion": ["Sitio de la inmobiliaria", "gopropiedades.com.ar"],
     "url": "https://www.gopropiedades.com.ar",
-    "etiqueta": "Ver sitio"
+    "logo": "/Trabajos/gopropiedades-logo.webp"
   },
   {
     "nombre": "Parkour Integral",
     "tipo": "Sitio web",
     "descripcion": ["Sitio de la escuela", "parkourintegral.com"],
     "url": "https://parkourintegral.com/",
-    "etiqueta": "Ver sitio"
+    "logo": "/Trabajos/parkourintegral-logo.webp"
   }
 ]
